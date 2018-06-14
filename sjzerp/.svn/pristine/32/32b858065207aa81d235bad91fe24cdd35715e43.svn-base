@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+                    
+	<!-- 餐饮中心物料设置 -->
+	<bean name="/tuiku/tuikuInit.do" class="com.qxh.action.tuiku.TuikuInitAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	
+	<bean name="/tuiku/getTuikuListH.do" class="com.qxh.action.tuiku.GetTuikuListHAction">
+		<property name="tuikuService" ref="TuikuService"></property>
+	</bean>
+	
+	<bean name="/tuiku/getTuikuGoodsByHeadAtNo.do" class="com.qxh.action.tuiku.GetTuikuGoodsByHeadAtNoAction">
+		<property name="tuikuService" ref="TuikuService"></property>
+	</bean>
+	
+	<bean name="/tuiku/dealTuikuBill.do" class="com.qxh.action.tuiku.DealTuikuBillAction">
+		<property name="tuikuService" ref="TuikuService"></property>
+	</bean>
+	<bean name="/tuiku/delTuikuBill.do" class="com.qxh.action.tuiku.DelTuikuBillAction">
+		<property name="tuikuService" ref="TuikuService"></property>
+	</bean>
+	<bean name="/tuiku/viewTuikuDInit.do" class="com.qxh.action.tuiku.ViewTuikuDInitAction">
+	</bean>
+	<bean name="/tuiku/viewTuikuD.do" class="com.qxh.action.tuiku.ViewTuikuDAction">
+		<property name="tuikuService" ref="TuikuService"></property>
+	</bean>
+	
+	<bean id="ExportTuikuBillListView" class="com.qxh.action.tuiku.ExportTuikuBillListView">
+	  	<property name="tuikuService" ref="TuikuService"></property>
+	</bean>
+	<bean name="/tuiku/exportTuikuBillList.do" class="com.qxh.action.tuiku.ExportTuikuBillListAction">
+		<property name="export" ref="ExportTuikuBillListView"></property>
+	</bean>
+	
+	<!-- 新录入模式 -->
+	
+	<!-- 退库申请 -->
+	<bean name="/tuiku/addTuikuNewInit.do" class="com.qxh.action.tuiku.AddTuikuNewInitAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	
+	<!-- 查询退库列表 -->
+	<bean name="/tuiku/getTuikuGoodsListByHeadAtNo.do" class="com.qxh.action.tuiku.GetTuikuGoodsListByHeadAtNoAction">
+		<property name="tuikuService" ref="TuikuService"></property>
+	</bean>
+	
+	<!-- 退库保存 -->
+	<bean name="/tuiku/saveTuikuD.do" class="com.qxh.action.tuiku.SaveTuikuDAction">
+		<property name="tuikuService" ref="TuikuService"></property>
+	</bean>
+	
+</beans>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025"
+	type="text/css">
+<link rel="stylesheet" href="../css/temple/jquery.multiselect.css?version=20170327"
+	type="text/css">	
+<link rel="stylesheet" href="../css/temple/jquery-ui.css?version=20170327"
+	type="text/css">
+</head>
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a class="active" href="ProfitSummInit.do">单品毛利汇总</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-10">
+						<div class="form-inline">
+							<div class="form-group">
+								<label for="goodsNm">物料名称</label> <input style="width: 120px;"
+									type="text" class="form-control" id="goodsNm">
+							</div>
+							<div class="form-group">
+								<label>客户</label> 
+								<select id="custom" multiple="multiple" class="form-control" onchange="showValues()">
+								</select>
+							</div>
+							<div class="form-group">
+								<label>时间</label> <input id="stime" type="text"
+									readonly="readonly" class="whiteback form-control"
+									onFocus="WdatePicker({isShowClear:false,dateFmt:'yyyy-MM-dd HH:00:00',readOnly:true,maxDate:'#F{$dp.$D(\'etime\')}'})" />
+								<span>-</span> <input id="etime" type="text" readonly="readonly"
+									class="whiteback form-control"
+									onFocus="WdatePicker({isShowClear:false,dateFmt:'yyyy-MM-dd HH:00:00',readOnly:true,minDate:'#F{$dp.$D(\'stime\')}'})" />
+							</div>
+							<button type="button" id="search" class="btn btn-primary">搜索</button>
+							<button type="button" id="excelOut" class="btn btn-primary">导出</button>
+						</div>
+					</div>
+				</div>
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table id="table" class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th class="no-sort">序号</th>
+									<th class="no-sort">物料名称</th>
+									<th class="no-sort">单位</th>
+									<!-- <th class="no-sort">时间</th> -->
+									<th class="no-sort">类型</th>
+									<th>数量</th>
+									<th class="no-sort">成本价</th>
+									<th class="no-sort">成本</th>
+									<th class="no-sort">售价</th>
+									<th class="no-sort">销售收入</th>
+									<th class="no-sort">毛利</th>
+									<th>毛利率</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+							<tfoot id="tfoot">
+							
+							</tfoot>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+
+	<script>
+		var roleId = ${roleId};
+	</script>
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript"
+		src="../js/custom/profitSumm.js?version=20161219"></script>
+  <script type="text/javascript"
+	src="../js/plugins/jquery/jquery.tablesort.js"></script>
+	<script type="text/javascript" src="../js/plugins/jquery/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="../js/plugins/jquery/jquery.multiselect.js"></script>
+	<!-- 列表模板  <td>{{= billDate}}</td> -->
+	<script id="listTmpl" type="text/x-jquery-tmpl">
+	<tr goodsId="{{= goodsId}}" class="goodsNm" goodsNm="{{= goodsNm}}" goodsType="{{= goodsType}}" purchaseListDId="{{= purchaseListDId}}"
+          demandListDId="{{= demandListDId}}">	
+    <td>{{= orderIndex}}</td>
+    <td>{{= goodsNm}}</td>
+    <td>{{= unitNm}}</td>
+     <td>{{= kindNm}}</td>
+    <td>{{= orderNum}}</td>
+    <td>{{= pPrice}}</td>
+    <td>{{= pMoney}}</td>
+    <td>{{= dPirce}}</td>
+    <td>{{= dMoney}}</td>
+    <td>{{= profitMoney}}</td>
+    <td>{{= rate}}</td>
+	</tr>
+	</script>
+	<!-- 客户列表模板 -->
+	<script id="customTmpl" type="text/x-jquery-tmpl">
+	{{each(i,list) list}}
+		<option value="{{= list.atNo}}">{{= list.customNm}}</option>
+	{{/each}}
+	</script>
+	<!-- 合计模板  <td>{{= billDate}}</td>-->
+	<script id="totalTmpl" type="text/x-jquery-tmpl">
+	<tr goodsId="{{= goodsId}}" class="goodsNm" goodsNm="{{= goodsNm}}" goodsType="{{= goodsType}}" purchaseListDId="{{= purchaseListDId}}"
+          demandListDId="{{= demandListDId}}">	
+    <td>{{= orderIndex}}</td>
+    <td>{{= goodsNm}}</td>
+    <td>{{= unitNm}}</td>
+     <td>{{= kindNm}}</td>
+    <td>{{= orderNum}}</td>
+    <td>{{= pPrice}}</td>
+    <td>{{= pMoney}}</td>
+    <td>{{= dPirce}}</td>
+    <td>{{= dMoney}}</td>
+    <td>{{= profitMoney}}</td>
+    <td>{{= rate}}</td>
+	</tr>
+	</script>
+	 <script type="text/javascript">
+            $(function() {
+                $("#table").tablesort();
+            });
+      </script> 
+</body>
+</html>

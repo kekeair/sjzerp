@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/addGoods.css" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>基础信息</a></li>
+							<li><a href="goodsInit.do">物料</a></li>
+							<li><a class="active" onclick="window.location.reload()" id="gHead">新增物料</a></li>
+						</ol>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="form-horizontal gtable">
+							<div class="form-group">
+								<div class="col-sm-12 line">
+									<hr>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="code" class="col-sm-2 control-label">物料编码</label>
+								<div class="col-sm-4">
+									<input type="text" readonly="readonly" class="form-control" id="code">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="goodsNm" class="col-sm-2 control-label">物料名称*</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="100" class="form-control" id="goodsNm">
+								</div>
+								<label for="alias" class="col-sm-2 control-label">别名</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="20" class="form-control" id="alias">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="goodsKind" class="col-sm-2 control-label">分类*</label>
+								<div class="col-sm-4">
+									<input type="text" readonly="readonly" class="form-control white" id="goodsKind">
+								</div>
+								<label for="baseUnit" class="col-sm-2 control-label">基本计量单位*</label>
+								<div class="col-sm-4">
+									<select class="form-control" id="baseUnit">
+										<option value="-1">请选择...</option>
+										<#list data as list>
+											<option value="${list.atNo}">${list.name}</option>
+										</#list>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="brand" class="col-sm-2 control-label">物料品牌</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="100" class="form-control" id="brand">
+								</div>
+								<label for="spec" class="col-sm-2 control-label">规格</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="50" class="form-control" id="spec">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">是否是违禁物料</label>
+								<div class="col-sm-4">
+									<label class="radio-inline">
+										<input type="radio" name="illegal" id="illegal0" value="0" checked> 否
+									</label>
+									<label class="radio-inline">
+								  		<input type="radio" name="illegal" id="illegal1" value="1"> 是
+									</label>
+								</div>
+								<label for="tradiNm" class="col-sm-2 control-label">繁体名称</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="100" class="form-control" id="tradiNm">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="groupStandardCode" class="col-sm-2 control-label">物料分类标准编码</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="20" class="form-control" id="groupStandardCode">
+								</div>
+								<label for="assistAttr" class="col-sm-2 control-label">辅助属性编码</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="50" class="form-control" id="assistAttr">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="assistUnit" class="col-sm-2 control-label">辅助计量单位</label>
+								<div class="col-sm-4">
+									<select class="form-control" id="assistUnit">
+										<option value="-1">请选择...</option>
+										<#list data as list>
+											<option value="${list.atNo}">${list.name}</option>
+										</#list>
+									</select>
+								</div>
+								<label for="sequenceUnit" class="col-sm-2 control-label">物料序列号计量单位</label>
+								<div class="col-sm-4">
+									<select class="form-control" id="sequenceUnit">
+										<option value="-1">请选择...</option>
+										<#list data as list>
+											<option value="${list.atNo}">${list.name}</option>
+										</#list>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="helpCode" class="col-sm-2 control-label">助记码</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="20" class="form-control" id="helpCode">
+								</div>
+								<label for="barCode" class="col-sm-2 control-label">条形码</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="50" class="form-control" id="barCode">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="approvalNumber" class="col-sm-2 control-label">批准文号</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="50" class="form-control" id="approvalNumber">
+								</div>
+								<label for="picNumber" class="col-sm-2 control-label">工程图号</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="50" class="form-control" id="picNumber">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="weightUnit" class="col-sm-2 control-label">重量单位</label>
+								<div class="col-sm-4">
+									<select class="form-control" id="weightUnit">
+										<option value="-1">请选择...</option>
+										<#list data as list>
+											<option value="${list.atNo}">${list.name}</option>
+										</#list>
+									</select>
+								</div>
+								<label for="lengthUnit" class="col-sm-2 control-label">长度单位</label>
+								<div class="col-sm-4">
+									<select class="form-control" id="lengthUnit">
+										<option value="-1">请选择...</option>
+										<#list data as list>
+											<option value="${list.atNo}">${list.name}</option>
+										</#list>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="grossWeight" class="col-sm-2 control-label">毛重</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="11" class="form-control" id="grossWeight">
+								</div>
+								<label for="netWeight" class="col-sm-2 control-label">净重</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="11" class="form-control" id="netWeight">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="length" class="col-sm-2 control-label">长度</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="11" class="form-control" id="length">
+								</div>
+								<label for="width" class="col-sm-2 control-label">宽度</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="11" class="form-control" id="width">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="height" class="col-sm-2 control-label">高度</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="11" class="form-control" id="height">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="volumeUnit" class="col-sm-2 control-label">体积单位</label>
+								<div class="col-sm-4">
+									<select class="form-control" id="volumeUnit">
+										<option value="-1">请选择...</option>
+										<#list data as list>
+											<option value="${list.atNo}">${list.name}</option>
+										</#list>
+									</select>
+								</div>
+								<label for="volume" class="col-sm-2 control-label">体积</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="11" class="form-control" id="volume">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="equipAttr" class="col-sm-2 control-label">设备属性</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="20" class="form-control" id="equipAttr">
+								</div>
+								<label for="tradeMark" class="col-sm-2 control-label">材料牌号编码</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="50" class="form-control" id="tradeMark">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="shortNm" class="col-sm-2 control-label">中文简称</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="20" class="form-control" id="shortNm">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="depict" class="col-sm-2 control-label">物料描述</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="100" class="form-control" id="depict">
+								</div>
+								<label for="keyword" class="col-sm-2 control-label">关键字</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="50" class="form-control" id="keyword">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="remark" class="col-sm-2 control-label">备注</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="100" class="form-control" id="remark">
+								</div>
+								<label for="summary" class="col-sm-2 control-label">简介</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="100" class="form-control" id="summary">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="firstLetter" class="col-sm-2 control-label">拼音首字母</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="1" class="form-control" id="firstLetter">
+								</div>
+								<label for="spell" class="col-sm-2 control-label">物料拼音</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="50" class="form-control" id="spell">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="englishNm" class="col-sm-2 control-label">英文名称</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="50" class="form-control" id="englishNm">
+								</div>
+								<label for="foreighNm" class="col-sm-2 control-label">外文名称</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="50" class="form-control" id="foreighNm">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="groupId" class="col-sm-2 control-label">物料组编码</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="20" class="form-control" id="groupId">
+								</div>
+								<label for="criteria" class="col-sm-2 control-label">标准指标</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="100" class="form-control" id="criteria">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="minUnit" class="col-sm-2 control-label">最小计量单位</label>
+								<div class="col-sm-4">
+									<input type="text" maxlength="11" class="form-control" id="minUnit">
+								</div>
+								<label for="minUnitNm" class="col-sm-2 control-label">最小计量单位名称</label>
+								<div class="col-sm-4">
+									<select class="form-control" id="minUnitNm">
+										<option value="-1">请选择...</option>
+										<#list data as list>
+											<option value="${list.atNo}">${list.name}</option>
+										</#list>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-12 line">
+									<hr>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-12">
+									<button type="button" id="sure" class="btn pull-right btn-primary">确定</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+
+	<div id="kindDiv" class="treeDiv">
+		<ul id="kindTree" class="ztree treeDemo"></ul>
+	</div>
+
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+	<script type="text/javascript" src="../js/custom/addGoods.js"></script>
+	<script>
+		var goodsId=${goodsId}
+	</script>
+</body>
+</html>

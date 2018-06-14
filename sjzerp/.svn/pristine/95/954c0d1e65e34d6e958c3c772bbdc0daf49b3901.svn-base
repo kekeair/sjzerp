@@ -1,0 +1,73 @@
+var g_stime;//开始时间
+var g_etime;//结束时间
+var g_customId//客户id
+$(document).ready(function() {
+	g_customId = sessionStorage.purchaseSummCustomId||-1;
+	g_stime=sessionStorage.purchaseSummStime||(getDateStr(0)+" 00:00:00");
+	g_etime=sessionStorage.purchaseSummEtime||(getDateStr(0)+" 23:00:00");
+	$("#stime").val(g_stime);
+	$("#etime").val(g_etime);
+	GetPurchaseSummList();//库存修正单列表
+	//获取客户列表
+	$.post("../demandSumm/getCustom.do?", {},function(data){
+		if (data.code!=1000) {
+			tips(data.msg);
+		} else {
+			$("#custom").empty();
+			$("#customTmpl").tmpl(data.data).appendTo("#custom");
+			$("#custom").val(g_customId);
+		}
+	},"json");
+	bindPage(GetPurchaseSummList);
+	$(document).on("click", "#search", search);//搜索
+	$(document).on("click", "#excelOut", excelOut);//导出
+	$(document).on("dblclick", ".goodsNm", goodsNmD);
+	
+
+});
+//导出
+
+function excelOut(){
+	window.location.href="../purchaseSumm/exportOutPurchaseSummAction.do?stime="+g_stime+"&etime="+g_etime+"&g_customId="+g_customId+"";
+}
+
+//详情列表显示
+function goodsNmD(){
+	var goodsId=$(this).attr("goodsNm");
+	sessionStorage.myGoodsId=goodsId;
+	sessionStorage.myG_stime=g_stime;
+	sessionStorage.myG_etime=g_etime;
+	sessionStorage.myG_goodsType=$(this).attr("goodsType");
+	sessionStorage.myG_purchaselistDId=$(this).attr("purchaselistDId");
+	sessionStorage.myCustomId=$("#custom").val();
+	window.location.href="purchaseSummDInit.do?";
+}
+
+//获取采购列表
+function GetPurchaseSummList() {
+	$.post("getPurchaseSummList.do?", {
+		stime:g_stime,
+		etime:g_etime,
+		g_customId:g_customId
+	}, function(data) {
+		if (data.code!=1000) {
+			tips(data.msg);
+		} else {
+			$("#tbody").empty();
+			$("#listTmpl").tmpl(data.data.list).appendTo("#tbody");
+			
+		}
+	}, "json");
+}
+
+
+function search(){
+	g_stime=$("#stime").val();
+	g_etime=$("#etime").val();
+	g_customId=$("#custom").val();
+	sessionStorage.purchaseSummStime=g_stime;
+	sessionStorage.purchaseSummEtime=g_etime;
+	sessionStorage.purchaseSummCustomId=g_customId;
+	GetPurchaseSummList();
+}
+

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a href="tuihuoInit.do">退货</a></li>
+							<li><a class="active" onclick="window.location.reload()">退货单详情</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-6">
+						<label>单号：</label>
+						<span id="billCode"></span>&nbsp;
+						<label>供应商：</label>
+						<span id="supplierNm"></span>
+					</div>
+					<div class="col-sm-6">
+						<button type="button" id="refuse" style="display:none"
+							class="btn btn-warning pull-right" >驳回</button>	
+						<button type="button" id="submit" style="display:none"
+							class="btn btn-warning pull-right toright" >通过</button>
+						
+					</div>
+				</div>
+
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>物料编号</th>
+									<th>物料名称</th>
+									<th>规格</th>
+									<th>单位</th>
+									<th>退货数量</th>
+									<th>退货单价</th>
+									<th>退货金额</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<!-- 对话框 -->
+	<div class="modal fade" id="submitModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">提交</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label for="remark" class="col-sm-2 control-label">备注</label>
+							<div class="col-sm-10">
+								<textarea class="form-control" rows="3" id="remark">
+								</textarea>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+			      	<button type="button" id="uSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 对话框  -->
+
+	<script>
+		var roleId=${roleId};
+	</script>
+	<#include "temple/commonJs.html">
+	<script type="text/javascript" src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/viewTuihuoD.js?version=20161219"></script>
+
+	<!-- 列表模板 -->
+	<script id="tuihuoTmpl" type="text/x-jquery-tmpl">
+	<tr>
+	<td>{{= goodsCode}}</td>
+	<td>{{= goodsNm}}</td>
+	<td>{{= spec}}</td>
+    <td>{{= unitNm}}</td>
+	<td>{{= num}}</td>
+	<td>{{= price}}</td>
+	<td>{{= money}}</td>
+	</tr>
+	</script>
+	
+</body>
+</html>

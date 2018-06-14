@@ -1,0 +1,16 @@
+.gtable{
+	padding-top:20px;
+	margin-bottom:20px;
+	background:white;
+	padding-right:40px;
+	padding-bottom:20px;
+}
+.line{
+	padding-left:55px
+}
+.star{
+	color:red;
+}
+.white{
+	background:white!important;
+}

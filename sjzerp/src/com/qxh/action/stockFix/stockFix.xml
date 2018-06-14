@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+                    
+	<!-- 物料单位 -->
+	<bean name="/stockFix/stockFixInit.do" class="com.qxh.action.stockFix.StockFixInitAction">
+	</bean>
+	<bean name="/stockFix/getStockFixH.do" class="com.qxh.action.stockFix.GetStockFixHAction">
+		<property name="stockFixService" ref="StockFixService"></property>
+	</bean>
+	<bean name="/stockFix/addStockFixInit.do" class="com.qxh.action.stockFix.AddStockFixInitAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/stockFix/getCenterGoods.do" class="com.qxh.action.stockFix.GetCenterGoodsAction">
+		<property name="stockFixService" ref="StockFixService"></property>
+	</bean>
+	<bean name="/stockFix/getStockFixD.do" class="com.qxh.action.stockFix.GetStockFixDAction">
+		<property name="stockFixService" ref="StockFixService"></property>
+	</bean>
+	<bean name="/stockFix/delStockFix.do" class="com.qxh.action.stockFix.DelStockFixAction">
+		<property name="stockFixService" ref="StockFixService"></property>
+	</bean>
+	<bean name="/stockFix/addStockFixD.do" class="com.qxh.action.stockFix.AddStockFixDAction">
+		<property name="stockFixService" ref="StockFixService"></property>
+	</bean>
+	<bean name="/stockFix/delStockFixD.do" class="com.qxh.action.stockFix.DelStockFixDAction">
+		<property name="stockFixService" ref="StockFixService"></property>
+	</bean>
+	<bean name="/stockFix/addExtraGoods.do" class="com.qxh.action.stockFix.AddExtraGoodsAction">
+		<property name="stockFixService" ref="StockFixService"></property>
+	</bean>
+	<bean name="/stockFix/getTmpGoodsList.do" class="com.qxh.action.stockFix.GetTmpGoodsListAction">
+		<property name="stockFixService" ref="StockFixService"></property>
+	</bean>
+	<bean name="/stockFix/selTmpGoods.do" class="com.qxh.action.stockFix.SelTmpGoodsAction">
+		<property name="stockFixService" ref="StockFixService"></property>
+	</bean>
+	<bean name="/stockFix/updateStockFixD.do" class="com.qxh.action.stockFix.UpdateStockFixDAction">
+		<property name="stockFixService" ref="StockFixService"></property>
+	</bean>
+	<bean name="/stockFix/dealStockFix.do" class="com.qxh.action.stockFix.DealStockFixAction">
+		<property name="stockFixService" ref="StockFixService"></property>
+	</bean>
+	<bean name="/stockFix/stockFixDInit.do" class="com.qxh.action.stockFix.StockFixDInitAction">
+	</bean>
+</beans>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>库存</a></li>
+							<li><a class="active" onclick="window.location.reload()">采购汇总明细</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="form-inline">
+							<div class="form-group">
+								<label>客户</label>
+									<select id="custom" class="form-control">
+									</select>
+							</div>
+							<div class="form-group">
+								<label>供应商</label>
+								<select id="supplier" class="form-control">
+								<#list data as list>
+									<option value="${list.atNo}">${list.name}</option>
+								</#list>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>时间</label>
+								<input id="stime" type="text" readonly="readonly" 
+									class="whiteback form-control" onFocus="WdatePicker({isShowClear:false,dateFmt:'yyyy-MM-dd HH:00:00',readOnly:true,maxDate:'#F{$dp.$D(\'etime\')}'})"/>
+								<span>-</span>
+	  	 						<input id="etime" type="text" readonly="readonly" 
+	  	 							class="whiteback form-control" onFocus="WdatePicker({isShowClear:false,dateFmt:'yyyy-MM-dd HH:00:00',readOnly:true,minDate:'#F{$dp.$D(\'stime\')}'})"/>
+							</div>
+							<button type="button" id="search" class="btn btn-primary">搜索</button>
+							<button type="button" id="educe" class="btn btn-primary">导出</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table id="mainTable"
+							class="table table-bordered table-hover table-condensed white">
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+
+	<div id="kindDiv" class="treeDiv">
+		<ul id="kindTree" class="ztree treeDemo"></ul>
+	</div>
+
+	<script>
+		var roleId = ${roleId};
+	</script>
+	<#include "temple/commonJs.html">
+	<script type="text/javascript" src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/purchaseTotalD.js?version=20161210"></script>
+
+	<!-- 列表模板 -->
+	<script id="detailTmpl" type="text/x-jquery-tmpl">
+	<thead>
+	<tr>
+		<th>物料/单位</th>
+		<th>合计</th>
+		{{each(i,c) customerList}}
+		<th>{{= c.customerNm}}</th>
+		{{/each}}
+	</tr>
+	</thead>
+	<tbody id="tbody">
+	{{each(i,g) goodsList}}
+	<tr>
+		<td>{{= g.goodsNm}}</td>
+		<td>{{= g.totalNum}}</td>
+		{{each(i,u) cList}}
+		<td>{{= u}}</td>
+		{{/each}}
+	</tr>
+	{{/each}}
+	</tbody>
+	</script>
+	
+	<!-- 客户列表模板 -->
+	<script id="customTmpl" type="text/x-jquery-tmpl">
+	<option value=-1> 全部</option>
+	{{each(i,list) list}}
+		<option value="{{= list.atNo}}">{{= list.customNm}}</option>
+	{{/each}}
+	</script>
+
+</body>
+</html>

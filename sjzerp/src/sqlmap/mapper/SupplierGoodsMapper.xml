@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.supplierGoods.SupplierGoodsMapper">
+
+	<!-- 查询餐饮中心物料 -->
+	<select id="getCenterAvaiGoods" parameterType="Map"
+		resultType="com.qxh.exmodel.AvailableGoods">
+		select g.atNo goodsId,
+		case when g.spec='' then
+		concat(g.brand,g.goodsNm)
+		else
+		concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm,
+		GROUP_CONCAT(u.userNm) supplierNm,GROUP_CONCAT(s.supplierId)
+		supplierId
+		from centergoods c left join goods g on c.goodsId=g.atNo
+		left join suppliergoods s
+		on c.goodsId=s.goodsId and c.centerId=s.centerId and s.delFlag=0
+		left
+		join user u on s.supplierId=u.atNo
+		where c.centerId=#{structId} and
+		c.delFlag=0
+		<include refid="getCenterAvaiGoodsCondition"></include>
+		group by c.atNo 
+		order by g.code
+		limit ${leftPage},${pageSize}
+	</select>
+
+	<!-- 查询餐饮中心物料数量 -->
+	<select id="getCenterAvaiGoodsNum" parameterType="Map"
+		resultType="int">
+		select count(*) from centerGoods c left join goods g
+		on
+		c.goodsId=g.atNo where c.delFlag=0 and c.centerId=#{structId}
+		<include refid="getCenterAvaiGoodsCondition"></include>
+	</select>
+
+	<sql id="getCenterAvaiGoodsCondition">
+		<if test="name!=''">
+			and concat(g.brand,g.goodsNm,g.alias) like '%${name}%'
+		</if>
+		<if test=" kindCode!='' ">
+			and g.code like '${kindCode}%'
+		</if>
+		<if test=" goodsCode!='' ">
+			and g.code = #{goodsCode}
+		</if>
+	</sql>
+
+	<!-- 查询供应商物料 -->
+	<select id="getSupplierGoods" parameterType="Map"
+		resultType="com.qxh.model.SupplierGoods">
+		select s.atNo,g.code goodsCode,s.goodsId,
+		case when
+		g.spec='' then concat(g.brand,g.goodsNm)
+		else concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm
+		from
+		SupplierGoods s left join goods g on s.goodsId=g.atNo
+		where
+		s.centerId=#{structId} and s.supplierId=#{supplierId} and s.delFlag=0
+		limit ${rightPage},${pageSize}
+	</select>
+
+	<!-- 查询供应商物料数量 -->
+	<select id="getSupplierGoodsNum" parameterType="Map" resultType="int">
+		select count(*) from SupplierGoods s
+		where s.centerId=#{structId} and s.supplierId=#{supplierId} and s.delFlag=0
+	</select>
+
+	<!-- 添加供应商提供的物料 -->
+	<select id="addSupplierGoods" parameterType="Map">
+		insert into
+		SupplierGoods (centerId,supplierId,goodsId)
+		values
+		(#{structId},#{supplierId},#{goodsId})
+	</select>
+
+	<!-- 删除供应商提供的物料 -->
+	<delete id="delSupplierGoods" parameterType="Map">
+		update SupplierGoods
+		set delFlag=1 where atNo=#{supplierGoodsId}
+	</delete>
+	
+	<!-- 批量查詢 -->
+   	<select id="addAllGoodsList" parameterType="Map" resultType="com.qxh.exmodel.AvailableGoods">
+	  	SELECT g.atNo goodsId
+		FROM centergoods c LEFT JOIN goods g ON c.goodsId=g.atNo
+		LEFT JOIN suppliergoods s
+		ON c.goodsId=s.goodsId AND c.centerId=s.centerId AND  s.delFlag=0 AND  s.supplierId=#{supplierId}
+		WHERE c.centerId=#{structId} AND
+		c.delFlag=0 AND s.atNo IS NULL 
+		  <include refid="getCenterAvaiGoodsCondition"></include>
+   	</select>
+   	
+   	<!-- 批量添加 -->
+	<insert id="addAllCenterGoods" parameterType="Map">
+		INSERT INTO SupplierGoods (centerId,supplierId,goodsId) values
+		<foreach collection="ids" item="atNo" index="index" separator=",">
+			('${structId}',#{supplierId},#{atNo})
+		</foreach>
+	</insert>
+</mapper> 

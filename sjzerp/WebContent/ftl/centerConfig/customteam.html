@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/centerGoods.css"
+	type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>配送中心设置</a></li>
+							<li><a href="customerInit.do">客户管理</a></li>
+							<li><a class="active" onclick="window.location.reload()">工作组管理</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row tobottom20">
+					<div class="col-sm-12">
+					     <button type="button" id="addCustomerteam" class="btn btn-warning pull-right">添加工作组</button>
+					</div>
+				</div>
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>工作名称</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+							<#list data.customerteamList as l>	
+								<tr>
+									<td>${l.orderIndex}</td>
+									<td>${l.teamNm}</td>
+									<td>
+										<a atNo=${l.atNo} class="edit">修改</a>&nbsp;
+										<a atNo=${l.atNo} class="del">删除</a>
+									</td>
+								</tr>
+							</#list>	
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+
+	<div id="leftDiv" class="treeDiv">
+		<ul id="leftTree" class="ztree treeDemo"></ul>
+	</div>
+	<div id="rightDiv" class="treeDiv">
+		<ul id="rightTree" class="ztree treeDemo"></ul>
+	</div>
+	
+	<div id="structDiv" class="treeDiv">
+		<ul id="structTree" class="ztree treeDemo"></ul>
+	</div>
+
+	<div id="roleDiv" class="treeDiv">
+		<ul id="roleTree" class="ztree treeDemo"></ul>
+	</div>
+	
+	<input type="hidden" id="headAtNo" value="${data.headAtNo}">
+	
+
+	<!-- 增加客户对话框 -->
+	<div class="modal fade" id="cModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="cHead">添加工作组</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label for="teamNm" class="col-sm-2 control-label">名称</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" maxlength="20" id="teamNm">
+							</div>
+							<label class="control-label">*</label>
+						</div>
+				  </div>
+				<div class="modal-footer">
+			      	<button type="button" id="cSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 选择角色对话框  -->
+
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+ 	<script type="text/javascript" src="../js/custom/customteam.js?version=20161210"></script> 
+
+	<!-- 用户列表模板 -->
+	<script id="customerteamTmpl" type="text/x-jquery-tmpl">
+	<tr>
+	<td>{{= orderIndex}}</td>
+	<td>{{= teamNm}}</td>
+	<td>
+		<a atNo={{= atNo}} class="edit">修改</a>&nbsp;
+		<a atNo={{= atNo}} class="del">删除</a>
+	</td>
+	</tr>
+	</script>	
+	
+</body>
+</html>

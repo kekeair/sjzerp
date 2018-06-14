@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.goodsPrice.GoodsPriceMapper">
+	
+	<!-- 物料价格列表 -->
+	<select id="getGoodsPrice" parameterType="Map" resultType="com.qxh.model.SupplierGoods">
+		select s.atNo,s.centerId,s.supplierId,s.goodsId,s.frontPrice,
+		g.code goodsCode,case when g.spec='' then concat(g.brand,g.goodsNm)
+		else concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm
+		from SupplierGoods s left join goods g on s.goodsId=g.atNo
+		where s.centerId=#{structId} and s.supplierId=#{supplierId} and s.delFlag=0
+		<include refid="getGoodsPriceCondition"></include>
+		ORDER BY g.code 
+		limit ${page},${pageSize}
+   	</select>
+   	<!-- 物料价格列表数量 -->
+	<select id="getGoodsPriceNum" parameterType="Map" resultType="int">
+		select count(*)
+		from SupplierGoods s left join goods g on s.goodsId=g.atNo
+		where s.centerId=#{structId} and s.supplierId=#{supplierId} and s.delFlag=0
+		<include refid="getGoodsPriceCondition"></include>
+   	</select>
+   	
+   	<sql id="getGoodsPriceCondition">
+		<if test="name!=''">
+			and concat(g.brand,g.goodsNm,g.alias) like '%${name}%' 
+   		</if>		
+   		<if test=" code!='' ">
+		   	and instr(g.code, #{code} )>0
+   		</if>	
+   		<if test=" kindCode!='' ">
+		   	and g.code like '${kindCode}%'
+   		</if>	   	       				
+	</sql>
+	
+	<!-- 修改物料价格 -->
+	<update id="updateGoodsPrice" parameterType="Map">
+		update SupplierGoods
+		<trim prefix="set" suffixOverrides=",">
+             <trim prefix="frontPrice =case" suffix="end,">
+                 <foreach collection="priceList" item="i" index="index">
+                 	when atNo=#{i.atNo} then #{i.frontPrice}
+                 </foreach>
+              </trim>
+		</trim>
+		where atNo in (${idStr})
+	</update>
+	
+	<!-- 插入物料价格记录 -->
+	<insert id="insertGoodsPriceRecord" parameterType="Map">
+  		insert into GoodsPriceRecord (centerId,supplierId,goodsId,price,createTime) 
+  		values
+  		<foreach collection="priceList" item="i" index="index" separator=",">
+  		(#{i.centerId},#{i.supplierId},#{i.goodsId},#{i.frontPrice},now())
+ 		</foreach>
+  	</insert>
+  	<!-- 物料价格列表导出 -->
+	<select id="getGoodsPriceOutExcel" parameterType="Map" resultType="com.qxh.model.SupplierGoods">
+		select s.atNo,s.centerId,s.supplierId,s.goodsId,s.frontPrice,
+		g.code goodsCode,case when g.spec='' then concat(g.brand,g.goodsNm)
+		else concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm
+		from SupplierGoods s left join goods g on s.goodsId=g.atNo
+		where s.centerId=#{structId} and s.supplierId=#{supplierId} and s.delFlag=0
+		<include refid="getGoodsPriceCondition"></include>
+		ORDER BY g.code 
+   	</select>	
+   	
+   	<!-- 为导入批量修改物料价格 -->
+	<update id="updateGoodsPriceIn" parameterType="Map">
+		update SupplierGoods
+		<trim prefix="set" suffixOverrides=",">
+             <trim prefix="frontPrice =case" suffix="end,">
+                 <foreach collection="priceList" item="i" index="index">
+                 	when atNo=#{i.atNo} then #{i.newPrice}
+                 </foreach>
+              </trim>
+		</trim>
+		where atNo in (${idStr})
+	</update>
+</mapper> 

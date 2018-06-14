@@ -1,0 +1,23 @@
+.myborder{
+	border:1px solid #cccccc;
+	min-height:450px;
+	background:white;
+}
+.rightPanel{
+	border:1px solid #cccccc;
+	padding-top:20px;
+	min-height:800px;
+	background:white;
+}
+.hide{
+	display:none;
+}
+.star{
+	height:22px;
+	line-height:34px;
+	color:red;
+}
+#operType{
+	text-align:center;
+	height:50px;
+}

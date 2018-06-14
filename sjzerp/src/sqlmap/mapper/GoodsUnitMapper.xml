@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.goodsUnit.GoodsUnitMapper">
+	
+	<!-- 单位列表 -->
+	<select id="getUnitList" parameterType="Map" resultType="com.qxh.model.UnitSet">	
+		select atNo,name from unitSet
+		limit ${page},${pageSize}
+   	</select>
+   	
+   	<!-- 单位总数 -->
+	<select id="getUnitCount" parameterType="Map" resultType="int">	
+		select count(*) from unitSet
+   	</select>
+   	
+   	<!-- 判断单位名是否重复 -->
+	<select id="checkUnitNm" parameterType="Map" resultType="int">	
+		select count(*) from unitSet where name=#{name}
+		<if test=" atNo >0 ">
+		    and atNo!=#{atNo}
+   		</if>
+   	</select>
+   	
+   	<!-- 添加物料单位 -->
+	<insert id="addGoodsUnit" parameterType="Map">
+		insert into unitSet (name) values (#{name})
+	</insert>
+	
+	<!-- 编辑物料单位 -->
+	<update id="updateGoodsUnit" parameterType="Map">
+		update unitSet set name=#{name}
+		where atNo=#{atNo}
+	</update>
+	
+	<!-- 更新关联物料 -->
+	<update id="updateRelGoods" parameterType="Map">
+		update goods set unitNm=#{name}
+		where baseUnit=#{atNo}
+	</update>
+	
+</mapper> 

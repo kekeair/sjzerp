@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<import resource="classpath:com/qxh/impl/login/login-config.xml" />
+	<import resource="classpath:com/qxh/impl/home/home-config.xml" />
+	<import resource="classpath:com/qxh/impl/common/common-config.xml" />
+	<import resource="classpath:com/qxh/impl/role/role-config.xml" />
+	<import resource="classpath:com/qxh/impl/structure/structure-config.xml" />
+	<import resource="classpath:com/qxh/impl/user/user-config.xml" />
+	<import resource="classpath:com/qxh/impl/goodsKind/goodsKind-config.xml" />
+	<import resource="classpath:com/qxh/impl/goodsUnit/goodsUnit-config.xml" />
+	<import resource="classpath:com/qxh/impl/goods/goods-config.xml" />
+	<import resource="classpath:com/qxh/impl/centerGoods/centerGoods-config.xml" />
+	<import resource="classpath:com/qxh/impl/supplierGoods/supplierGoods-config.xml" />
+	<import resource="classpath:com/qxh/impl/goodsPrice/goodsPrice-config.xml" />
+	<import resource="classpath:com/qxh/impl/demand/demand-config.xml" />
+	<import resource="classpath:com/qxh/impl/purchase/purchase-config.xml" />
+	<import resource="classpath:com/qxh/impl/stockFix/stockFix-config.xml" />
+	<import resource="classpath:com/qxh/impl/stockQuery/stockQuery-config.xml" />
+	<import resource="classpath:com/qxh/impl/suppliManage/suppliManage-config.xml" />
+	<import resource="classpath:com/qxh/impl/test/test-config.xml" />
+	<import resource="classpath:com/qxh/impl/list/menu-config.xml" />
+	<import resource="classpath:com/qxh/impl/customer/Customer-config.xml" />
+	<import resource="classpath:com/qxh/impl/customerteam/Customerteam-config.xml" />
+	<import resource="classpath:com/qxh/impl/tag/Tag-config.xml" />
+	<import resource="classpath:com/qxh/impl/tagGoods/tagGoods-config.xml" />
+	<import resource="classpath:com/qxh/impl/tmpGoodsRecord/tmpGoodsRecord-config.xml" />
+	<import resource="classpath:com/qxh/impl/stockChange/stockChange-config.xml" />
+	<import resource="classpath:com/qxh/impl/demandSumm/demandSumm-config.xml" />
+	<import resource="classpath:com/qxh/impl/purchaseSumm/purchaseSumm-config.xml" />
+	<import resource="classpath:com/qxh/impl/purchaseTotalD/purchaseTotalD-config.xml" />
+	<import resource="classpath:com/qxh/impl/tuiku/tuiku-config.xml" />
+	<import resource="classpath:com/qxh/impl/tuihuo/tuihuo-config.xml" />
+</beans>

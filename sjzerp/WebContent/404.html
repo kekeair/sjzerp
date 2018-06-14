@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>404</title>
+<style type="text/css">
+html,body{
+	width: 99%;
+	height: 87%;
+}
+.pic404{
+    width: 40%;
+    height: 40%;
+    margin-left: 31%;
+    margin-top: 10%;
+    background-image: url(../images/404-1.png);
+    background-size: 100% 100%;
+}
+
+.miaoshu{
+    margin-left: 40%;
+    margin-top: 20px;
+}
+</style>
+</head>
+<body>
+<div class="pic404" usemap="#getmap"></div>
+	<div class="miaoshu">
+	<span style="color: #318AE0;width: 50px;">您可以:</span>
+	<div style="color: #999;display: inline-block;">1.检查刚才的操作</div>
+	<div style="color: #999;margin-left: 63px;">2.尝试<span style="color: #318AE0;cursor: pointer;" class="reload">重新打开</span>或者<span style="color: #318AE0;cursor: pointer;" class="goB">返回上一页</span></div>
+</div>
+</body>
+<script type="text/javascript" src="../js/plugins/jquery/jquery-3.1.0.min.js"></script>
+<script>
+	$(document).ready(function(){
+		$(document).on("click",".reload",function(){
+		location.reload();
+	})
+		$(document).on("click",".goB",function(){
+		history.go(-1);
+	})
+	})
+</script>
+</html>

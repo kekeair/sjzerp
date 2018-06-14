@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.goodsKind.GoodsKindMapper">
+	
+	<!-- 查询最大的分类编码 -->
+	<select id="getMaxGoodsKindCode" parameterType="Map" resultType="String">
+		select MAX(code) from goodskind where pId=#{pId}
+	</select>
+	
+	<!-- 添加物料分类 -->
+	<insert id="addGoodsKind" parameterType="Map" useGeneratedKeys="true" keyProperty="atNo">
+		insert into goodsKind (pId,kindNm,code) values
+		(#{pId},#{name},#{code})
+	</insert>
+	
+	<!-- 编辑物料分类名称 -->
+	<update id="editGoodsKindNm" parameterType="Map">
+		update goodsKind set kindNm=#{name}
+		where atNo=#{atNo}
+	</update>
+	
+	<!-- 根据分类id查询物料数量 -->
+	<select id="getGoodsNumByKindId" parameterType="Map" resultType="int">
+		select count(*) from goods where kindId=#{atNo} and delFlag=0
+	</select>
+	
+	<!-- 查询子节点数量 -->
+	<select id="getChildCount" parameterType="Map" resultType="int">
+		select count(*) from goodsKind where pId=#{atNo} and delFlag=0
+	</select>
+	
+	<!-- 删除物料分类 -->
+	<update id="delGoodsKind" parameterType="Map">
+		update goodsKind set delFlag=1
+		where atNo=#{atNo}
+	</update>
+	
+</mapper> 

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库汇总</a></li>
+							<li><a href="demandSummInit.do">单品毛利汇总</a></li>
+							<li><a onclick="window.location.reload()">详情</a></li>
+						</ol>
+					</div>
+				</div>
+
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>物料</th>
+									<th>时间</th>
+									<th>客户</th>
+									<th>数量</th>
+									<th>单位</th>
+									<th>单价</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+							<#list data as list>
+							<tr>
+								<td>${list.goodsNm}</td>
+								<td>${list.billDate}</td>
+								<td>${list.customerNm}</td>
+								<td>${list.demandNum}</td>
+								<td>${list.unitNm}</td>
+								<td>${list.price}</td>
+							</tr>	
+							</#list>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<script>
+		var roleId=${roleId};
+	</script>
+	<#include "temple/commonJs.html">
+</body>
+</html>

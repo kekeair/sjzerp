@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.purchase.PurchaseMapper">
+
+	<!-- 采购单列表 -->
+	<select id="getPurchaseListH" parameterType="Map"
+		resultType="com.qxh.model.PurchaseListH">
+		SELECT h.atNo billId,h.code,h.reviewState,
+		DATE_FORMAT(h.billDate,"%Y-%m-%d %H:%i") billDate,
+		GROUP_CONCAT(DISTINCT IF(d.customerId=-2,'配送中心',c.customNm)) customNm
+		FROM purchaseListH h
+		LEFT JOIN purchaselistd d ON h.atNo=d.headAtNo
+		LEFT JOIN customer c ON
+		d.customerId=c.atNo
+		WHERE
+		h.centerId=#{structId}
+		AND
+		h.reviewState>=#{viewPower}
+		<include refid="getPurchaseListHCon"></include>
+		GROUP BY h.atNo
+		ORDER BY createTime DESC
+		LIMIT ${page},${pageSize}
+	</select>
+
+	<!-- 查询需求上报列表总数量 -->
+	<select id="getPurchaseListHNum" parameterType="Map" resultType="int">
+		select count(*) from purchaseListH h
+		LEFT JOIN purchaselistd d ON h.atNo=d.headAtNo
+		where h.centerId=#{structId}
+		and
+		h.reviewState>=#{viewPower}
+		<include refid="getPurchaseListHCon"></include>
+	</select>
+
+	<sql id="getPurchaseListHCon">
+		<if test=" state!=-1 ">
+			and h.reviewState=#{state}
+		</if>
+		<if test=" stime!='' ">
+   		<![CDATA[      
+		   	and billDate>=#{stime}
+		]]>
+		</if>
+		<if test="etime!='' ">
+   		<![CDATA[ 
+		   	and billDate<=#{etime}
+   		]]>
+		</if>
+		<if test="customerId!=-1 ">
+			and d.customerId=#{customerId}
+		</if>
+	</sql>
+
+	<!-- 查询采购单状态 -->
+	<select id="getPurchaseListHState" parameterType="Map"
+		resultType="Integer">
+		select reviewState from purchaseListH
+		where atNo=#{billId}
+		limit 1
+	</select>
+
+	<!-- 更新采购头表状态 -->
+	<update id="updatePurchaseListHState" parameterType="Map">
+		update purchaseListH
+		<include refid="updatePurchaseListH"></include>
+		where atNo=#{billId}
+	</update>
+
+	<sql id="updatePurchaseListH">
+		<set>
+			<if test="reviewState!=''">
+				reviewState=#{reviewState},
+			</if>
+			<if test="billDate!=''">
+				billDate=#{billDate}
+			</if>
+		</set>
+	</sql>
+	<!-- 查询需求订单号 -->
+	<select id="getDemandBypuchaseBillId" parameterType="Map"
+		resultType="Integer">
+		select atNo from demandlisth where
+		purchaseListHId=#{billId}
+	</select>
+	<!-- 更新采购状态 -->
+	<update id="updatePurchaseState" parameterType="Integer">
+		update
+		demandlisth
+		set purchasestate=1
+		where atNo=#{atNo}
+	</update>
+
+	<!-- 生成采购单头表 -->
+	<insert id="addPurchaseListH" parameterType="Map"
+		useGeneratedKeys="true" keyProperty="billId">
+		insert into PurchaseListH
+		(code,codeOrder,centerId,reviewState,
+		createTime,creator)
+		values
+		(#{code},#{codeOrder},#{structId},#{reviewState},now(),#{userId})
+	</insert>
+
+	<!-- 供应商选择数据列表 -->
+	<select id="getSuppliserSelData" parameterType="Map"
+		resultType="com.qxh.exmodel.SupplierSelData">
+		select d.atNo purchaseListDId,
+		d.goodsId,concat(g.brand,g.goodsNm) goodsNm,
+		SUM(d.orderNum)
+		orderNum,g.spec,g.unitNm,
+		d.goodsType,g.code
+		goodsCode,d.tempGoodsType
+		from purchaselistd d left join goods g on
+		d.goodsId=g.atNo
+		where
+		d.headatno=#{billId} and d.goodsType=0 GROUP BY
+		d.goodsId
+		union all
+		select d.atNo purchaseListDId,
+		d.goodsId,d.goodsNm,d.orderNum,d.spec,d.unitNm,
+		d.goodsType,''
+		goodsCode,d.tempGoodsType
+		from purchaselistd d
+		where
+		d.headatno=#{billId} and d.goodsType=1
+		order by
+		goodsType,goodsCode,tempGoodsType
+	</select>
+	
+	<!-- 供应商列表 -->
+	<select id="getSupplierList" parameterType="Map"
+		resultType="com.qxh.model.SupplierGoods">
+		select s.supplierId,u.userNm
+		supplierNm,s.goodsId,s.frontPrice
+		from suppliergoods s left join user u
+		on s.supplierId=u.atNo
+		where centerId=#{structId} and s.delFlag=0 and
+		goodsId in (${goodsIdStr})
+		ORDER BY frontPrice=0,frontPrice
+	</select>
+
+	<!-- 选择供应商 -->
+	<update id="supplierSel" parameterType="Map">
+		update purchaseListD
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="supplierId =case" suffix="end,">
+				<foreach collection="sysGoodsList" item="i" index="index">
+					when
+					goodsId=#{i.goodsId} then #{i.sId}
+				</foreach>
+			</trim>
+			<trim prefix="price =case" suffix="end,">
+				<foreach collection="sysGoodsList" item="i" index="index">
+					when
+					goodsId=#{i.goodsId} then #{i.frontPrice}
+				</foreach>
+			</trim>
+		</trim>
+		where headAtNo=#{billId} and goodsType=0
+	</update>
+
+	<!-- 选择供应商（临时物料） -->
+	<update id="supplierSel_tmp" parameterType="Map">
+		update purchaseListD
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="supplierId =case" suffix="end,">
+				<foreach collection="tmpGoodsList" item="i" index="index">
+					when
+					atNo=#{i.purchaseListDId} then #{i.sId}
+				</foreach>
+			</trim>
+			<trim prefix="price =case" suffix="end,">
+				<foreach collection="tmpGoodsList" item="i" index="index">
+					when
+					atNo=#{i.purchaseListDId} then #{i.frontPrice}
+				</foreach>
+			</trim>
+		</trim>
+		where atNo in (${tmpAtNoStr})
+	</update>
+
+	<!-- 入库保存 -->
+	<update id="inStorageSave" parameterType="Map">
+		update PurchaseListD
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="totalInNum =case" suffix="end,">
+				<foreach collection="jsonList" item="i" index="index">
+					when
+					goodsId=#{i.goodsId} then ${i.num}
+				</foreach>
+				else totalInNum
+			</trim>
+			<trim prefix="price =case" suffix="end,">
+				<foreach collection="jsonList" item="i" index="index">
+					when
+					goodsId=#{i.goodsId} then #{i.price}
+				</foreach>
+				else price
+			</trim>
+		</trim>
+		where headAtNo=#{billId} and supplierId=#{supplierId}
+	</update>
+
+	<!-- 入库前查询物料列表 -->
+	<select id="getGoodsListBeforeIn" parameterType="Map"
+		resultType="com.qxh.exmodel.PurchaseInModel">
+		select d.goodsId,SUM(d.orderNum) totalInNum,d.price,
+		money,
+		s.atNo stockId,s.stockNum
+		preStockNum,s.price preStockPrice,
+		SUM(d.orderNum)+IFNULL(s.stockNum,0) afterStockNum,
+		(d.price*SUM(d.orderNum)+IFNULL(s.price,0)*IFNULL(s.stockNum,0))/(SUM(d.orderNum)+IFNULL(s.stockNum,0))
+		afterStockPrice
+		from purchaselistd d left join stock s
+		on
+		d.goodsId=s.goodsId and s.centerId=#{structId}
+		where
+		d.headAtNo=#{billId} and d.goodsType=0 GROUP BY d.goodsId
+	</select>
+
+	<!-- 更新库存 -->
+	<update id="updateStock" parameterType="Map">
+		update stock
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="stockNum =case" suffix="end,">
+				<foreach collection="stockList" item="i" index="index">
+					when
+					goodsId=#{i.goodsId} then #{i.afterStockNum}
+				</foreach>
+			</trim>
+			<trim prefix="price =case" suffix="end,">
+				<foreach collection="stockList" item="i" index="index">
+					when
+					goodsId=#{i.goodsId} then #{i.afterStockPrice}
+				</foreach>
+			</trim>
+		</trim>
+		where atNo in (${stockIdStr})
+	</update>
+
+	<!-- 增加库存 -->
+	<insert id="addStock" parameterType="Map">
+		insert into stock
+		(centerId,goodsId,stockNum,price,updateTime,createTime)
+		values
+		<foreach collection="unStockList" item="i" index="index"
+			separator=",">
+			(#{structId},#{i.goodsId},#{i.afterStockNum},#{i.afterStockPrice},
+			now(),now())
+		</foreach>
+	</insert>
+
+	<!-- 添加入库记录 -->
+	<insert id="addInStockRecord" parameterType="Map">
+		insert into StockRecord (billCode,centerId,billId,goodsId,preStockNum,
+		preStockPrice,acrossTime,acrossNum,
+		acrossPrice,stockFlag,stockNum,stockPrice) values
+		<foreach collection="goodsList" item="i" index="index"
+			separator=",">
+			('${billCode}',${structId},${billId},#{i.goodsId},#{i.preStockNum},
+			#{i.preStockPrice},now(),#{i.totalInNum},
+			#{i.price},1,#{i.afterStockNum},#{i.afterStockPrice})
+		</foreach>
+	</insert>
+
+	<!-- 查询最大单据号 -->
+	<select id="getMaxCodeOrder" parameterType="Map" resultType="Integer">
+	<![CDATA[    
+		select codeOrder from purchaseListH where centerId=#{structId}
+		and createTime>=date_format(now(),'%Y-%m-%d 00:00:00')
+		and createTime<=date_format(now(),'%Y-%m-%d 23:59:59')
+		order by codeOrder desc limit 1
+	]]>
+	</select>
+
+	<!-- 根据id查询单据号 -->
+	<select id="getBillCodeById" parameterType="Map" resultType="String">
+		select code from purchaseListH where atNo=#{billId}
+	</select>
+
+	<!-- 采购汇总单据查询列表 -->
+	<select id="selectPurchaseTotalList" parameterType="Map"
+		resultType="com.qxh.model.PurchaseTotallModel">
+		SELECT g.code,d.remark,d.tempGoodsType,
+		CONCAT(g.brand,g.goodsNm) goodsNm,d.orderNum,
+		s.stockNum,SUM(d.orderNum),h.code billCode,
+		g.unitNm,
+		d.price,SUM(d.price*d.orderNum) money,h.createTime,h.billDate,g.spec
+		FROM purchaseListH h LEFT JOIN purchaselistd d ON h.atNo=d.headAtNo
+		LEFT JOIN goods g ON d.goodsId=g.atNo
+		LEFT JOIN stock s ON
+		d.goodsId=s.goodsId AND s.centerId=#{centerId}
+		WHERE
+		d.headAtNo=#{billId} AND d.supplierId=#{supplierId} AND goodsType=0
+		GROUP BY g.code
+		UNION ALL
+		SELECT '' CODE,d.remark,d.tempGoodsType,
+		d.goodsNm,d.orderNum,
+		s.stockNum,d.orderNum,h.code billCode,
+		d.unitNm,
+		d.price,d.price*d.orderNum money,h.createTime,h.billDate,d.spec
+		FROM
+		purchaseListH h LEFT JOIN purchaselistd d ON h.atNo=d.headAtNo
+		LEFT
+		JOIN stock s ON d.goodsId=s.goodsId AND s.centerId=#{centerId}
+		WHERE
+		d.headAtNo=#{billId} AND d.supplierId=#{supplierId} AND goodsType=1
+		ORDER BY CODE, tempGoodsType
+	</select>
+
+	<sql id="">
+
+	</sql>
+	<!-- 采购汇总单据查询列表数量 -->
+	<select id="selectPurchaseTotalListCount" parameterType="Map"
+		resultType="Integer">
+		select count(*)
+		from purchaselistd d left join purchaselisth h on
+		d.headAtNo=h.atNo
+		left
+		join goods g on d.goodsId=g.atNo
+		left join user us
+		on d.supplierId=us.atNo
+		left join stock s on
+		d.goodsId=s.goodsId and
+		s.centerId=#{centerId}
+		<where>
+			h.code=#{code}
+			<if test="atNo!=''">
+				and us.atNo=#{atNo}
+			</if>
+		</where>
+	</select>
+
+	<!-- 删除采购单头表 -->
+	<delete id="delPurchaseH" parameterType="Map">
+		delete from
+		purchaseListH where atNo=#{billId}
+	</delete>
+
+	<!-- 删除采购单详细表 -->
+	<delete id="delPurchaseD" parameterType="Map">
+		delete from
+		purchaseListD where headAtNo=#{billId}
+	</delete>
+
+	<!-- 更新申报头表中的采购单id -->
+	<update id="updateDemandH" parameterType="Map">
+		update demandListH set
+		purchaseListHId=-1
+		where purchaseListHId=#{billId}
+	</update>
+
+
+	<select id="getTeamIdListByBillId" parameterType="Map"
+		resultType="com.qxh.model.PurchaseListD">
+		SELECT DISTINCT teamId FROM purchaselistd WHERE headAtNo =
+		#{teamBillId}
+	</select>
+
+	<!-- 更新申报单中的额外物料状态 -->
+	<update id="updateDemandExtraState" parameterType="Map">
+		update
+		demandlistd d inner join teamdemand t on d.headAtNo = t.atNo
+		INNER JOIN
+		demandlisth h on t.headAtNo=h.atNo
+		set d.isPurchase=1 where
+		h.purchaseListHId=#{billId} and d.goodsType=1
+	</update>
+
+	<!-- 采购明细单导出 -->
+	<select id="getExclList" parameterType="Map"
+		resultType="com.qxh.exmodel.BillAndCustomTeam">
+	<![CDATA[      
+		SELECT IF(p.teamId=-2,'配送中心',c.teamNm) teamNm,h.code codeNm,g.code,cus.customNm,p.remark,
+		IF(p.goodsType=0,CONCAT(g.brand,g.goodsNm),p.goodsNm) goodsNm,
+		IF(p.goodsType=0,g.spec,p.spec) spec,p.orderNum,
+		IF(p.goodsType=0,g.unitNm,p.unitNm) unitNm,p.rewmark,
+       	p.supplierId atNo,if(p.supplierId>0,u.userNm,'自采') userNm
+		FROM purchaselisth h
+		LEFT JOIN purchaselistd p ON h.atNo=p.headAtNo
+        LEFT JOIN user u on p.supplierId=u.atNo
+		LEFT JOIN customteam c ON p.teamId = c.atNo
+		LEFT JOIN customer cus ON c.headAtNo = cus.atNo
+		LEFT JOIN goods g ON p.goodsId=g.atNo
+		WHERE h.atNo=#{billId} AND p.teamId=#{teamId}
+		ORDER BY u.atNo,g.code,p.tempGoodsType
+	]]>
+	</select>
+
+	<!-- 查询供应商 -->
+	<select id="getExportSupplier" parameterType="Map"
+		resultType="com.qxh.exmodel.CommonModel">
+		SELECT d.supplierId atNo,if(d.supplierId=-1,'自采',u.userNm)
+		name
+		from purchaseListD d left join user u on d.supplierId=u.atNo
+		where
+		d.headAtNo=#{billId} group by d.supplierId
+	</select>
+	<!-- 查询详情表的个数 -->
+	<select id="getSuppliserSelExist" parameterType="Map"
+		resultType="int">
+		SELECT COUNT(*) FROM purchaselistd
+		WHERE centerId
+		=#{structId} AND headatno = #{billId} and goodsType =0;
+	</select>
+
+	<select id="selectPurchaseGoodsByGoods" parameterType="Map"
+		resultType="com.qxh.exmodel.PurchaseGoodsByGoods">
+		<if test=" selectType==0 ">
+			SELECT g.code,d.goodsId,
+			concat(g.brand,g.goodsNm) goodsNm,
+			g.spec,g.unitNm,cu.customNm,
+			c.teamNm,d.price,d.orderNum,d.price*d.orderNum money,d.remark
+			FROM
+			purchaselisth h
+			LEFT JOIN purchaselistd d ON d.headAtNo=h.atNo
+			LEFT
+			JOIN goods g ON g.atNo=d.goodsId
+			LEFT JOIN customteam c ON
+			c.atNo=d.teamId
+			LEFT JOIN customer cu ON cu.atno=d.customerId
+			WHERE
+			h.atNo=#{billId} AND d.goodstype=0 AND d.centerId=#{structId}
+			<include refid="selectPurchaseGoodsByGoodsCon" />
+			GROUP BY d.goodsId,d.teamId
+			UNION ALL
+			SELECT d.tempGoodsType
+			CODE,d.goodsId,
+			d.goodsNm,d.spec,d.unitNm,cu.customNm,
+			c.teamNm,d.price,d.orderNum,d.price*d.orderNum money,d.remark
+			FROM
+			purchaselisth h
+			LEFT JOIN purchaselistd d ON d.headAtNo=h.atNo
+			LEFT
+			JOIN goods g ON g.atNo=d.goodsId
+			LEFT JOIN customteam c ON
+			c.atNo=d.teamId
+			LEFT JOIN customer cu ON cu.atno=d.customerId
+			WHERE
+			h.atNo=#{billId} AND d.goodstype=1 AND d.centerId=#{structId}
+			<include refid="selectPurchaseGoodsByGoodsCond" />
+			ORDER BY CODE, customNm
+		</if>
+		<if test=" selectType==1 ">
+			SELECT g.code,d.goodsId,g.goodsNm,g.spec,g.unitNm,
+			IF(d.customerId=-2,'配送中心',cu.customNm) customNm,
+			if(d.teamId=-2,'配送中心',c.teamNm) teamNm,d.price,d.orderNum,
+			d.price*d.orderNum money,d.remark
+			FROM purchaselisth h
+			LEFT JOIN
+			purchaselistd d ON d.headAtNo=h.atNo
+			LEFT JOIN goods g ON
+			g.atNo=d.goodsId
+			LEFT JOIN customteam c ON c.atNo=d.teamId
+			LEFT JOIN
+			customer cu ON cu.atno=d.customerId
+			WHERE h.atNo=#{billId} AND
+			d.goodstype=0 AND d.centerId=#{structId}
+			GROUP BY d.goodsId,d.teamId
+			UNION ALL
+			SELECT d.tempGoodsType
+			CODE,d.goodsId,d.goodsNm,d.spec,d.unitNm,
+			IF(d.customerId=-2,'配送中心',cu.customNm) customNm,
+			if(d.teamId=-2,'配送中心',c.teamNm) teamNm,d.price,d.orderNum,
+			d.price*d.orderNum money,d.remark
+			FROM purchaselisth h
+			LEFT JOIN
+			purchaselistd d ON d.headAtNo=h.atNo
+			LEFT JOIN goods g ON
+			g.atNo=d.goodsId
+			LEFT JOIN customteam c ON c.atNo=d.teamId
+			LEFT JOIN
+			customer cu ON cu.atno=d.customerId
+			WHERE h.atNo=#{billId} AND
+			d.goodstype=1 AND d.centerId=#{structId}
+			ORDER BY teamNm,code
+		</if>
+		<if test=" selectType==2 ">
+			SELECT g.code,d.goodsId,g.goodsNm,g.spec,g.unitNm,
+			IF(u.userNm IS NULL,'自采',u.userNm) AS userNm,
+			d.price,d.orderNum,d.price*d.orderNum money,d.remark
+			FROM
+			purchaselisth h
+			LEFT JOIN purchaselistd d ON d.headAtNo=h.atNo
+			LEFT
+			JOIN goods g ON g.atNo=d.goodsId
+			LEFT JOIN USER u ON
+			u.atNo=d.supplierId
+			WHERE h.atNo=#{billId} AND d.goodstype=0 AND
+			d.centerId=#{structId}
+			GROUP BY d.goodsId,d.supplierId
+			UNION ALL
+			SELECT
+			d.tempGoodsType CODE,d.goodsId,d.goodsNm,d.spec,d.unitNm,
+			IF(u.userNm
+			IS NULL,'自采',u.userNm) AS userNm,
+			d.price,d.orderNum,d.price*d.orderNum money,d.remark
+			FROM
+			purchaselisth h
+			LEFT JOIN purchaselistd d ON d.headAtNo=h.atNo
+			LEFT
+			JOIN goods g ON g.atNo=d.goodsId
+			LEFT JOIN USER u ON
+			u.atNo=d.supplierId
+			WHERE h.atNo=#{billId} AND d.goodstype=1 AND
+			d.centerId=#{structId}
+			ORDER BY userNm,code
+		</if>
+	</select>
+
+	<sql id="selectPurchaseGoodsByGoodsCon">
+		<if test="goodsNm != ''">
+			and g.goodsNm like '%${goodsNm}%'
+		</if>
+	</sql>
+	<sql id="selectPurchaseGoodsByGoodsCond">
+		<if test="goodsNm != ''">
+			and d.goodsNm like '%${goodsNm}%'
+		</if>
+	</sql>
+
+	<!-- 查询入库单详情 -->
+	<select id="getPurchaseD" parameterType="Map"
+		resultType="com.qxh.exmodel.EditInOutD">
+		SELECT d.atNo,d.goodsId,d.remark,
+		if(d.goodsType=0,concat(g.brand,g.goodsNm),d.goodsNm) goodsNm,
+		g.code
+		goodsCode,if(d.goodsType=0,g.spec,d.spec) spec,
+		if(d.goodsType=0,g.unitNm,d.unitNm) unitNm,d.price,d.orderNum num,
+		d.price*d.orderNum money,d.goodsType,
+		if(d.customerId=-2,'配送中心',c.customNm) customerNm,
+		d.customerId,if(d.supplierId=-1,'自采',u.userNm)
+		supplierNm,d.supplierId,
+		if(d.teamId=-2,'配送中心',t.teamNm)
+		teamNm,d.teamId
+		from purchaseListD d left join goods g on
+		d.goodsId=g.atNo
+		left join customer c on d.customerId=c.atNo
+		left join
+		CustomTeam t on d.teamId=t.atNo
+		left join user u on d.supplierId=u.atNo
+		where d.headAtNo=#{billId}
+		order by d.goodsType,g.code,d.tempGoodsType
+	</select>
+
+	<!-- 批量添加purchaseListD -->
+	<insert id="batchAddPurchaseD" parameterType="Map">
+		insert into PurchaseListD
+		(headAtNo,centerId,customerId,teamId,goodsId,
+		supplierId,orderNum,price,remark,goodsNm,unitNm,spec,goodsType,tempGoodsType)
+		values
+		<foreach collection="newList" item="i" index="index"
+			separator=",">
+			(${billId},${structId},${customerId},${teamId},#{i.goodsId},
+			#{i.supplierId},#{i.num},#{i.price},#{i.remark},#{i.goodsNm},
+			#{i.unitNm},#{i.spec},#{i.goodsType},#{i.tempGoodsType})
+		</foreach>
+	</insert>
+
+	<!-- 批量更新purchaseListD -->
+	<update id="batchUpdatePurchaseD" parameterType="Map">
+		update PurchaseListD
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="goodsId =case" suffix="end,">
+				<foreach collection="editList" item="i" index="index">
+					when
+					atNo=#{i.atNo} then #{i.goodsId}
+				</foreach>
+			</trim>
+			<trim prefix="supplierId =case" suffix="end,">
+				<foreach collection="editList" item="i" index="index">
+					when
+					atNo=#{i.atNo} then #{i.supplierId}
+				</foreach>
+			</trim>
+			<trim prefix="orderNum =case" suffix="end,">
+				<foreach collection="editList" item="i" index="index">
+					when
+					atNo=#{i.atNo} then #{i.num}
+				</foreach>
+			</trim>
+			<trim prefix="price =case" suffix="end,">
+				<foreach collection="editList" item="i" index="index">
+					when
+					atNo=#{i.atNo} then #{i.price}
+				</foreach>
+			</trim>
+			<trim prefix="remark =case" suffix="end,">
+				<foreach collection="editList" item="i" index="index">
+					when
+					atNo=#{i.atNo} then #{i.remark}
+				</foreach>
+			</trim>
+			<trim prefix="goodsNm =case" suffix="end,">
+				<foreach collection="editList" item="i" index="index">
+					when
+					atNo=#{i.atNo} then #{i.goodsNm}
+				</foreach>
+			</trim>
+			<trim prefix="goodsType =case" suffix="end,">
+				<foreach collection="editList" item="i" index="index">
+					when
+					atNo=#{i.atNo} then #{i.goodsType}
+				</foreach>
+			</trim>
+		</trim>
+		where atNo in (${idStr})
+	</update>
+
+	<!-- 批量删除purchaseListD -->
+	<delete id="batchDelPurchaseD" parameterType="Map">
+		delete from
+		PurchaseListD where atNo in (${delAtNo})
+	</delete>
+	<!-- 采购入库汇总打印 -->
+	<select id="getExcelOutPurchaseListHBill" parameterType="Map"
+		resultType="com.qxh.model.ExcelPurchaseBillByCondition">
+		SELECT h.code billCode,h.billDate,d.customerId,c.customNm,g.code,
+		concat(g.brand,g.goodsNm)
+		goodsNm,
+		g.spec,g.unitNm,SUM(d.orderNum)
+		orderNum,d.price,
+		SUM(d.orderNum)*d.price money,d.remark
+		FROM
+		purchaselisth h
+		Left JOIN purchaselistd d ON h.atNo=d.headAtNo
+		LEFT JOIN
+		goods g ON g.atNo=d.goodsId
+		LEFT JOIN customer c ON d.customerId=c.atNo
+		WHERE d.goodstype=0 AND h.centerId=#{structId}
+		and
+		h.reviewState>=#{viewPower}
+		<include refid="purchaseExclOutCon" />
+		GROUP BY h.code,d.goodsId,d.customerId
+		UNION ALL
+		SELECT h.code
+		billCode,h.billdate,d.customerId,c.customNm,'' CODE ,d.goodsNm,
+		d.spec,d.unitNm,d.orderNum ,d.price,d.orderNum*d.price money,d.remark
+		FROM purchaselisth h
+		LEFT JOIN purchaselistd d ON h.atNo=d.headAtNo
+		LEFT JOIN customer c ON d.customerId=c.atNo
+		WHERE
+		d.goodstype=1 AND
+		h.centerId=#{structId}
+		and h.reviewState>=#{viewPower}
+		<include refid="purchaseExclOutCon" />
+		ORDER BY billCode,customNm,code
+
+	</select>
+
+	<sql id="purchaseExclOutCon">
+		<if test=" state!=-1 ">
+			and h.reviewState=#{state}
+		</if>
+		<if test=" stime!='' ">
+	   		<![CDATA[      
+			   	and h.billDate>=#{stime}
+			]]>
+		</if>
+		<if test=" etime!='' ">
+	   		<![CDATA[ 
+			   	and h.billDate<=#{etime}
+	   		]]>
+		</if>
+		<if test=" customerId!=-1 ">
+	   		<![CDATA[ 
+			   	and d.customerId=#{customerId}
+	   		]]>
+		</if>
+	</sql>
+</mapper> 

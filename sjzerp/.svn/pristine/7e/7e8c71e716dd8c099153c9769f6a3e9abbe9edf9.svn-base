@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a href="purchaseInit.do">采购入库</a></li>
+							<li><a href="selectGoodsInit.do">查看</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-10">
+						<div class="form-inline">
+							<div class="form-group">
+								<label for="viewTypeGoods">查看方式</label> 
+								<select class="form-control" id="viewType">
+									<option value="0">按物料查看</option>
+									<option value="1">按作业组查看</option>
+									<option id="opSupplierId" value="2">按供应商查看</option>
+								</select>
+								
+								
+								<div class="form-group" id="goodsNmInput">
+									<label for="goodsNm">名称</label> <input type="text"	class="form-control width120px" maxlength="20" id="goodsNm">
+									<button type="button" id="search" class="btn btn-primary">搜索</button>
+								</div>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row marginrow">
+					<div class="col-md-12" id="goodsTable">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>物料</th>
+									<th>规格</th>
+									<th>单位</th>
+									<th>客户</th>
+									<th>工作组</th>
+									<th>单价</th>
+									<th>数量</th>
+									<th>金额</th>
+									<th>备注</th>
+								</tr>
+							</thead>
+							<tbody id="goodsbody">
+
+							</tbody>
+						</table>
+					</div>
+					
+					<div class="col-md-12" id="groupTable" style=" display: none;">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<!-- <th>客户</th> -->
+									<th>作业组</th>
+									<th>物料</th>
+									<th>规格</th>
+									<th>单位</th>
+									<th>单价</th>
+									<th>数量</th>
+									<th>金额</th>
+									<th>备注</th>
+									<th>金额合计</th>
+								</tr>
+							</thead>
+							<tbody id="groupbody">
+
+							</tbody>
+						</table>
+					</div>
+					
+					<div class="col-md-12" id="supplierTable" style=" display: none;">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>供应商</th>
+									<th>物料</th>
+									<th>规格</th>
+									<th>单位</th>
+									<th>单价</th>
+									<th>数量</th>
+									<th>金额</th>
+									<th>备注</th>
+									<th>金额合计</th>
+								</tr>
+							</thead>
+							<tbody id="supplierbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<#include "temple/commonJs.html">
+	<script type="text/javascript" src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/selectPurchaseGoodsView.js?version=20170110"></script>
+	<!-- 物料列表 -->
+	<script id="goodsTmpl" type="text/x-jquery-tmpl">
+		<tr>
+			{{if flat != 0 }} <td rowspan='{{= flat}}' style="vertical-align:middle;" >{{= goodsNm}}</td>{{/if}}
+			{{if flat == 0 }} {{/if}}
+			<td>{{= spec}}</td>
+			<td>{{= unitNm}}</td>
+			<td>{{= customNm}}</td>
+			<td>{{= teamNm}}</td>
+			<td>{{= price}}</td>
+			<td>{{= orderNum}}</td>
+			<td>{{= money}}</td>
+			<td>{{= remark}}</td>
+		</tr>
+	</script>
+	
+	<!-- 作业组列表 -->
+	<script id="groupTmpl" type="text/x-jquery-tmpl">
+		<tr>
+			{{if flat != 0 }} <td rowspan='{{= flat}}' style="vertical-align:middle;" >{{= customNm}}({{= teamNm}})</td>{{/if}}
+			{{if flat == 0 }} {{/if}}
+			<td>{{= goodsNm}}</td>
+			<td>{{= spec}}</td>
+			<td>{{= unitNm}}</td>
+			<td>{{= price}}</td>
+			<td>{{= orderNum}}</td>
+			<td>{{if money!=null}}{{= formatDouble(money)}}{{/if}}</td>
+			<td>{{= remark}}</td>
+			{{if flat != 0 }} <td rowspan='{{= flat}}' style="vertical-align:middle;" >{{if totalMonay!=null}}{{= formatDouble(totalMonay)}}{{/if}}</td>{{/if}}
+			{{if flat == 0 }} {{/if}}
+		</tr>
+	</script>
+	
+	<!-- 供应商列表 -->
+	<script id="supplierTmpl" type="text/x-jquery-tmpl">
+		<tr>
+			{{if flat != 0 }} <td rowspan='{{= flat}}' style="vertical-align:middle;" >{{= userNm}}</td>{{/if}}
+			{{if flat == 0 }} {{/if}}
+			<td>{{= goodsNm}}</td>
+			<td>{{= spec}}</td>
+			<td>{{= unitNm}}</td>
+			<td>{{= price}}</td>
+			<td>{{= orderNum}}</td>
+			<td>{{if money!=null}}{{= formatDouble(money)}}{{/if}}</td>
+			<td>{{= remark}}</td>
+			{{if flat != 0 }} <td rowspan='{{= flat}}' style="vertical-align:middle;" >{{if totalMonay!=null}}{{= formatDouble(totalMonay)}}{{/if}}</td>{{/if}}
+			{{if flat == 0 }} {{/if}}
+		</tr>
+	</script>
+
+</body>
+</html>

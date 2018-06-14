@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.purchaseSumm.PurchaseSummMapper">
+	<!-- 集合 -->
+	<select id="getPurchaseSummList" parameterType="Map"
+		resultType="com.qxh.model.PurchaseSumm">
+		SELECT g.code, pd.goodsId,pd.atNo purchaselistDId,
+		case when g.spec=''
+		then concat(g.brand,g.goodsNm)
+		else
+		concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm,
+		SUM(pd.orderNum) totalNum,
+		if(pd.goodsType=0,g.unitNm,pd.unitNm) unitNm,
+		SUM(pd.price*pd.orderNum)/SUM(pd.orderNum) price,
+		SUM(pd.orderNum*pd.price) totalMn,0 goodsType
+		FROM purchaselisth ph
+		INNER JOIN purchaselistd pd ON ph.atNo=headAtNo
+		LEFT JOIN goods g ON
+		g.atNo = pd.goodsId
+		WHERE ph.billDate BETWEEN #{stime} AND #{etime}
+		AND pd.goodsTYpe=0 AND ph.reviewState>2
+		AND	pd.centerId=#{structId}
+		<include refid="getCustomerBySructId"></include>
+		GROUP BY pd.goodsId
+		UNION ALL
+		SELECT pd.tempGoodsType code,pd.goodsId,pd.atNo
+		purchaselistDId,pd.goodsNm,pd.orderNum totalNum,pd.unitNm,
+		pd.price,pd.orderNum*pd.price totalMn,1 goodsType
+		FROM purchaselisth ph
+		INNER JOIN purchaselistd pd ON ph.atNo=headAtNo
+		WHERE ph.billDate
+		BETWEEN #{stime} AND #{etime}
+		AND pd.goodsTYpe=1 AND
+		pd.centerId=#{structId}
+		<include refid="getCustomerBySructId"></include>
+		AND ph.reviewState>2
+		order by code
+	</select>
+
+	<!-- 条件查询 -->
+	<sql id="getCustomerBySructId">
+		<if test="customerId!=-1">
+			and Pd.customerId = #{customerId}
+		</if>
+	</sql>
+	
+	<select id="getPurchaseSummDList" parameterType="Map"
+		resultType="com.qxh.model.PurchaseSummD">
+		<if test=" goodsType==0 ">
+	   	<![CDATA[	
+			SELECT concat(g.brand,g.goodsNm) goodsNm,
+			date_format(h.billDate,"%Y-%m-%d %H:%i:%s") billDate,
+			if(d.customerId=-2,'配送中心',c.customNm) customNm,
+			SUM(d.orderNum) orderNum,g.unitNm,
+			SUM(d.price*d.orderNum)/SUM(d.orderNum) price
+			FROM purchaselisth h 
+			INNER JOIN purchaselistd d ON h.atNo=d.headAtNo
+			LEFT JOIN goods g ON d.goodsId=g.atNo
+			LEFT JOIN customer c ON d.customerId=c.atNo
+			WHERE h.billDate BETWEEN #{stime} AND #{etime}
+			AND h.centerId=#{structId} AND d.goodsId=#{goodsId} AND h.reviewState>2
+		]]>
+			<include refid="getCustomerBySructIds"></include>
+		<![CDATA[	
+			GROUP BY d.customerId
+		]]>
+		</if>
+
+		<if test=" goodsType==1 ">
+   		<![CDATA[	
+			SELECT d.goodsNm,
+			date_format(h.billDate,"%Y-%m-%d %H:%i:%s") billDate,
+			d.unitNm,
+			if(d.customerId=-2,'配送中心',c.customNm) customNm,
+			d.orderNum,d.price*d.orderNum money,d.price,1 goodsType
+			FROM purchaselisth h 
+			LEFT JOIN purchaselistd d ON d.headAtNo=h.atNo
+			LEFT JOIN customer c ON d.customerId=c.atNo
+			WHERE d.atNo=#{purchaselistDId} LIMIT 1
+			]]>
+			<include refid="getCustomerBySructIds"></include>
+		<![CDATA[	
+		]]>
+		</if>
+	</select>
+	
+		<!-- 条件查询 -->
+	<sql id="getCustomerBySructIds">
+		<if test="customerId!=-1">
+			and d.customerId = #{customerId}
+		</if>
+	</sql>
+
+</mapper> 

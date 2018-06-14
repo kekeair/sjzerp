@@ -1,0 +1,29 @@
+@charset "utf-8";
+.bigautocomplete-layout{display:none;background-color:#FFFFFF;border:1px solid #BCBCBC;position:absolute;z-index:100;max-height:220px;overflow-x:hidden;overflow-y:auto; line-height:26px; padding-bottom:5px; }
+.bigautocomplete-layout table{border-collapse:collapse;border-spacing:0;background:none repeat scroll 0 0 #FFFFFF;width:100%;cursor:default;}
+.bigautocomplete-layout table tr{background:none repeat scroll 0 0 #FFFFFF;}
+.bigautocomplete-layout .ct{background:none repeat scroll 0 0 #D2DEE8 !important;}
+.bigautocomplete-layout div{word-wrap:break-word;word-break:break-all;padding:1px 5px;}
+
+.advanced {
+width: 70px;
+height: 70px;
+background-color:#f0ad4e;
+-moz-border-radius: 70px;
+border-radius: 70px;
+color:white;
+position:fixed;
+z-index:99999;
+right:10px;
+bottom:20px;
+cursor:pointer;
+}
+.advancedSpan{
+	margin-left: 20px;margin-top: 15px;float: left;
+}
+.toleft20px{
+	margin-left: 20px;
+}
+.tablediv{
+	height:350px;overflow-y:auto;margin-top:20px;
+}

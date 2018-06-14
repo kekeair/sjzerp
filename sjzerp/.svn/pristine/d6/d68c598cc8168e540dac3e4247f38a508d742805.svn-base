@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../css/custom/demandGroup.css"
+	type="text/css">
+
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<div class="wrapper">
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a href="demandInit.do">客户申报</a></li>
+							<#if g.teamDemandId=='0'><li><a href="customerDemandInit.do">客户申报情况</a></li> </#if>
+							<li><a class="active" id="gHead" onclick="window.location.reload()">作业组申报</a></li>
+						</ol>
+					</div>
+				</div>
+
+				<div class="row">
+					<!-- <div class="col-sm-8">
+						<div class="form-inline toleft">
+							<div class="form-group">
+								<label>金额合计</label> <span><font id="totalMoney"></font>元</span>
+							</div>
+						</div>
+					</div> -->
+					<div class="col-sm-12 textRight" id="btnDiv">
+						<button type="button" id="refuse" style="display:none"
+							class="btn btn-warning toright">驳回</button>
+						<button type="button" id="deal" style="display:none"
+							class="btn btn-warning toright">办理</button>
+						
+					</div>
+				</div>
+
+				<div class="row" id="mainrow">
+					
+				</div>
+			</div>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<!-- 对话框 -->
+	<div class="modal fade" id="uModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">提交</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label for="remark" class="col-sm-2 control-label">备注</label>
+							<div class="col-sm-10">
+								<textarea class="form-control" rows="3" id="remark">
+								</textarea>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+			      	<button type="button" id="uSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 对话框  -->
+
+	<!-- 需求明细列表模板 -->
+	<script id="detailTmpl" type="text/x-jquery-tmpl">
+	{{each(i,t) teamList}}
+	<div class="col-md-12">
+		<div class="row myborder">
+			<div class="header row">
+				<div class="col-sm-10 form-inline">
+					<div class="form-group"><h4>{{= t.teamNm}}</h4></div>
+					<div class="form-group toLeft25">
+						{{if t.state==0}}	
+						<h4>状态：未申报{{if roleId==9&&billState==0}}(<a teamId={{= teamId}} 
+							class="instead"}>替他申报</a>){{/if}}</h4>
+						{{else}}
+						<h4>状态：已申报{{if roleId==9&&billState==0}}
+							(<a teamId={{= t.teamId}} class="editNew">编辑</a>
+							<a teamId="{{= t.teamId}}" class="clear">一键清空</a>){{/if}}
+						</h4>
+						{{/if}}
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-12">
+				<table class="table table-bordered table-hover table-condensed white">
+					<thead>
+					<tr id="detailHead">
+						<th>序号</th>
+						<th>物料名</th>
+						<th>规格</th>
+						<th>单位</th>
+						<th>库存数量</th>
+						<th>需求数量</th>
+						<th>单价</th>
+						<th>金额</th>
+						<th>备注</th>
+					</tr>
+					</thead>
+					<tbody id="detailBody">
+						{{each(i,list) goodsList}}
+							<tr class="detailtr">
+							<td>{{= list.orderIndex}}</td>
+							<td>{{= list.goodsNm}}</td>
+							<td>{{= list.spec}}</td>
+							<td>{{= list.unitNm}}</td>
+							<td>{{= list.stock}}</td>
+							<td>{{= list.demandNum}}</td>
+							<td>{{= list.price}}</td>
+							<td>{{= list.money}}</td>
+							<td>{{= list.remark}}</td>
+							</tr>
+						{{/each}}	
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	{{/each}}	
+	</script>
+	<script>
+		var roleId=${roleId};
+	</script>	
+	
+	<#include "temple/commonJs.html">
+	<script type="text/javascript" src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/demandByGroup.js?version=20170110"></script>
+
+</body>
+</html>

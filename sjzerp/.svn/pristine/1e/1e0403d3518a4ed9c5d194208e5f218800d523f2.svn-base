@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.centerGoods.CenterGoodsMapper">
+	
+	<!-- 查询物料库 -->
+	<select id="getLeftGoodsList" parameterType="Map" resultType="com.qxh.exmodel.ListGoods">
+		select g.atNo,g.code,
+		case when g.spec='' then concat(g.brand,g.goodsNm)
+		else concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm,
+		case when c.atNo is null then 0 else 1 end state
+   	    from goods g left join centerGoods c 
+   	    on g.atNo=c.goodsId and c.centerId=#{structId} and c.delFlag=0
+   	    where g.delFlag=0
+   	    <include refid="getGoodsListCondition"></include>
+   	    order by g.code
+		limit ${leftPage},${pageSize}
+   	</select>
+   	
+   	<!-- 物料数量 -->
+   	<select id="getLeftGoodsCount" parameterType="Map" resultType="int">	
+		select count(*) from goods g where g.delFlag=0
+   	    <include refid="getGoodsListCondition"></include>
+   	</select>
+   
+	<sql id="getGoodsListCondition">
+   		<if test=" lkindCode!='' ">
+		   	and g.code like '${lKindCode}%'
+   		</if>	
+   		<if test=" goodsCode!='' ">
+		   	and g.code = #{goodsCode}
+   		</if>	   	    
+   		<if test="name!=''">
+			<!-- and (instr(g.goodsNm, #{name} )>0 or instr(g.alias, #{name} )>0) -->
+			and concat(g.brand,g.goodsNm,g.alias) like '%${name}%' 
+   		</if>		   				
+	</sql>
+	
+	<!-- 查询餐饮中心物料 -->
+	<select id="getCenterGoodsList" parameterType="Map" resultType="com.qxh.model.CenterGoods">
+		select c.atNo,g.atNo goodsId,g.code,
+		case when g.spec='' then concat(g.brand,g.goodsNm)
+		else concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm
+   	    from centerGoods c left join goods g on c.goodsId=g.atNo
+   	    where c.centerId=#{structId} and c.delFlag=0
+   	    <include refid="getCenterGoodsListCondition"></include>
+   	    order by g.code
+		limit ${rightPage},${pageSize}
+   	</select>
+   	
+   	<!-- 查询餐饮中心物料数量 -->
+	<select id="getCenterGoodsCount" parameterType="Map" resultType="int">
+		select count(*) from centerGoods c left join goods g on c.goodsId=g.atNo
+   	    where c.centerId=#{structId} and c.delFlag=0
+   	    <include refid="getCenterGoodsListCondition"></include>
+   	</select>
+   	
+   	<sql id="getCenterGoodsListCondition">
+   		<if test=" rkindCode!='' ">
+		   	and g.code like '${rKindCode}%'
+   		</if>	   	       				
+	</sql>
+	
+	
+	<!-- 餐饮中心添加物料 -->	
+	<insert id="addCenterGoods" parameterType="Map">	
+		insert into CenterGoods (centerId,goodsId)
+		values
+		(#{structId},#{goodsId})
+   	</insert>
+   	
+   	<!-- 餐饮中心删除物料 -->	
+	<update id="delCenterGoods" parameterType="Map">	
+		update CenterGoods set delFlag=1 where atNo=#{centerGoodsId}
+   	</update>
+   	
+   	<!-- 关联删除供应商物料 -->	
+	<update id="delSuppGoodsFromCenterGoods" parameterType="Map">	
+		update supplierGoods set delFlag=1 
+		where centerId=#{structId} and goodsId=#{goodsId}
+   	</update>
+   	
+   	<!-- 查询物料库存 -->
+	<select id="getGoodsStock" parameterType="Map" resultType="Double">
+		select stockNum from stock where centerId=#{structId}
+		and goodsId=#{goodsId} limit 1
+   	</select>
+   	
+    <!-- 批量查詢 -->
+   	<select id="addAllGoodsList" parameterType="Map" resultType="com.qxh.exmodel.ListGoods">
+	   	SELECT g.atNo
+		FROM goods g LEFT JOIN centerGoods c 
+		ON g.atNo = c.goodsId AND c.centerId=#{structId} AND c.delFlag=0
+		WHERE g.delFlag=0 AND c.atNo IS NULL
+		<include refid="getGoodsListCondition"></include>
+		order by g.code
+   	</select>
+   	
+   	<!-- 批量添加 -->
+	<insert id="addAllCenterGoods" parameterType="Map">
+		INSERT INTO centergoods (centerId,goodsId) values
+		<foreach collection="ids" item="atNo" index="index" separator=",">
+			('${structId}',#{atNo})
+		</foreach>
+	</insert>
+</mapper> 

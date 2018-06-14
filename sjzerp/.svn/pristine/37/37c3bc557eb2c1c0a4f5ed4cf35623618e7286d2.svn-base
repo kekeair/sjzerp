@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+                    
+	<!-- 物料 -->
+	<bean name="/purchaseSumm/purchaseSummInit.do" class="com.qxh.action.purchaseSumm.PurchaesSummInitAction">
+	    <property name="commonService" ref="CommonService"></property>
+	</bean>
+	<!-- 列表 -->
+	<bean name="/purchaseSumm/getPurchaseSummList.do" class="com.qxh.action.purchaseSumm.GetPurchaseSummListAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	<!-- 详情列表初始页面 -->
+	<bean name="/purchaseSumm/purchaseSummDInit.do" class="com.qxh.action.purchaseSumm.PurchaseSummDInitAction">
+	</bean>
+	
+	<!-- 列表 -->
+	<bean name="/purchaseSumm/getPurchaseSummListD.do" class="com.qxh.action.purchaseSumm.GetPurchaseSummListDAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	
+	<!-- 导出 -->
+	<bean id="ExportOutPurchaseSummView" class="com.qxh.action.purchaseSumm.ExportOutPurchaseSummView">
+  		<property name="purchaseSummService" ref="PurchaseSummService"/>
+	</bean> 
+	<bean name="/purchaseSumm/exportOutPurchaseSummAction.do" class="com.qxh.action.purchaseSumm.ExportOutPurchaseSummAction">
+		<property name="export" ref="ExportOutPurchaseSummView"></property>
+	</bean>
+	
+	<!-- 单品毛利汇总查询列表-->
+	<bean name="/purchaseSumm/getProfitSummList.do" class="com.qxh.action.purchaseSumm.GetProfitSummListAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	<!-- 毛利列表初始化页面-->
+	<bean name="/purchaseSumm/ProfitSummInit.do" class="com.qxh.action.purchaseSumm.ProfitSummInitAction">
+	</bean>
+	<!-- 毛利汇总导出 -->
+	<bean id="ExportProfitSummView" class="com.qxh.action.purchaseSumm.ExportProfitSummView">
+  		<property name="purchaseSummService" ref="PurchaseSummService"/>
+	</bean> 
+	<bean name="/purchaseSumm/exportProfitSumm.do" class="com.qxh.action.purchaseSumm.ExportProfitSummAction">
+		<property name="export" ref="ExportProfitSummView"></property>
+	</bean>
+	<!-- 毛利详情列表初始化页面-->
+	<bean name="/purchaseSumm/profitSummByGoodsInit.do" class="com.qxh.action.purchaseSumm.ProfitSummByGoodsInitAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	
+	<!-- 为统计图表获取当月每日数量-->
+	<bean name="/purchaseSumm/getOrderNum.do" class="com.qxh.action.purchaseSumm.getOrderNumAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	<!-- 为统计图表获取当月每日售价-->
+	<bean name="/purchaseSumm/getDPrice.do" class="com.qxh.action.purchaseSumm.getDpriceInDayAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	<!-- 为统计图表获取当月每日进价-->
+	<bean name="/purchaseSumm/getPPrice.do" class="com.qxh.action.purchaseSumm.getPPriceAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	<!-- 为统计图表获取当月每日毛利率 -->
+	<bean name="/purchaseSumm/getRateInDay.do" class="com.qxh.action.purchaseSumm.getRateInDayAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	<!-- 为统计图表获取当年每月单物料数量 -->
+	<bean name="/purchaseSumm/getOrderNumInMonth.do" class="com.qxh.action.purchaseSumm.getOrderNumInMonthAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	<!-- 为统计图表获取当年每月单物料进价-->
+	<bean name="/purchaseSumm/getPPriceInMonth.do" class="com.qxh.action.purchaseSumm.GetPPriceInMonthAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	<!-- 为统计图表获取当年每月单物料售价-->
+	<bean name="/purchaseSumm/getDPriceInMonth.do" class="com.qxh.action.purchaseSumm.GetDpriceInMonthAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	<!-- 为统计图表获取当年每月单物料毛利率-->
+	<bean name="/purchaseSumm/getRateInMonth.do" class="com.qxh.action.purchaseSumm.GetRateInMonthAction">
+		<property name="purchaseSummService" ref="PurchaseSummService" />
+	</bean>
+	
+	<!-- 分类占比初始化页面-->
+	<bean name="-" class="com.qxh.action.purchaseSumm.selectBigKindInitAction">
+	</bean>
+</beans>

@@ -1,0 +1,207 @@
+package com.qxh.action.demand;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+
+import com.qxh.action.home.MainAction;
+import com.qxh.exmodel.BillAndCustomTeam;
+import com.qxh.model.User;
+import com.qxh.service.DemandService;
+import com.qxh.utils.CheckUtil;
+import com.qxh.utils.MoneyUtil;
+import com.qxh.utils.NumUtil;
+import com.qxh.utils.Result;
+import com.qxh.utils.SessionUtil;
+
+/**
+ * @author Mr chen
+ * @name : ExportOutDemandBillAction
+ * @todo : [js打印出库单]
+ * 
+ *       创建时间 ： 2016年12月10日上午11:47:30
+ */
+public class ExportOutDemandBillAction extends MainAction implements Controller {
+
+	private DemandService demandService;
+
+	public void setDemandService(DemandService demandService) {
+		this.demandService = demandService;
+	}
+
+	/*
+	 * Todo : [js导出打印]
+	 * 
+	 * @时间:2016年12月10日上午11:48:16
+	 */
+	@Override
+	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse arg1) throws Exception {
+		ModelAndView mav = new ModelAndView();
+		// 获取参数值
+		String teamBillId = request.getParameter("teamBillId"); // 客户(工作组)Id
+		String billId = request.getParameter("bill_Id"); // 订单Id
+		String kindCode = request.getParameter("kindCode");
+		// 通过条件查询集合
+		List<BillAndCustomTeam> list = null;
+		if (kindCode != null) {
+			if(kindCode.equals("1")){
+				kindCode="'0101%','0102%'";
+			}else if(kindCode.equals("2")){
+				kindCode="'0103%','0106%','0111%'";
+			}else{
+				kindCode="'0105%','0108%','0109%','0110%','03%'";
+			}
+			list = demandService.getGoodsByTerm(billId, teamBillId, kindCode);
+		} else {
+			list = demandService.getExportOutDemandBill(teamBillId, billId);//参数:订单Id,工作组Id
+		}
+		String customNm = list.get(0).getCustomNm(); // 客户名称
+		String teamNm = list.get(0).getTeamNm(); // 工作组名称
+		String code = list.get(0).getCodeNm(); // 单号
+		String billDate = list.get(0).getBillDate(); // 日期
+		Double tatolCounts = 0.00; // 总钱数
+		for (BillAndCustomTeam billAndCustomTeam : list) {
+			tatolCounts += NumUtil.trim0(billAndCustomTeam.getTotalMonay());
+		}
+		tatolCounts = NumUtil.trim0(tatolCounts);
+
+		// ==========定义集合前的死数据======================================
+		BillAndCustomTeam andCustomTeamTitle = new BillAndCustomTeam();// 大标题
+		andCustomTeamTitle.setCode("-1");
+
+		BillAndCustomTeam andCustomTeamBill = new BillAndCustomTeam();// 出库单
+		andCustomTeamBill.setCode("-2");
+
+		BillAndCustomTeam andCustomTeamDate = new BillAndCustomTeam(); // 客户/账单/日期
+		andCustomTeamDate.setCode("-3");
+		andCustomTeamDate.setCustomNm(customNm);
+		andCustomTeamDate.setCodeNm(code);
+		andCustomTeamDate.setBillDate(billDate.substring(0, 10));
+
+		BillAndCustomTeam andCustomTeamTotalList = new BillAndCustomTeam();// 列标
+		andCustomTeamTotalList.setCode("-4");
+		BillAndCustomTeam andCustomTeamTotalAllMoney = new BillAndCustomTeam();// 总计
+
+		andCustomTeamTotalAllMoney.setCode("-5");
+		andCustomTeamTotalAllMoney.setPrice(tatolCounts);
+		andCustomTeamTotalAllMoney.setGoodsNm(MoneyUtil.toChinese(tatolCounts + ""));
+
+		BillAndCustomTeam andCustomTeamSmallQianzi = new BillAndCustomTeam();// 签字
+		andCustomTeamSmallQianzi.setCode("-7");
+		// ==========定义集合前的死数据======================================
+
+		Result result = new Result();
+		int size = list.size();
+		int len = 0;// 定义循环次数
+		if (size < 25) {
+			len = 1;
+		} else {
+			if (size % 25 != 0) {
+				len = size / 25 + 1;
+			} else {
+				len = size / 25;
+			}
+		}
+
+		ArrayList<BillAndCustomTeam> newList = new ArrayList<>();// 定义一个新集合,用来装排列的数据
+		int count = 0;
+		for (int i = 0; i < len; i++) {
+
+			BillAndCustomTeam andCustomTeamSmallMoney = new BillAndCustomTeam();// 小计
+			andCustomTeamSmallMoney.setCode("-6");
+			newList.add(andCustomTeamTitle); // 标题
+			newList.add(andCustomTeamBill); // 账单名称
+			newList.add(andCustomTeamDate); // 日期等格式
+			newList.add(andCustomTeamTotalList); // 列的标题
+
+			if (size < 25) {
+
+				// 小计
+				double smillCount = 0;
+				double smillNum = 0;
+				for (int j = 0; j < size; j++) {
+					BillAndCustomTeam billAndCustomTeam = controlLen(list, count);// 控制物料名称长度
+					newList.add(billAndCustomTeam);
+					smillCount += billAndCustomTeam.getTotalMonay();
+					smillNum += Double.parseDouble(billAndCustomTeam.getDemandNum());
+					count++;
+				}
+				andCustomTeamSmallMoney.setPrice(smillCount);
+				andCustomTeamSmallMoney.setNum(smillNum + "");
+				andCustomTeamSmallMoney.setGoodsNm(MoneyUtil.toChinese(NumUtil.trim0(smillCount) + ""));
+			} else {
+				// 小计
+				double smillCount = 0;
+				double smillNum = 0;
+				for (int j = 0; j < 25; j++) {
+					BillAndCustomTeam billAndCustomTeam = controlLen(list, count);// 控制物料名称长度
+					newList.add(billAndCustomTeam);// 从list中获取每个元素添加到newlist集合中
+					smillCount += billAndCustomTeam.getTotalMonay();
+					smillNum += Double.parseDouble(billAndCustomTeam.getDemandNum());
+					count++;
+				}
+				andCustomTeamSmallMoney.setPrice(smillCount);
+				andCustomTeamSmallMoney.setNum(smillNum + "");
+				andCustomTeamSmallMoney.setGoodsNm(MoneyUtil.toChinese(NumUtil.trim0(smillCount) + ""));
+				size = size - 25;
+			}
+			newList.add(andCustomTeamSmallMoney);
+			newList.add(andCustomTeamTotalAllMoney);
+			newList.add(andCustomTeamSmallQianzi);
+		}
+
+		result.setData(newList);
+		User user = (User) SessionUtil.getSession().getAttribute("user");
+		mav.addObject("roleId", user.getRoleId());
+		mav.setViewName("excelOut/excelOutDemand");
+		return CheckUtil.returnResult(mav, result.getCode(), result.getMsg(), result.getData());
+	}
+
+	/**
+	 * @description : [控制物料名称的长度]
+	 * @param list
+	 * @param count
+	 * @return
+	 * @时间:2016年12月13日下午2:14:41
+	 */
+	private BillAndCustomTeam controlLen(List<BillAndCustomTeam> list, int count) {
+		BillAndCustomTeam billAndCustomTeam = list.get(count);
+		//截取金额
+		double totalMoney = NumUtil.trim0(billAndCustomTeam.getTotalMonay());
+		billAndCustomTeam.setTotalMonay(totalMoney);
+		//截取物料名称
+		String goodsNm = billAndCustomTeam.getGoodsNm();
+		if (StringUtils.isNotEmpty(goodsNm)) {
+			int length = goodsNm.length();
+			if (length > 4) {
+				goodsNm = goodsNm.substring(0, 4);
+				billAndCustomTeam.setGoodsNm(goodsNm);
+			}
+		}
+		//截取规格
+		String spec = billAndCustomTeam.getSpec();
+		if(StringUtils.isNotEmpty(spec)){
+			if(spec.length()>2){
+				 spec = spec.substring(0, 2);
+				billAndCustomTeam.setSpec(spec);
+			}
+		}
+		//单位截取
+		String unitNm = billAndCustomTeam.getUnitNm();
+		if(StringUtils.isNotEmpty(unitNm)){
+			if(unitNm.length()>3){
+				unitNm = unitNm.substring(0, 3);
+				billAndCustomTeam.setUnitNm(unitNm);
+			}
+		}
+		return billAndCustomTeam;
+	}
+}

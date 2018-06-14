@@ -1,0 +1,142 @@
+package com.qxh.service;
+
+import java.util.List;
+
+import com.qxh.model.PurchaseSumm;
+import com.qxh.utils.Result;
+
+/**
+ * @author Mr chen
+ * @name : TmpGoodsRecordService
+ * @todo : [采购汇总接口]
+ * 
+ * 创建时间 ： 2016年11月23日上午9:45:25
+ */
+public interface PurchaseSummService {
+
+	/**
+	 * @description : [获取列表]
+	 * @param stime
+	 * @param etime
+	 * @param page
+	 * @param structId
+	 * @param roleId
+	 * @param customerId 
+	 * @param goodsNm
+	 * @param kindCode
+	 * @param supplierId
+	 * @return
+	 * @时间:2016年12月2日上午11:33:48
+	 */
+	Result getPurchaseSummList(String stime, String etime, int structId, int roleId, String customerId,
+			String goodsNm,String kindCode,String supplierId);
+	/**
+	 * 
+	 * @description : [导出专用]
+	 * @param stime
+	 * @param etime
+	 * @param structId
+	 * @param roleId
+	 * @param customerId
+	 * @param goodsNm
+	 * @param goodsKind
+	 * @param supplierId
+	 * @return
+	 * @时间:2016年12月19日下午2:58:48
+	 */
+	List<PurchaseSumm> getOutExcelPurchaseSummList(String stime, String etime, int structId, int roleId, String customerId,String goodsNm,
+			String goodsKind,String supplierId);
+
+	/**
+	 * @description : [详情页面]
+	 * @param goodsId
+	 * @param structId
+	 * @param customerId 
+	 * @return
+	 * @时间:2016年12月2日下午2:17:44
+	 */
+	Result getPurchaseSummDList(String goodsId,String stime,String etime ,String goodsType,int structId,String purchaselistDId, String customerId);
+	/**
+	 * @description : [单品毛利汇总]
+	 * @param customerId
+	 * @param etime
+	 * @param stime 
+	 * @param structId
+	 * @param goodsNm
+	 * @return
+	 * @时间:2016年12月2日下午2:17:44
+	 */
+	Result getProfitSummDList(String customerId,String stime,String etime ,int structId,String goodsNm);
+	/**
+	 * @description : [根据物料查询单品毛利汇总]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime 
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerId
+	 * @return
+	 * @时间:2017年3月15日下午2:17:44
+	 */
+	Result getProfitSummDListByGoods(String goodsId,String goodsType,String stime,String etime ,int structId,String demandListDId,String purchaseListDId,String customerId);
+
+	/**
+	 * @description : [为数量统计图表查询当月每日此物料的数量]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime 
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerId
+	 * @return
+	 * @时间:2017年3月16日下午2:17:44
+	 */
+	Result getOrderNum(String goodsId,String goodsType,String stime,String etime ,int structId,String demandListDId,String purchaseListDId,String customerId);
+	/**
+	 * @description : [为统计图表查询当月每日此物料的进价]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime 
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerId
+	 * @return
+	 * @时间:2017年3月17日下午2:17:44
+	 */
+	Result getDPrice(String goodsId,String goodsType,String stime,String etime ,int structId,String demandListDId,String purchaseListDId,String customerId);
+	/**
+	 * @description : [为统计图表查询当月每日此物料的售价]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime 
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerId
+	 * @return
+	 * @时间:2017年3月17日下午2:17:44
+	 */
+	Result getPPrice(String goodsId,String goodsType,String stime,String etime ,int structId,String demandListDId,String purchaseListDId,String customerId);
+	/**
+	 * @description : [为统计图表查询当月每日此物料的毛利]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime 
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerId
+	 * @return
+	 * @时间:2017年3月17日下午2:17:44
+	 */
+	Result getRateInDay(String goodsId,String goodsType,String stime,String etime ,int structId,String demandListDId,String purchaseListDId,String customerId);
+	
+}

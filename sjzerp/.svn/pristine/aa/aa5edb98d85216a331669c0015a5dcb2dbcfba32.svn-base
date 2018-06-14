@@ -1,0 +1,55 @@
+package com.qxh.action.purchaseSumm;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+
+import com.qxh.action.home.MainAction;
+import com.qxh.constant.CodeConstant;
+import com.qxh.model.User;
+import com.qxh.service.DemandSummService;
+import com.qxh.service.PurchaseSummService;
+import com.qxh.utils.CheckUtil;
+import com.qxh.utils.Result;
+import com.qxh.utils.SessionUtil;
+
+/**
+ * 
+ * @Description:[毛利汇总详情页]
+ * 
+ * @author:kekeair
+ * 
+ * @time:2017年3月15日 上午10:44:52
+ * 
+ */
+public class ProfitSummByGoodsInitAction extends MainAction implements Controller {
+	private PurchaseSummService purchaseSummService;
+
+	public void setPurchaseSummService(PurchaseSummService purchaseSummService) {
+		this.purchaseSummService = purchaseSummService;
+	}
+
+	@Override
+	public ModelAndView handleRequest(HttpServletRequest req, HttpServletResponse res) throws Exception {
+		ModelAndView mav = new ModelAndView();
+		String goodsId = req.getParameter("goodsId");
+		String goodsType = req.getParameter("goodsType");
+		String stime = req.getParameter("stime");
+		String etime = req.getParameter("etime");
+		String demandListDId = req.getParameter("demandListDId");
+		String purchaseListDId = req.getParameter("purchaseListDId");
+		String customerId = req.getParameter("customerId");
+		User user = (User) SessionUtil.getSession().getAttribute("user");
+		getPowerRight(mav, user, CodeConstant.NAV_504, CodeConstant.NAV_5);
+		Result result = purchaseSummService.getProfitSummDListByGoods(goodsId, goodsType, stime, etime, 
+				user.getStructId(), demandListDId, purchaseListDId, customerId);
+		mav.addObject("userNm", user.getUserNm());
+		mav.addObject("goodsId", goodsId);
+		mav.addObject("roleId", user.getRoleId());
+		mav.setViewName("inoutSumm/profitSummByGoods");
+		return CheckUtil.returnResult(mav, result.getCode(), result.getMsg(), result.getData());
+	}
+
+}

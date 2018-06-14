@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.login.LoginMapper">
+	
+	<!-- 登陆时查找用户 -->
+	<select id="getLoginUser" parameterType="Map" resultType="com.qxh.model.User">
+		select u.atNo,u.pwd,u.userNm from user u 
+		where u.userAccount=#{userAccount} and u.delFlag=0 limit 1
+	</select>
+	
+	<!-- 获取用户角色列表 -->
+	<select id="getUserRel" parameterType="Map" resultType="com.qxh.model.UserRel">
+		select u.atNo, u.userId,u.structId structId,u.roleId roleId,
+		r.name roleNm,r.power,s.name structNm
+		from userRel u left join role r on u.roleId=r.atNo
+		left join structure s on u.structId=s.atNo
+		where u.userId=#{userId}
+	</select>
+	
+	<!-- 获取用户角色列表 -->
+	<select id="getUserByIdAndRel" parameterType="Map" resultType="com.qxh.model.User">
+		select u.atNo,r.structId,r.roleId,u.userNm,
+		ro.power,u.userAccount,u.pwd
+		from user u left join userRel r on u.atNo=r.userId
+		left join role ro on r.roleId=ro.atNo
+		where u.atNo=#{userId} and r.atNo=#{relId} limit 1
+	</select>
+	
+</mapper> 

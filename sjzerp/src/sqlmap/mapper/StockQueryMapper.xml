@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.stockQuery.StockQueryMapper">
+
+	<!-- 查询库存列表 -->
+	<select id="getStockList" parameterType="Map" resultType="com.qxh.model.Stock">
+		select s.goodsId,s.stockNum,s.price,s.stockNum*s.price money,g.code,g.spec,g.unitNm,
+		case when
+		g.spec='' then concat(g.brand,g.goodsNm)
+		else concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm
+		from stock s
+		LEFT JOIN goods g on s.goodsId=g.atNo
+		where s.centerId=#{structId}
+		<include refid="getStockListCon"></include>
+		limit ${page},${pageSize}
+	</select>
+
+	<!-- 查询库存列表数量 -->
+	<select id="getStockListNum" parameterType="Map" resultType="int">
+		select count(*)
+		from stock s LEFT JOIN goods g on s.goodsId=g.atNo
+		where s.centerId=#{structId}
+		<include refid="getStockListCon"></include>
+	</select>
+
+	<sql id="getStockListCon">
+		<if test=" name!='' ">
+			and concat(g.brand,g.goodsNm,g.alias) like '%${name}%'
+		</if>
+		<if test=" kindCode!=-1 ">
+   		<![CDATA[      
+		   	and g.code like '${kindCode}%'
+		]]>
+		</if>
+		<if test=" goodsCode!='' ">
+			and g.code = #{goodsCode}
+		</if>
+	</sql>
+
+	<!-- 查询库存记录 -->
+	<select id="getStockRecord" parameterType="Map"
+		resultType="com.qxh.model.StockRecord">
+		select billCode,stockFlag,
+		date_format(acrossTime,'%Y-%m-%d %H:%i')
+		acrossTime,
+		acrossNum,acrossPrice,acrossNum*acrossPrice acrossMoney,
+		stockNum,stockPrice
+		from stockrecord
+		where centerId=#{structId} and
+		goodsId=#{goodsId}
+		<include refid="getStockRecordCon"></include>
+		ORDER BY atNo desc
+		limit ${page},${pageSize}
+	</select>
+
+	<!-- 查询库存记录数量 -->
+	<select id="getStockRecordNum" parameterType="Map" resultType="int">
+		select count(*) from stockrecord
+		where centerId=#{structId} and goodsId=#{goodsId}
+		<include refid="getStockRecordCon"></include>
+	</select>
+
+	<sql id="getStockRecordCon">
+		<if test=" stockFlag!=-1 ">
+			and stockFlag=#{stockFlag}
+		</if>
+		<if test=" stime!='' ">
+   		<![CDATA[      
+		   	and acrossTime>=#{stime}
+		]]>
+		</if>
+		<if test=" etime!='' ">
+   		<![CDATA[ 
+		   	and acrossTime<=#{etime}
+   		]]>
+		</if>
+	</sql>
+
+</mapper> 

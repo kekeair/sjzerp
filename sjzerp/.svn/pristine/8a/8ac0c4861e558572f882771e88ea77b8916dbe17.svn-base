@@ -1,0 +1,70 @@
+var g_stime;//开始时间
+var g_etime;//结束时间
+var g_customId//客户id
+var g_goodsNm;
+var g_goodsCode;
+$(document).ready(function() {
+	g_customId = sessionStorage.demandSummCustomId||-1;
+	g_stime=sessionStorage.demandSummStime||(getDateStr(0)+" 00:00:00");
+	g_etime=sessionStorage.demandSummEtime||(getDateStr(0)+" 23:00:00");
+	$("#stime").val(g_stime);
+	$("#etime").val(g_etime);
+	getDemandSummary();//销售汇总
+	//获取客户列表
+	$.post("../demandSumm/getCustom.do?", {},function(data){
+		if (data.code!=1000) {
+			tips(data.msg);
+		} else {
+			$("#custom").empty();
+			$("#customTmpl").tmpl(data.data).appendTo("#custom");
+			$("#custom").val(g_customId);
+		}
+	},"json");
+	
+	$(document).on("click", "#excelOut", excelOut);//导出
+	$(document).on("click", "#search", search);
+	//双点击
+	$(document).on("dblclick", ".goodsNmTr", function(){
+		var goodsId=$(this).attr("goodsId");
+		var goodsType=$(this).attr("goodsType");
+		var demandListDId=$(this).attr("demandListDId");
+		window.location.href="demandSummByGoodsInit.do?goodsId="+goodsId
+		+"&goodsType="+goodsType+"&stime="+g_stime+"&etime="+g_etime
+		+"&demandListDId="+demandListDId+"&g_customId="+g_customId;
+	});
+	
+});
+
+//导出
+
+function excelOut(){
+	window.location.href="../demandSumm/exportOutDemandSummAction.do?stime="+g_stime+"&etime="+g_etime+"&g_customId="+g_customId+"";
+}
+
+
+//销售汇总
+function getDemandSummary() {
+	$.post("getDemandSummary.do?", {
+		stime:g_stime,
+		etime:g_etime,
+		g_customId:g_customId
+	}, function(data) {
+		if (data.code!=1000) {
+			tips(data.msg);
+		} else {
+			$("#tbody").empty();
+			$("#demandTmpl").tmpl(data.data).appendTo("#tbody");
+		}
+	}, "json");
+}
+
+function search(){
+	g_stime=$("#stime").val();
+	g_etime=$("#etime").val();
+	g_customId=$("#custom").val();
+	sessionStorage.demandSummStime=g_stime;
+	sessionStorage.demandSummEtime=g_etime;
+	sessionStorage.demandSummCustomId=g_customId;
+	getDemandSummary();
+}
+

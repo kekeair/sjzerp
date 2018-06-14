@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a class="active" onclick="window.location.reload()">采购入库</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-10">
+						<div class="form-inline">
+							<div class="form-group">
+								<label for="state">状态</label> 
+								<select class="form-control" id="state">
+									<option value="-1">全部</option>
+									<option value="0">等待库管提交</option>
+									<option value="1">等待经理审批</option>
+									<option value="2">等待采购员确认</option>
+									<option value="3">等待库管确定</option>
+									<option value="4">已结束</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>时间</label>
+								<input id="stime" type="text" readonly="readonly" 
+									class="whiteback form-control" onFocus="WdatePicker({isShowClear:false,readOnly:true,maxDate:'#F{$dp.$D(\'etime\')}'})"/>
+								<span>-</span>
+	  	 						<input id="etime" type="text" readonly="readonly" 
+	  	 							class="whiteback form-control" onFocus="WdatePicker({isShowClear:false,readOnly:true,minDate:'#F{$dp.$D(\'stime\')}'})"/>
+							</div>
+							<button type="button" id="search" class="btn btn-primary">搜索</button>
+						</div>
+					</div>
+					<#if roleId==5>
+					<div class="col-sm-2">
+						<button type="button" id="add"
+							class="btn btn-warning pull-right">发起采购</button>
+					</div>
+					</#if>
+				</div>
+
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>单据号</th>
+									<th>状态</th>
+									<th>时间</th>
+									<th>客户</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="form-inline pull-right">
+					<button class="btn btn-default" id="prePage">上一页</button>
+					<label class="control-label"><font id="curPage">1</font>/<font
+						id="totalPage">1</font></label>
+					<button class="btn btn-default" id="nextPage">下一页</button>
+					<label class="control-label">第</label> <input type="text"
+						class="form-control pageInput" id="pageInput"> <label
+						class="control-label">页</label>
+					<button class="btn btn-primary" id="pageSure">跳转</button>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<!-- 审批流程对话框 -->
+	<div class="modal fade bs-example-modal-lg" id="uModal">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">审批流程</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>节点名称</th>
+									<th>审批人</th>
+									<th>时间</th>
+									<th>操作</th>
+									<th>留言</th>
+								</tr>
+							</thead>
+							<tbody id="reviewbody">
+							</tbody>
+						</table>
+					</div>
+				</div>
+				</div>
+				<div class="modal-footer">
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 审批流程对话框  -->
+	
+	<!-- 对话框 -->
+	<div class="modal fade" id="dealModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">提交</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group" id="varyTime">
+								<label for="remark" class="col-sm-2 control-label">提交时间</label>
+								<div class="col-sm-4">
+								<input id="submitTime" type="text" readonly="readonly" 
+									class="whiteback form-control" onFocus="WdatePicker({isShowClear:false,readOnly:true})"/>
+								</div>
+						</div>	
+						<div class="form-group">
+							<label for="remark" class="col-sm-2 control-label">备注</label>
+							<div class="col-sm-10">
+								<textarea class="form-control" rows="3" id="remark">
+								</textarea>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+			      	<button type="button" id="uSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 对话框  -->
+	
+	
+	
+		<!-- 打印采购明细-->
+		<div class="modal fade" id="teamModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title" id="uHead">打印采购明细:</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-horizontal">
+							<div class="form-group" id="customerTeamGroup">
+								<label for="county" class="col-sm-2 control-label">工作组:</label>
+								<div class="col-sm-8">
+									<select id="customerTeam" class="form-control">
+									</select>
+								</div>
+								<label class="control-label">*</label>
+							</div>				
+						</div>
+					</div>
+					<div class="modal-footer">
+				      	<button type="button" id="teamSure" class="btn btn-primary">打印</button>
+				        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			      	</div>
+				</div>
+			</div>
+		</div>
+	<!-- 打印采购明细 -->
+	
+	<!-- 模版供应商 -->
+		<div class="modal fade" id="supplierModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title" id="uHead">采购汇总:</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-horizontal">
+							<div class="form-group" id="customerTeamGroup">
+								<label for="county" class="col-sm-2 control-label">供应商:</label>
+								<div class="col-sm-8">
+									<select id="supplier" class="form-control">
+									</select>
+								</div>
+								<label class="control-label">*</label>
+							</div>				
+						</div>
+					</div>
+					<div class="modal-footer">
+				      	<button type="button" id="exportSure" class="btn btn-primary">确定</button>
+				        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			      	</div>
+				</div>
+			</div>
+		</div>
+	<!-- 模版供应商 -->
+	
+	
+	<!-- 没有供应商提供该产品 -->
+		<div class="modal fade" id="noHacveProductModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title" id="uHead" style="  text-align: center;"><span class="glyphicon glyphicon-exclamation-sign"></span>该商品没有供货商提供</h4>
+					</div>
+					
+					<div class="modal-body">
+						<div class="form-horizontal">
+							<div class="form-group">
+								<label for="beizhu" class="col-sm-2 control-label" style=" margin-top: 21px; "><span class="glyphicon glyphicon-tags"></span>&nbsp备注</label>
+								<div class="col-sm-10">
+									<textarea class="form-control" rows="3" id="beizhu">
+									</textarea>
+								</div>
+							</div>
+						</div>
+				    </div>
+					
+					<div class="modal-footer">
+				      	<button type="button" id="Manage" class="btn btn-primary">驳回</button>
+				      	<button type="button" id="banli" class="btn btn-primary">办理</button>
+				        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			      	</div>
+				</div>
+			</div>
+		</div>
+	<!-- 没有供应商提供该产品 -->
+	
+	
+	<script>
+		var roleId=${roleId}
+	</script>
+
+	<#include "temple/commonJs.html">
+	<script type="text/javascript" src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/purchaseList.js?version=20170110"></script>
+
+	<!-- 列表模板 -->
+	<script id="purchaseTmpl" type="text/x-jquery-tmpl">
+	{{each(i,g) list}}
+	<tr {{if roleId==5&&g.reviewState==0||roleId==4&&g.reviewState==1||
+		roleId==7&&g.reviewState==2||roleId==5&&g.reviewState==3}}class="bold"{{/if}}>
+	<td>{{= g.orderIndex}}</td>
+	<td>{{= g.code}}</td>
+	<td>{{if g.reviewState==0}}等待库管提交
+        {{else g.reviewState==1}}等待经理审批
+		{{else g.reviewState==2}}等待采购员确认
+
+        {{else g.reviewState==3}}等待库管确定
+
+		{{else}}已结束{{/if}}</td>
+	<td>{{= g.billDate}}</td>
+	<td>{{= g.customNm}} </td>
+	<td>
+		{{if roleId==5&&g.reviewState==3||roleId==5&&g.reviewState==0}}
+		<a billId={{= g.billId}} class="editInStock">修改</a>
+		{{/if}}
+		<a billId={{= g.billId}} reviewState={{= g.reviewState}}  class="viewByGoodsAndGroup">查看</a>
+		{{if !(roleId==5&&g.reviewState==0)}}
+		<a billId={{= g.billId}} class="reviewProcess">审批跟踪</a>
+		{{/if}}
+		{{if roleId==7&&g.reviewState==2}}	
+		<a class="supplierSel" billId={{= g.billId}}>选择供应商</a>
+		{{/if}}
+		{{if roleId==5&&g.reviewState==0||roleId==4&&g.reviewState==1||
+			roleId==5&&g.reviewState==3}}	
+		<a class="deal" billId={{= g.billId}} billState={{= g.reviewState}}>通过</a>
+		{{/if}}
+		{{if roleId==4&&g.reviewState==1||roleId==5&&g.reviewState==3}}	
+		<a class="refuse" billId={{= g.billId}} billState={{= g.reviewState}}>驳回</a>	
+		{{/if}}
+		{{if g.reviewState>2}}
+		<a billId="{{= g.billId}}" class="summaryExport">采购汇总导出</a>
+		<a billId="{{= g.billId}}" class="daochu">打印采购明细</a>
+		{{/if}}
+		{{if g.reviewState==4}}
+		<a billId="{{= g.billId}}" class="rkExport">打印入库单</a>
+		{{/if}}
+		{{if roleId==5&&g.reviewState==0}}	
+		<a class="del" billId={{= g.billId}}>删除</a>
+		{{/if}}
+	</td>
+	</tr>
+	{{/each}}
+	</script>
+	
+	<!-- 列表模板 -->
+	<script id="reviewTmpl" type="text/x-jquery-tmpl">
+	<tr>
+	<td>{{= orderIndex}}</td>
+	<td>{{= nodeNm}}</td>
+	<td>{{= operatorNm}}</td>
+	<td>{{= createTime}}</td>
+	<td>{{= operNm}}</td>
+	<td>{{= remark}}</td>
+	</tr>
+	</script>
+
+	
+		
+	<!-- 工作组列表模板 -->
+	<script id="customerTeamTmpl" type="text/x-jquery-tmpl">
+	<option value="-1">请选择作业组</option>
+	{{each(i,list) customTeamNameList }}
+		<option value="{{= list.atNo}}">{{= list.teamNm}}</option>
+	{{/each}}
+	</script>
+	
+	<!-- 供应商列表模板 -->
+	<script id="supplierTmpl" type="text/x-jquery-tmpl">
+	<option value="-2">--请选择供应商--</option>
+	{{each(i,list) data }}
+		<option value="{{= list.atNo}}">{{= list.name}}</option>
+	{{/each}}
+	</script>
+	
+</body>
+</html>

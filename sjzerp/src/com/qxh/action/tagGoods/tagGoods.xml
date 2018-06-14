@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+                    
+	<!-- 餐饮中心物料设置 -->
+	<bean name="/tagGoods/getTagGoodsData.do" class="com.qxh.action.tagGoods.GetTagGoodsDataAction">
+		<property name="tagGoodsService" ref="TagGoodsService"></property>
+	</bean>
+	
+	<!-- 往右侧添加物品项 -->
+	<bean name="/tagGoods/addTagGoods.do" class="com.qxh.action.tagGoods.AddTagGoodsAction">
+		<property name="tagGoodsService" ref="TagGoodsService"></property>
+	</bean>
+	
+	<!-- 删除右侧的物品项 -->
+	<bean name="/tagGoods/delTagGoods.do" class="com.qxh.action.tagGoods.DelTagGoodsAction">
+		<property name="tagGoodsService" ref="TagGoodsService"></property>
+	</bean>
+	
+	<!-- 修改价格 -->
+	<bean name="/tagGoods/editTagGoods.do" class="com.qxh.action.tagGoods.EditTagGoodsAction">
+		<property name="tagGoodsService" ref="TagGoodsService"></property>
+	</bean>
+	
+	<!-- 右查询 -->
+	<bean name="/tagGoods/getTagGoodsList.do" class="com.qxh.action.tagGoods.GetTagGoodsListAction">
+		<property name="tagGoodsService" ref="TagGoodsService"></property>
+	</bean>
+	
+	<!-- 左查询 -->
+	<bean name="/tagGoods/getLeftGoodsList.do" class="com.qxh.action.tagGoods.GetLeftGoodsListtAction">
+		<property name="tagGoodsService" ref="TagGoodsService" />
+	</bean>
+	
+	<!-- 批量添加 -->
+	<bean name="/tagGoods/allAddTagGoods.do" class="com.qxh.action.tagGoods.addAllTagGoodsAction">
+		<property name="tagGoodsService" ref="TagGoodsService"></property>
+	</bean>
+	
+	
+	<!-- 导出 -->
+	<!-- 标签价格的导出 -->
+	<bean id="ExportOutTageGoodsBillView" class="com.qxh.action.tagGoods.ExportOutTageGoodsBillView">
+	  	<property name="tagGoodsService" ref="TagGoodsService"/>
+	</bean>
+	<bean name="/tagGoods/exportOutTagGoodsPriceList.do" class="com.qxh.action.tagGoods.ExportOutTagGoodsPriceListAction">
+		<property name="exportOutTageGoodsBillView" ref="ExportOutTageGoodsBillView"></property>
+	</bean>
+	<!-- 标签价格导入功能实现 -->
+	<bean name="/tagGoods/inExcelTagGoodsPrice.do" class="com.qxh.action.tagGoods.InExcelTagGoodsPriceAction">
+			<property name="tagGoodsService" ref="TagGoodsService" />
+	</bean>
+	
+</beans>

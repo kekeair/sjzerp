@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.demandSumm.DemandSummMapper">
+
+	<!-- 查询销售汇总 -->
+	<select id="getDemandSummary" parameterType="Map"
+		resultType="com.qxh.exmodel.DemandGoods">
+   	<![CDATA[	
+  	 	select g.code,h.billDate,d.code tcode,d.atNo demandListDId,d.goodsId,
+  	 	case when g.spec='' then concat(g.brand,g.goodsNm)
+		else concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm,g.unitNm,d.remark,
+		g.unitNm,gk.kindNm,gk.pId,
+		SUM(d.demandNum) demandNum,SUM(d.price*d.demandNum) money,
+		SUM(d.price*d.demandNum)/SUM(d.demandNum) price,0 goodsType
+		from demandlisth h left join teamdemand t on h.atNo=t.headAtNo
+		inner join demandlistd d on t.atNo=d.headAtNo
+		left join goods g on d.goodsId=g.atNo
+        left join goodskind gk on g.kindId=gk.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime}
+		and d.goodsType=0 and h.centerId=#{structId} and h.reviewState>0
+		]]>
+		<include refid="getCustomerBySructId"></include> 
+	<![CDATA[
+		GROUP BY d.goodsId
+		UNION ALL
+		select d.tempGoodsType code,h.billDate,d.code tcode,d.atNo demandListDId,d.goodsId,d.goodsNm,g.unitNm,d.remark,d.unitNm,gk.kindNm,gk.pId,
+		SUM(d.demandNum) demandNum,SUM(d.price*d.demandNum) money,
+		SUM(d.price*d.demandNum)/SUM(d.demandNum) price,1 goodsType
+		from demandlisth h 
+        left join teamdemand t on h.atNo=t.headAtNo
+		left join demandlistd d on t.atNo=d.headAtNo
+		left join goods g on d.goodsId=g.atNo
+        left join goodskind gk on g.kindId=gk.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime}
+		and d.goodsType=1 and h.centerId=#{structId} and h.reviewState>0
+		]]>
+		<include refid="getCustomerBySructIdTemp"></include> 
+		<![CDATA[
+		GROUP BY d.goodsNm
+		order by code
+	]]>
+	</select>
+	<!-- 条件查询 -->
+	<sql id="getCustomerBySructId">
+		<if test="customerId!=-1">
+			and d.customerId = #{customerId}
+		</if>
+		<if test=" kindCode!=-1 ">
+   		<![CDATA[      
+		   	and g.code like '${kindCode}%'
+		]]>
+		</if>
+		<if test="goodsNm!=''">
+			and g.goodsNm like '%${goodsNm}%'
+		</if>
+	</sql>
+	<sql id="getCustomerBySructIdTemp">
+		<if test="customerId!=-1">
+			and d.customerId = #{customerId}
+		</if>
+		<if test=" kindCode!=-1 ">
+   		<![CDATA[      
+		   	and g.code like '${kindCode}%'
+		]]>
+		</if>
+		<if test="goodsNm!=''">
+			and d.goodsNm like '%${goodsNm}%'
+		</if>
+	</sql>
+	<!-- 根据物料查询销售汇总 -->
+	<select id="getDemandSummByGoods" parameterType="Map"
+		resultType="com.qxh.exmodel.DemandSummaryD">
+		<if test=" goodsType==0 ">
+   	<![CDATA[	
+   		select concat(g.brand,g.goodsNm) goodsNm,g.unitNm,
+   		date_format(h.billDate,"%Y-%m-%d %H:%i:%s") billDate,
+   		c.customNm customerNm,
+   		sum(d.demandNum) demandNum,
+		sum(d.price*d.demandNum)/sum(d.demandNum) price,
+		0 goodsType
+		from demandlisth h left join teamdemand t on h.atNo=t.headAtNo
+		inner join demandlistd d on t.atNo=d.headAtNo
+		left join goods g on d.goodsId=g.atNo
+		left join customer c on d.customerId=c.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime}
+		and h.centerId=#{structId} and d.goodsId=#{goodsId} and h.reviewState>0
+	]]>
+			<include refid="getCustomerBySructId"></include> 
+	<![CDATA[
+		GROUP BY d.customerId,h.billDate
+	]]>
+		</if>
+		<if test=" goodsType==1 ">
+   	<![CDATA[	
+   		select d.goodsNm,d.unitNm,
+   		date_format(h.billDate,"%Y-%m-%d %H:%i:%s") billDate,
+   		d.unitNm,c.customNm customerNm,
+		d.demandNum,d.price*d.demandNum money,d.price,1 goodsType
+		from demandlisth h left join teamdemand t on h.atNo=t.headAtNo
+		left join demandlistd d on t.atNo=d.headAtNo
+		left join customer c on d.customerId=c.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime} and
+		d.goodsNm=#{goodsNm}
+	]]>
+		</if>
+	</select>
+	
+	<select id="getGoodsNmByDemandListDId" parameterType="Map" 
+	resultType="com.qxh.exmodel.DemandSummaryD">
+	select goodsNm from demandListD where atNo=#{demandListDId}
+	</select>
+	
+	<!-- 为毛利汇总查询销售汇总 -->
+	<select id="getDemandSummaryForProfit" parameterType="Map"
+		resultType="com.qxh.exmodel.DemandGoods">
+   	<![CDATA[	
+  	 	select g.code,h.billDate,d.code tcode,d.atNo demandListDId,d.goodsId,
+  	 	case when g.spec='' then concat(g.brand,g.goodsNm)
+		else concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm,g.unitNm,d.remark,
+		g.unitNm,gk.kindNm,gk.pId,
+		SUM(d.demandNum) demandNum,SUM(d.price*d.demandNum) money,
+		SUM(d.price*d.demandNum)/SUM(d.demandNum) price,0 goodsType
+		from demandlisth h left join teamdemand t on h.atNo=t.headAtNo
+		inner join demandlistd d on t.atNo=d.headAtNo
+		left join goods g on d.goodsId=g.atNo
+        left join goodskind gk on g.kindId=gk.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime}
+		and d.goodsType=0 and h.centerId=#{structId} and h.reviewState>0
+		]]>
+		<include refid="getCustomer"></include> 
+	<![CDATA[
+		GROUP BY d.goodsId
+		UNION ALL
+		select d.tempGoodsType code,h.billDate,d.code tcode,d.atNo demandListDId,d.goodsId,d.goodsNm,g.unitNm,d.remark,d.unitNm,gk.kindNm,gk.pId,
+		SUM(d.demandNum) demandNum,SUM(d.price*d.demandNum) money,
+		SUM(d.price*d.demandNum)/SUM(d.demandNum) price,1 goodsType
+		from demandlisth h 
+        left join teamdemand t on h.atNo=t.headAtNo
+		left join demandlistd d on t.atNo=d.headAtNo
+		left join goods g on d.goodsId=g.atNo
+        left join goodskind gk on g.kindId=gk.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime}
+		and d.goodsType=1 and h.centerId=#{structId} and h.reviewState>0
+		]]>
+		<include refid="getCustomerTemp"></include> 
+		<![CDATA[
+		GROUP BY d.goodsNm
+		order by code
+	]]>
+	</select>
+	<!-- 条件查询 -->
+	<sql id="getCustomer">
+		<if test="customerId!=-1">
+			and d.customerId = #{customerId}
+		</if>
+		<if test="goodsNm!=''">
+			and g.goodsNm like '%${goodsNm}%'
+		</if> 
+	</sql>
+	<sql id="getCustomerTemp">
+		<if test="customerId!=-1">
+			and d.customerId = #{customerId}
+		</if>
+		<if test="goodsNm!=''">
+			and d.goodsNm like '%${goodsNm}%'
+		</if> 
+	</sql>
+	
+	
+	<!-- 为毛利汇总根据物料查询销售汇总 -->
+	<select id="getDemandSummByGoodsForProfit" parameterType="Map"
+		resultType="com.qxh.exmodel.DemandGoods">
+		<if test=" goodsType==0 ">
+   	<![CDATA[	
+   		select concat(g.brand,g.goodsNm) goodsNm,d.goodsId,g.unitNm,
+   		date_format(h.billDate,"%Y-%m-%d %H:%i:%s") billDate,
+   		c.customNm customerNm,h.purchaseListHId,
+   		sum(d.demandNum) demandNum,
+		sum(d.price*d.demandNum)/sum(d.demandNum) price,
+		SUM(d.price*d.demandNum) money,d.code tcode,
+		0 goodsType,h.purchaseListHId
+		from demandlisth h left join teamdemand t on h.atNo=t.headAtNo
+		inner join demandlistd d on t.atNo=d.headAtNo
+		left join goods g on d.goodsId=g.atNo
+		left join customer c on d.customerId=c.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime}
+		and h.centerId=#{structId} and d.goodsId=#{goodsId} and h.reviewState>0
+	]]>
+			<!-- <include refid="getCustomerBySructId"></include>  -->
+	<![CDATA[
+		GROUP BY d.customerId,h.billDate
+		Order By h.billDate
+	]]>
+		</if>
+		<if test=" goodsType==1 ">
+   	<![CDATA[	
+   		select d.goodsNm,d.goodsId,d.unitNm,
+   		date_format(h.billDate,"%Y-%m-%d %H:%i:%s") billDate,
+   		d.unitNm,c.customNm customerNm,
+		d.demandNum,d.price*d.demandNum money,d.price,d.code tcode,1 goodsType
+		from demandlisth h left join teamdemand t on h.atNo=t.headAtNo
+		left join demandlistd d on t.atNo=d.headAtNo
+		left join customer c on d.customerId=c.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime} and 
+		d.goodsNm=#{goodsNm}
+	]]>
+		</if>
+	</select>
+	
+	<!-- 为汇总图表获取数量-->
+	<select id="getDemandNumInDay" parameterType="Map"
+		resultType="com.qxh.exmodel.DemandGoods">
+		<if test=" goodsType==0 ">
+   	<![CDATA[	
+   		select concat(g.brand,g.goodsNm) goodsNm,d.goodsId,g.unitNm,
+   		date_format(h.billDate,"%Y-%m-%d") billDate,
+   		c.customNm customerNm,
+   		sum(d.demandNum) demandNum,
+		sum(d.price*d.demandNum)/sum(d.demandNum) price,
+		SUM(d.price*d.demandNum) money,d.code tcode,
+		0 goodsType
+		from demandlisth h left join teamdemand t on h.atNo=t.headAtNo
+		inner join demandlistd d on t.atNo=d.headAtNo
+		left join goods g on d.goodsId=g.atNo
+		left join customer c on d.customerId=c.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime}
+		and h.centerId=#{structId} and d.goodsId=#{goodsId} and h.reviewState>0
+	]]>
+	<![CDATA[
+		GROUP BY date(billDate)
+	]]>
+		</if>
+		<if test=" goodsType==1 ">
+   	<![CDATA[	
+   		select d.goodsNm,d.goodsId,d.unitNm,
+   		date_format(h.billDate,"%Y-%m-%d") billDate,
+   		d.unitNm,c.customNm customerNm,
+		SUM(d.demandNum) demandNum,sum(d.price*d.demandNum)/sum(d.demandNum) price,
+		SUM(d.price*d.demandNum) money,d.code tcode,1 goodsType
+		from demandlisth h left join teamdemand t on h.atNo=t.headAtNo
+		left join demandlistd d on t.atNo=d.headAtNo
+		left join customer c on d.customerId=c.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime} and
+		d.goodsNm=#{goodsNm}
+		GROUP BY date(billDate)
+	]]>
+		</if>
+	</select>
+	
+   <!-- 为汇总图表获取当年每月单物料的数量-->
+	<select id="getDemandNumInMonth" parameterType="Map"
+		resultType="com.qxh.exmodel.DemandGoods">
+		<if test=" goodsType==0 ">
+   	<![CDATA[	
+   		select concat(g.brand,g.goodsNm) goodsNm,d.goodsId,g.unitNm,
+   		date_format(h.billDate,"%Y-%m") billDate,
+   		c.customNm customerNm,
+   		sum(d.demandNum) demandNum,
+		sum(d.price*d.demandNum)/sum(d.demandNum) price,
+		SUM(d.price*d.demandNum) money,d.code tcode,
+		0 goodsType
+		from demandlisth h left join teamdemand t on h.atNo=t.headAtNo
+		inner join demandlistd d on t.atNo=d.headAtNo
+		left join goods g on d.goodsId=g.atNo
+		left join customer c on d.customerId=c.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime}
+		and h.centerId=#{structId} and d.goodsId=#{goodsId} and h.reviewState>0
+	]]>
+	<![CDATA[
+		GROUP BY date_format(h.billDate,"%Y-%m")
+	]]>
+		</if>
+		<if test=" goodsType==1 ">
+   	<![CDATA[	
+   		select d.goodsNm,d.goodsId,d.unitNm,
+   		date_format(h.billDate,"%Y-%m") billDate,
+   		d.unitNm,c.customNm customerNm,
+		SUM(d.demandNum) demandNum,sum(d.price*d.demandNum)/sum(d.demandNum) price,
+		SUM(d.price*d.demandNum) money,d.code tcode,1 goodsType
+		from demandlisth h left join teamdemand t on h.atNo=t.headAtNo
+		left join demandlistd d on t.atNo=d.headAtNo
+		left join customer c on d.customerId=c.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime} and
+		d.goodsNm=#{goodsNm}
+		GROUP BY date_format(h.billDate,"%Y-%m")
+	]]>
+		</if>
+	</select>
+	
+</mapper> 

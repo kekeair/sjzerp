@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+                    
+	<!-- 需求上报 -->
+	<bean name="/purchase/purchaseInit.do" class="com.qxh.action.purchase.PurchaseInitAction">
+	</bean>
+	<bean name="/purchase/getPurchaseListH.do" class="com.qxh.action.purchase.GetPurchaseListHAction">
+		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean>
+	<bean name="/purchase/dealPurchaseBill.do" class="com.qxh.action.purchase.DealPurchaseBillAction">
+		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean>
+	<bean name="/purchase/addPurchaseInit.do" class="com.qxh.action.purchase.AddPurchaseInitAction">
+		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean>
+	<bean name="/purchase/supplierSelInit.do" class="com.qxh.action.purchase.SupplierSelInitAction">
+	</bean>
+	<bean name="/purchase/getSupplierSelData.do" class="com.qxh.action.purchase.GetSupplierSelDataAction">
+		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean>
+
+	<bean name="/purchase/getSupplierSelExist.do" class="com.qxh.action.purchase.GetSupplierSelExistAction">
+		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean>
+	<bean name="/purchase/supplierSel.do" class="com.qxh.action.purchase.SupplierSelAction">
+		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean>
+	<bean name="/purchase/inStorageSave.do" class="com.qxh.action.purchase.InStorageSaveAction">
+		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean>
+	<bean name="/purchase/PurchaseTotalList.do" class="com.qxh.action.purchase.PurchaseTotalList">
+		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean>
+	
+	<bean name="/purchase/purchaseTotallListInit.do" class="com.qxh.action.purchase.PurchaserTotallListInitAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	
+	<bean id="ExportPurchaseTotallListView" class="com.qxh.action.purchase.ExportPurchaseTotallListView">
+	  	<property name="purchaseService" ref="PurchaseService"></property>
+	  		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/purchase/exportPurchaseTotallList.do" class="com.qxh.action.purchase.ExportPurchaseTotallListAction">
+		<property name="export" ref="ExportPurchaseTotallListView"></property>
+	</bean>
+	
+
+	<bean name="/purchase/delPurchaseBill.do" class="com.qxh.action.purchase.DelPurchaseBillAction">
+		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean>
+	<!-- 采购入库单导出 -->
+	<bean name="/purchase/exportInStock.do" class="com.qxh.action.purchase.ExportPurchaseInStockAction">
+		<property name="export" ref="ExportPurchaseInStockListView"></property>
+	</bean>
+	<bean id="ExportPurchaseInStockListView" class="com.qxh.action.purchase.ExportPurchaseInStockListView">
+	  	<property name="purchaseService" ref="PurchaseService"></property>
+	  		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/purchase/exportPurchaseInStockList.do" class="com.qxh.action.purchase.ExportPurchaseInStockListAction">
+	    <property name="purchaseService" ref="PurchaseService"></property>
+	  		<property name="commonService" ref="CommonService"></property>
+	</bean>
+
+	<!-- 导出 -->
+	 <bean id="ExportOutBillParticularsView" class="com.qxh.action.purchase.ExportOutBillParticularsView">
+  		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean> 
+	<bean name="/purchase/exportOutBill.do" class="com.qxh.action.purchase.ExportOutBillAction">
+		<property name="export" ref="ExportOutBillParticularsView"></property>
+	</bean>
+	
+	<bean name="/purchase/getExportSupplier.do" class="com.qxh.action.purchase.GetExportSupplierAction">
+		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean>
+	
+	<bean name="/purchase/exportOutPurchaseBill.do" class="com.qxh.action.purchase.ExportOutPurchaseBillAction">
+		<property name="purchaseService" ref="PurchaseService"></property>
+	</bean>
+	
+	<!-- 查看的页面初始化 -->
+	<bean name="/purchase/selectGoodsInit.do" class="com.qxh.action.purchase.SelectGoodsInitAction">
+	
+	</bean>
+	
+	<!-- 按照物料进行查看 -->
+	<bean name="/purchase/selectPurchaseGoodsByGoods.do" class="com.qxh.action.purchase.SelectPurchaseGoodsByGoodsAction">
+		<property name="purchaseService" ref="PurchaseService" />
+	</bean>
+	<!-- 按照客户进行查看 -->
+	<bean name="/purchase/selectPurchaseGoodsBygroup.do" class="com.qxh.action.purchase.SelectPurchaseGoodsBygroupAction">
+		<property name="purchaseService" ref="PurchaseService" />
+	</bean>
+	<!-- 按照客户进行查看 -->
+	<bean name="/purchase/selectPurchaseGoodsBySupplier.do" class="com.qxh.action.purchase.SelectPurchaseGoodsBySupplierAction">
+		<property name="purchaseService" ref="PurchaseService" />
+	</bean>
+	
+	<bean name="/purchase/editPurchaseInit.do" class="com.qxh.action.purchase.EditPurchaseInitAction">
+	</bean>
+	<bean name="/purchase/getPurchaseD.do" class="com.qxh.action.purchase.GetPurchaseDAction">
+		<property name="purchaseService" ref="PurchaseService" />
+	</bean>
+	<bean name="/purchase/savePurchaseD.do" class="com.qxh.action.purchase.SavePurchaseDAction">
+		<property name="purchaseService" ref="PurchaseService" />
+	</bean>
+</beans>

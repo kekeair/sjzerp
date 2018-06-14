@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/centerGoods.css"
+	type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>配送中心设置</a></li>
+							<li><a class="active" onclick="window.location.reload()"><#if roleId==10>标签管理<#else>标签浏览</#if></a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-9">
+						<div class="form-inline">
+							<div class="form-group">
+							</div>
+						</div>
+					</div>
+
+					<div class="col-sm-3" style="padding: 10px;">
+						<button type="button" id="addTag" 
+							class="btn btn-warning pull-right" style="display:none;margin-right: 10px;">添加标签</button>
+					</div>
+				</div>
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th style="text-align: center;">序号</th>
+									<th style="text-align: center;">名称</th>
+									<th style="text-align: center;">创建人</th>
+									<th style="text-align: center;">操作</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+
+	<div id="leftDiv" class="treeDiv">
+		<ul id="leftTree" class="ztree treeDemo"></ul>
+	</div>
+	<div id="rightDiv" class="treeDiv">
+		<ul id="rightTree" class="ztree treeDemo"></ul>
+	</div>
+
+	<div id="structDiv" class="treeDiv">
+		<ul id="structTree" class="ztree treeDemo"></ul>
+	</div>
+
+	<div id="roleDiv" class="treeDiv">
+		<ul id="roleTree" class="ztree treeDemo"></ul>
+	</div>
+
+
+	<!-- 增加客户对话框 -->
+	<div class="modal fade" id="tModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="cHead">添加标签</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label for="tagNm" class="col-sm-2 control-label">名称</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" maxlength="20" id="tagNm">
+							</div>
+							<label class="control-label">*</label>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="tSure" class="btn btn-primary">确定</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 选择角色对话框  -->
+
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+   <script type="text/javascript" src="../js/custom/tag.js?version=20170112"></script> 
+
+	<script>
+		var roleId=${roleId};
+	</script>
+	
+	<!-- 标签列表模板 -->
+	<script id="tagTmpl" type="text/x-jquery-tmpl">
+	{{each(i,t) tagList}}
+	<tr>
+	<td style="text-align: center;">{{= t.orderIndex}}</td>
+	<td style="text-align: center;">{{= t.tagNm}}</td>
+	<td style="text-align: center;">{{= t.creator}}</td>
+	<td style="text-align: center;">
+		{{if roleId==10}}
+		<a atNo={{= t.atNo}} class="edit">修改</a>&nbsp;
+		<a atNo={{= t.atNo}} class="del">删除</a>
+		<a atNo={{= t.atNo}} tagNm={{= t.tagNm}} class="tagGoods">物料管理</a>
+		{{else}}
+		<a atNo={{= t.atNo}}  class="viewTagGoods">查看物料单价</a>
+		{{/if}}
+	</td style="text-align: center;">
+	</tr style="text-align: center;">
+	{{/each}}
+	</script>
+	
+
+</body>
+</html>

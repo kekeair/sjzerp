@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.common.CommonMapper">
+	
+	<!-- 城市列表 -->
+	<select id="getCityList" parameterType="Map" resultType="com.qxh.model.Area">
+		select atNo,name from area
+		where levelOrder=1 and pId=#{provinceId} 
+	</select>
+	
+	<!-- 县列表 -->
+	<select id="getCountyList" parameterType="Map" resultType="com.qxh.model.Area">
+		select atNo,name from area
+		where levelOrder=2 and pId=#{cityId} 
+	</select>
+	
+	<!-- 省列表 -->
+	<select id="getProvinceList" resultType="com.qxh.model.Area">
+		select atNo,name from area
+		where levelOrder=0
+	</select>
+	
+	<!-- 组织架构列表 -->
+	<select id="getStructList" resultType="com.qxh.exmodel.CommonModel">
+		select atNo,name,pId from structure where delFlag=0
+	</select>
+	
+	<!-- 角色列表 -->
+	<select id="getRoleList" resultType="com.qxh.exmodel.CommonModel">
+		select atNo,name,pId from role where delFlag=0
+	</select>
+	
+	<!-- 查询物料分类 -->
+	<select id="getGoodsKind" resultType="com.qxh.model.GoodsKind">
+		select atNo,code,pId,kindNm name from goodsKind where delFlag=0
+	</select>
+	
+	<!-- 单位列表 -->
+	<select id="getUnitList" parameterType="Map" resultType="com.qxh.model.UnitSet">	
+		select atNo,name from unitSet
+   	</select>
+   	
+   	<!-- 物料列表 -->
+	<select id="getGoodsList" parameterType="Map" resultType="com.qxh.exmodel.ListGoods">
+		select g.atNo,g.code,k.kindNm,
+		case when g.alias='' then concat(g.brand,g.goodsNm)
+		else concat(g.brand,g.goodsNm,'(',g.alias,')') end goodsNm 
+   	    from goods g left join goodsKind k on g.kindId=k.atNo
+   	    where g.delFlag=0
+   	    <include refid="getGoodsListCondition"></include>
+		limit ${page},${pageSize}
+   	</select>
+   	
+   	<!-- 物料数量 -->
+   	<select id="getGoodsCount" parameterType="Map" resultType="int">	
+		select count(*) from goods g where g.delFlag=0
+   	    <include refid="getGoodsListCondition"></include>
+   	</select>
+   
+	<sql id="getGoodsListCondition">
+		<if test="name!=''">
+			and concat(g.brand,g.goodsNm,g.alias) like '%${name}%' 
+   		</if>		
+   		<if test=" code!='' ">
+		   	and instr(g.code, #{code} )>0
+   		</if>	
+   		<if test=" kindCode!='' ">
+		   	and g.code like '${kindCode}%'
+   		</if>	   	       				
+	</sql>
+	
+	<!-- 供应商列表 -->
+   	<select id="getSupplier" parameterType="Map" resultType="com.qxh.exmodel.CommonModel">	
+		select u.atNo, u.userNm name 
+		from user u left join userRel r on u.atNo=r.userId
+		where r.roleId=8 and r.structId=#{structId}
+   	</select>
+   	
+   	<!-- 查询作业组列表 -->
+   	<select id="getTeamList" parameterType="Map" resultType="com.qxh.exmodel.CommonModel">	
+		select atNo,teamNm name from CustomTeam
+		where headAtNo=#{customerId} and delFlag=0
+   	</select>
+   	
+   	<!-- 查询审批流程 -->
+   	<select id="getReviewProcessList" parameterType="Map" 
+   		resultType="com.qxh.model.ReviewProcess">	
+		select nodeNm,operatorNm,operNm,remark,
+		date_format(createTime,"%Y-%m-%d %H:%i") createTime
+		from reviewProcess where billId=#{billId} and billType=#{billType}
+   	</select>
+   	
+   	<!-- 根据id查询组织架构编码 -->
+   	<select id="getStructCodeById" parameterType="Map" resultType="String">	
+		select code from structure where atNo=#{structId} limit 1
+   	</select>
+	
+	<!-- 插入审批流程 -->
+	<insert id="addReviewProcess" parameterType="Map">
+		insert into ReviewProcess (billType,billId,nodeNm,operatorId,operatorNm,
+		createTime,operNm,remark)
+		values
+		(#{billType},#{billId},#{nodeNm},#{operatorId},#{operatorNm},
+		now(),#{operNm},#{remark})
+	</insert>
+	
+	<!-- 根据id查询用户名 -->
+   	<select id="getUserNmById" parameterType="String" resultType="String">	
+		select userNm from user where atNo=#{userId}
+   	</select>
+   	
+   	<!-- 生成采购单头表 -->
+   	<insert id="addPurchaseListH" parameterType="Map"
+   		useGeneratedKeys="true" keyProperty="purchaseListHId">	
+		insert into purchaseListH (code,codeOrder,centerId,createTime,reviewState)
+		values (#{code},#{codeOrder},#{structId},now(),1)
+   	</insert>
+   	
+   	<!-- 生成采购详单 -->
+   	<insert id="addPurchaseListD" parameterType="Map">	
+		insert into purchaseListD (headAtNo,centerId,customerId,teamId,goodsId,
+		orderNum,goodsNm,unitNm,spec,goodsType,remark,tempGoodsType,code)
+        select ${purchaseListHId},${structId},t.customerId,
+        d.teamId,d.goodsId,d.demandNum,d.goodsNm,d.unitNm,d.spec,
+        d.goodsType,d.remark,d.tempGoodsType,d.code
+		from teamdemand t LEFT JOIN demandlistd d on t.atNo=d.headAtNo
+		where t.headAtNo=#{billId}
+   	</insert>
+	
+	<!-- 根据id查询单位名称 -->
+	<select id="getUnitNmById" parameterType="Map" resultType="String">
+		select name from unitSet where atNo=#{goodsUnit}
+	</select>
+	
+	<!-- 查询作业组名称 -->
+	<select id="getTeamNmById" parameterType="Map" resultType="String">
+		select teamNm from CustomTeam where atNo=#{teamId}
+	</select>
+	
+	<!-- 查询客户列表 -->
+	<select id="getCustomerList" parameterType="Map" 
+		resultType="com.qxh.exmodel.CommonModel">
+		select atNo,customNm name from customer 
+		where structId=#{structId} and delFlag=0
+	</select>
+	
+	<!-- 根据id查询客户名 -->
+	<select id="getCustomerNmById" parameterType="Map" resultType="String">
+		select customNm from customer where atNo=#{customerId}
+	</select>
+	
+	<!-- 查询客户tagId -->
+	<select id="getCustomerTagId" parameterType="Map" resultType="Integer">
+		select tagId from customer where atNo=#{customerId}
+	</select>
+	
+	<select id="selectTagIdByCustomerId" parameterType="Map" resultType="int">
+		SELECT tagID FROM customer	WHERE atno = #{customerId}
+	</select>
+	
+	<!-- 插入退库退货审批流程 -->
+	<insert id="addReturnProcess" parameterType="Map">
+		insert into ReturnProcess (billType,billId,nodeNm,operatorId,operatorNm,
+		createTime,operNm,remark)
+		values
+		(#{billType},#{billId},#{nodeNm},#{operatorId},#{operatorNm},
+		now(),#{operNm},#{remark})
+	</insert>
+	
+	<!-- 查询退货退库审批流程 -->
+   	<select id="getReturnProcessList" parameterType="Map" 
+   		resultType="com.qxh.model.ReviewProcess">	
+		select nodeNm,operatorNm,operNm,remark,
+		date_format(createTime,"%Y-%m-%d %H:%i") createTime
+		from returnProcess where billId=#{billId} and billType=#{billType}
+   	</select>
+   	
+   	<!-- 查询所有配送中心物料（出库） -->
+   	<select id="getCenterGoods_demand" parameterType="Map" 
+   		resultType="com.qxh.exmodel.BaseGoods">	
+		select c.goodsId,g.code goodsCode,concat(g.brand,g.goodsNm) goodsNm,
+		g.spec,g.unitNm,t.tagGoodsPrice price
+		from centerGoods c left join goods g on c.goodsId=g.atNo
+		left join TagGoods t on c.goodsId=t.goodsId and t.tagId=#{tagId}
+		where c.centerId=#{structId} and c.delFlag=0
+		order by g.code
+   	</select>
+   	
+   	<!-- 获取物料集合 -->
+   	<select id="getCenterGoodsList" resultType="com.qxh.exmodel.AppyDemandGoods">
+	   	SELECT c.goodsId,g.goodsNm,g.code,g.spec,g.unitNm,u.userNm,s.supplierId
+		FROM centergoods c
+		LEFT JOIN goods g ON g.atNo=c.goodsId
+		LEFT JOIN suppliergoods s ON s.goodsId=c.goodsId
+		LEFT JOIN USER u ON u.atNo=s.supplierId
+   	</select>
+   	
+   	<!-- 根据单据id查询客户id -->
+   	<select id="getCustomerIdByBillId" parameterType="Map" 
+   		resultType="Integer">
+	   	select t.customerId 
+	   	from demandlisth h inner join teamDemand t
+	   	on h.atNo=t.headAtNo
+	   	where h.atNo=#{billId} limit 1
+   	</select>
+   	
+   	<!-- 查询所有配送中心物料（入库） -->
+   	<select id="getCenterGoods_purchase" parameterType="Map" 
+   		resultType="com.qxh.exmodel.BaseGoods">	
+		select c.goodsId,g.code goodsCode,g.goodsNm,
+		g.spec,g.unitNm,s.frontPrice price,
+		IFNULL(s.supplierId,-1) supplierId,IFNULL(u.userNm,'自采') supplierNm
+		from centerGoods c left join goods g on c.goodsId=g.atNo
+		left join SupplierGoods s on c.goodsId=s.goodsId and s.centerId=#{structId} and s.delFlag=0
+		left join user u on s.supplierId=u.atNo
+		where c.centerId=#{structId} and c.delFlag=0
+		order by g.code
+   	</select>
+</mapper> 

@@ -1,0 +1,99 @@
+var g_stime;//开始时间
+var g_etime;//结束时间
+var g_customerId;//客户id
+
+$(document).ready(function() {
+	g_customerId = sessionStorage.purchaseSummCustomId||-1;
+	g_stime=sessionStorage.purchaseSummStime||(getDateStr(0)+" 00:00:00");
+	g_etime=sessionStorage.purchaseSummEtime||(getDateStr(0)+" 23:00:00");
+	$("#stime").val(g_stime);
+	$("#etime").val(g_etime);
+	GetProfitSummList();//获取毛利信息
+	bindPage(GetProfitSummList);
+	//获取客户列表
+	$.post("../demandSumm/getCustom.do?", {},function(data){
+		if (data.code!=1000) {
+			tips(data.msg);
+		} else {
+			$("#custom").empty();
+			$("#customTmpl").tmpl(data.data).appendTo("#custom");
+			$("#custom").val(g_customerId);
+		}
+	},"json");
+	
+	$(document).on("click", "#search", search);//搜索
+	$(document).on("click", "#excelOut", excelOut);//导出
+	/*$(document).on("dblclick", ".goodsNm", goodsNmD);*/
+	//双点击
+	$(document).on("dblclick", ".goodsNm", function(){
+		var goodsId=$(this).attr("goodsId");
+		var goodsType=$(this).attr("goodsType");
+		var demandListDId=$(this).attr("demandListDId");
+		var purchaseListDId=$(this).attr("purchaseListDId");
+		//存入 session
+		sessionStorage.goodsId=goodsId;
+		sessionStorage.goodsType=goodsType;
+		sessionStorage.purchaseSummStime=g_stime;
+		sessionStorage.purchaseSummEtime=g_etime;
+		sessionStorage.demandListDId=demandListDId;
+		sessionStorage.purchaseListDId=purchaseListDId;
+		sessionStorage.customerId=g_customerId;
+		window.location.href="../purchaseSumm/profitSummByGoodsInit.do?goodsId="+goodsId
+		+"&goodsType="+goodsType+"&stime="+g_stime+"&etime="+g_etime
+		+"&demandListDId="+demandListDId+"&purchaseListDId="+purchaseListDId+"&customerId="+g_customerId;
+	});
+	//为table添加排序功能
+    // $("#table").tablesort();
+});
+//导出
+function excelOut(){
+	g_stime=$("#stime").val();
+	g_etime=$("#etime").val();
+	g_customerId=$("#custom").val();
+	var goodsNm=$("#goodsNm").val();
+	window.location.href="../purchaseSumm/exportProfitSumm.do?stime="+g_stime+"&etime="+g_etime+"&customerId="+g_customerId+"&goodsNm="+goodsNm+"";
+}
+
+//详情列表显示
+/*function goodsNmD(){
+	var goodsId=$(this).attr("goodsNm");
+	sessionStorage.myGoodsId=goodsId;
+	sessionStorage.myG_stime=g_stime;
+	sessionStorage.myG_etime=g_etime;
+	sessionStorage.myG_goodsType=$(this).attr("goodsType");
+	sessionStorage.myG_purchaselistDId=$(this).attr("purchaselistDId");
+	sessionStorage.myCustomerId=$("#custom").val();
+	window.location.href="purchaseSummDInit.do?";
+}*/
+
+//获取采购列表
+function GetProfitSummList() {
+	var goodsNm = $("#goodsNm").val();
+	$.post("../purchaseSumm/getProfitSummList.do?", {
+		stime:g_stime,
+		etime:g_etime,
+		customerId:g_customerId,
+		goodsNm:goodsNm
+	}, function(data) {
+		if (data.code!=1000) {
+			tips(data.msg);
+		} else {
+			$("#tbody").empty();
+			$("#tfoot").empty();
+			$("#listTmpl").tmpl(data.data.list).appendTo("#tbody");	
+			$("#totalTmpl").tmpl(data.data.totalList).appendTo("#tfoot");
+		}
+	}, "json");
+}
+
+
+function search(){
+	g_stime=$("#stime").val();
+	g_etime=$("#etime").val();
+	g_customerId=$("#custom").val();
+	sessionStorage.purchaseSummStime=g_stime;
+	sessionStorage.purchaseSummEtime=g_etime;
+	sessionStorage.purchaseSummCustomId=g_customerId;
+	GetProfitSummList();
+}
+

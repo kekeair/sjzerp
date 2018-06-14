@@ -1,0 +1,138 @@
+<div class="left-side sticky-left-side">
+
+        <!--logo and iconic logo start-->
+        <div class="logo">
+            <a><img src="../images/logo.png" alt=""></a>
+        </div>
+
+        <div class="logo-icon text-center">
+            <a href="index.html"><img src="../images/logo_icon.png" alt=""></a>
+        </div>
+        <!--logo and iconic logo end-->
+
+        <div class="left-side-inner">
+
+
+            <!--sidebar nav start-->
+            <ul class="nav nav-pills nav-stacked custom-nav">
+            	<#if baseInfoRight?size gt 0>
+                <li class="menu-list <#if nav_1==1>nav-active</#if>"><a href=""><i class="fa glyphicon glyphicon-info-sign"></i> <span>基础信息</span></a>
+                    <ul class="sub-menu-list">
+                    <#list baseInfoRight as right>
+                    <#if right=='101'>
+                        <li <#if nav_101==1>class='active'</#if>><a id="nav_role">角色</a></li>
+                    </#if>
+                    <#if right=='102'>
+                        <li <#if nav_102==1>class='active'</#if>><a id="nav_structure">组织架构</a></li>
+                    </#if>   
+                    <#if right=='103'> 
+                        <li <#if nav_103==1>class='active'</#if>><a id="nav_userManage">人员管理</a></li>
+                    </#if>
+                    <#if right=='104'>    
+                        <li <#if nav_104==1>class='active'</#if>><a id="nav_goodsKind">物料分类</a></li>
+                    </#if>  
+                    <#if right=='105'>    
+                        <li <#if nav_105==1>class='active'</#if>><a id="nav_goodsUnit">物料单位</a></li>
+                    </#if>    
+                    <#if right=='106'>    
+                        <li <#if nav_106==1>class='active'</#if>><a id="nav_goods">物料</a></li>
+                    </#if>  
+					</#list>	
+                    </ul>
+                </li>
+                </#if>
+                
+                <#if centerConfigRight?size gt 0>
+                <li class="menu-list <#if nav_2==1>nav-active</#if>"><a href=""><i class="fa glyphicon glyphicon-cutlery"></i> <span>配送中心设置</span></a>
+                    <ul class="sub-menu-list">
+                    <#list centerConfigRight as right>
+                    <#if right=='201'>
+                        <li <#if nav_201==1>class='active'</#if>><a id="nav_centerGoods">配送中心物料</a></li>
+                    </#if>
+                    <#if right=='202'>
+                        <li <#if nav_202==1>class='active'</#if>><a id="nav_supplierGoods">供应商物料</a></li>
+                    </#if>   
+                    <#if right=='203'>
+                        <li <#if nav_203==1>class='active'</#if>><a id="nav_goodsPrice"><#if roleId==10>物料价格设置<#else>物料价格</#if></a></li>
+                    </#if> 
+                    <#if right=='205'>
+                        <li <#if nav_205==1>class='active'</#if>><a id="nav_customer">客户管理</a></li>
+                    </#if> 
+                    
+                     <#if right=='207'>
+                        <li <#if nav_207==1>class='active'</#if>><a id="nav_tag"><#if roleId==10>标签管理<#else>标签浏览</#if></a></li>
+                    </#if> 
+                    
+                    <!-- <#if right=='204'>
+                        <li <#if nav_204==1>class='active'</#if>><a id="nav_suppliManage">供应商管理</a></li>
+                    </#if>    -->
+					</#list>	
+                    </ul>
+                </li>
+                </#if>
+                
+                <#if inoutRight?size gt 0>
+                <li class="menu-list <#if nav_3==1>nav-active</#if>"><a href=""><i class="fa glyphicon glyphicon-transfer"></i> <span>出入库</span></a>
+                    <ul class="sub-menu-list">
+                    <#list inoutRight as right>
+                    <#if right=='301'>
+                        <li <#if nav_301==1>class='active'</#if>><a id="nav_demand">客户申报</a></li>
+                    </#if>  
+                    <#if right=='302'>
+                        <li <#if nav_302==1>class='active'</#if>><a id="nav_purchase">采购入库</a></li>
+                    </#if>  
+                   <#if right=='303'>
+                        <li <#if nav_303==1>class='active'</#if>><a id="nav_tuiku">退库</a></li>
+                    </#if>
+                    <#if right=='304'>
+                        <li <#if nav_304==1>class='active'</#if>><a id="nav_tuihuo">退货</a></li>
+                    </#if>
+					</#list>	
+                    </ul>
+                </li>
+                </#if>
+                
+                <#if stockRight?size gt 0>
+                <li class="menu-list <#if nav_4==1>nav-active</#if>"><a href=""><i class="fa glyphicon glyphicon-save"></i> <span>库存</span></a>
+                    <ul class="sub-menu-list">
+                    <#list stockRight as right>
+                    <#if right=='401'>
+                        <li <#if nav_401==1>class='active'</#if>><a id="nav_stockFix">库存修正</a></li>
+                    </#if>  
+                    <#if right=='402'>
+                        <li <#if nav_402==1>class='active'</#if>><a id="nav_stockQuery">库存查询</a></li>
+                    </#if>
+                    <#if right=='403'>
+                        <li <#if nav_403==1>class='active'</#if>><a id="nav_TmpGoodsRecord">临时物料记录</a></li>
+                    </#if>  
+                    <!-- <#if right=='404'>
+                        <li <#if nav_404==1>class='active'</#if>><a id="nav_stockChange">库存变动记录</a></li>
+                    </#if>    -->
+					</#list>	
+                    </ul>
+                </li>
+                </#if>
+                
+                <#if inoutSummRight?size gt 0>
+                <li class="menu-list <#if nav_5==1>nav-active</#if>"><a href=""><i class="fa glyphicon glyphicon-hdd"></i> <span>出入库汇总</span></a>
+                    <ul class="sub-menu-list">
+                    <#list inoutSummRight as right>
+                    <#if right=='501'>
+                        <li <#if nav_501==1>class='active'</#if>><a id="nav_demandSumm">销售汇总</a></li>
+                    </#if>  
+                    <#if right=='502'>
+                        <li <#if nav_502==1>class='active'</#if>><a id="nav_purchaseSumm">采购汇总</a></li>
+                    </#if>  
+                     <#if right=='503'>
+                        <li <#if nav_503==1>class='active'</#if>><a id="nav_purchaseTotalD">采购汇总明细</a></li>
+                     </#if>  
+					</#list>	
+                    </ul>
+                </li>
+                </#if>
+                
+            </ul>
+            <!--sidebar nav end-->
+
+        </div>
+    </div>

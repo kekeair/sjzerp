@@ -1,0 +1,87 @@
+package com.qxh.impl.purchaseSumm;
+
+import java.util.List;
+import java.util.Map;
+
+import com.qxh.model.GoodsClass;
+import com.qxh.model.PurchaseSumm;
+import com.qxh.model.PurchaseSummD;
+/**
+ * 
+ * @author Mr chen
+ * @name : PurchaseSummMapper
+ * @todo : [采购汇总]
+ * 
+ * 创建时间 ： 2016年12月2日上午11:47:11
+ */
+public interface PurchaseSummMapper {
+
+	/**
+	 * @description : [获取集合]
+	 * @param param
+	 * @return
+	 * @时间:2016年12月2日上午11:46:20
+	 */
+	List<PurchaseSumm> getPurchaseSummList(Map<String, Object> param);
+
+	/**
+	 * @description : [计算集合个数]
+	 * @param param
+	 * @return
+	 * @时间:2016年12月2日上午11:46:35
+	 */
+	int getPurchaseSummCount(Map<String, Object> param);
+
+	/**
+	 * @description : [详情列表]
+	 * @param param
+	 * @return
+	 * @时间:2016年12月2日下午2:25:54
+	 */
+	List<PurchaseSummD> getPurchaseSummDList(Map<String, Object> param);
+	
+	/**
+	 * @description : [查询三级分类]
+	 * @param param
+	 * @return
+	 * @时间:2017年3月7日下午2:25:54
+	 */
+	GoodsClass getThreClass(Map<String, Object> param);
+	/**
+	 * @description : [查询二级分类]
+	 * @param param
+	 * @return
+	 * @时间:2017年3月7日下午2:25:54
+	 */
+	GoodsClass getSecClass(Map<String, Object> param);
+	
+	/**
+	 * @description : [获取毛利表]
+	 * @param param
+	 * @return
+	 * @时间:2017年3月14日上午11:46:20
+	 */
+	List<PurchaseSumm> getProfitSummList(Map<String, Object> param);
+	/**
+	 * @description : [根据采购Id获取临时物料名称]
+	 * @param param
+	 * @return
+	 * @时间:2017年3月7日下午2:25:54
+	 */
+	PurchaseSumm getGoodsNmByPurchaseListD(Map<String, Object> param);
+	/**
+	 * @description : [为毛利表查询物料采购信息]
+	 * @param param
+	 * @return
+	 * @时间:2017年3月14日上午11:46:20
+	 */
+	List<PurchaseSumm> getPurchaseSummDListForProfit(Map<String, Object> param);
+	/**
+	 * @description : [为汇总图表查询每月进价]
+	 * @param param
+	 * @return
+	 * @时间:2017年3月17日上午11:46:20
+	 */
+	List<PurchaseSumm> getPPriceInDay(Map<String, Object> param);
+	
+}

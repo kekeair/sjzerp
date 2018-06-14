@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.tuiku.TuikuMapper">
+	
+	<!-- 退库单列表 -->
+   	<select id="getTuikuListH" parameterType="Map" 
+   		resultType="com.qxh.model.TuikuH">	
+	<![CDATA[ 	
+		select h.atNo billId,h.code,h.reviewState,
+		h.customerId,h.customerNm,
+		date_format(h.billDate,"%Y-%m-%d %H:%i") billDate
+		from tuikuH h
+		where h.centerId=#{structId}
+		and h.reviewState>=#{viewPower}
+	]]>			 
+	<include refid="getTuikuListHCon"></include>
+		order by h.atNo desc
+		limit ${page},${pageSize}
+   	</select>
+   	
+   	<!-- 查询退库单列表总数量 -->
+   	<select id="getTuikuListHNum" parameterType="Map" resultType="int">	
+		select count(*) from tuikuH h where h.centerId=#{structId}
+		and h.reviewState>=#{viewPower}
+   		<include refid="getTuikuListHCon"></include>
+   	</select>
+   
+	<sql id="getTuikuListHCon">
+		<if test=" state!=-1 ">
+			and h.reviewState=#{state}
+        </if>		
+   		<if test=" stime!='' ">
+   		<![CDATA[      
+		   	and h.billDate>=#{stime}
+		]]>   	
+   		</if>	 
+   		<if test=" etime!='' ">
+   		<![CDATA[ 
+		   	and h.billDate<=#{etime}
+   		]]>  
+   		</if>	
+   		<if test=" customerId!=-1 ">
+   		<![CDATA[ 
+		   	and h.customerId=#{customerId}
+   		]]>  
+   		</if>	      	    	       				
+	</sql>
+	
+	<!-- 根据头表id查询退库物料 -->
+   	<select id="getTuikuGoodsByHeadAtNo" parameterType="Map" 
+   		resultType="com.qxh.exmodel.EditInOutD">	
+		SELECT d.atNo,d.goodsId,d.remark,
+		if(d.goodsType=0,concat(g.brand,g.goodsNm),d.goodsNm) goodsNm,
+		g.code goodsCode,if(d.goodsType=0,g.spec,d.spec) spec,
+		if(d.goodsType=0,g.unitNm,d.unitNm) unitNm,d.price,d.num,
+		d.price*d.num money,d.goodsType,h.customerNm,h.customerId
+		from tuikuh h inner join tuikud d on h.atNo=d.headAtNo 
+		left join goods g on d.goodsId=g.atNo
+		where h.atNo=#{billId}
+		order by d.goodsType,g.code,d.tempGoodsType
+   	</select>
+   	
+   	<!-- 查询最大单据号 -->
+	<select id="getMaxCodeOrder" parameterType="Map" resultType="Integer">
+	<![CDATA[    
+		select codeOrder from tuikuH where centerId=#{structId}
+		and createTime>=date_format(now(),'%Y-%m-%d 00:00:00')
+		and createTime<=date_format(now(),'%Y-%m-%d 23:59:59')
+		order by codeOrder desc limit 1
+	]]>   
+	</select>
+	
+	<!-- 生成退库单头表 -->
+	<insert id="addTuikuH" parameterType="Map" 
+		useGeneratedKeys="true" keyProperty="billId">
+		insert into tuikuH (code,codeOrder,centerId,reviewState,createTime,
+		creator,customerId,customerNm)
+		values (#{code},#{codeOrder},#{structId},#{reviewState},now(),#{userId},
+		#{customerId},#{customerNm})
+   	</insert>
+   	
+   	<!-- 更新退库单中的客户信息 -->
+	<update id="updateTuikuCustomer" parameterType="Map">
+		update tuikuH set customerId=#{customerId},
+		customerNm=#{customerNm}
+		where atNo=#{tuikuHId}
+   	</update>
+   	
+   	<!-- 根据单据id删除退库详情 -->
+   	<delete id="delTuikuDByBillId" parameterType="Map">	
+		delete from tuikuD where headatNo=#{billId}
+   	</delete>
+   	
+   	<!-- 删除退库单 -->
+   	<delete id="delTuikuBill" parameterType="Map">	
+		delete from tuikuh where atNo=#{billId}
+   	</delete>
+   	
+   	<!-- 查询退库单状态 -->
+   	<select id="getTuikuHState" parameterType="Map" resultType="Integer">	
+		select reviewState from tuikuh where atNo=#{billId}
+   	</select>
+   	
+   	<!-- 根据单据id查询详单数量 -->
+   	<select id="getDetailNumByBillId" parameterType="Map" resultType="int">	
+		select count(*) from tuikud where headAtNo=#{billId}
+   	</select>
+   	
+   	<!-- 根据id查询单据号 -->
+   	<select id="getBillCodeById" parameterType="Map" resultType="String">	
+		select code from tuikuh where atNo=#{billId}
+   	</select>
+   	
+   	<!--影响库存-->
+	<update id="effectStock" parameterType="Map">
+		update stock
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="stockNum =case" suffix="end,">
+	        	<foreach collection="goodsList" item="i" index="index">
+	            	when goodsId=#{i.goodsId} then #{i.afterStockNum}
+	            </foreach>
+            </trim>
+		</trim>
+		where centerId=#{structId} and goodsId in (${goodsIdStr})
+	</update>
+	
+	<!-- 影响库存前查询退库物料详情 -->
+   	<select id="getGoodsBeforeEffectStock" parameterType="Map" 
+   		resultType="com.qxh.exmodel.BaseStockGoods">	
+		select d.num,d.goodsId,d.price ,
+		s.stockNum preStockNum,s.price preStockPrice
+		from tuikuD d left join stock s on d.goodsId=s.goodsId 
+		and s.centerId=#{structId}
+		where headAtNo=#{billId}
+   	</select>
+   	
+   	<!-- 增加库存记录 -->
+	<insert id="addStockRecord" parameterType="Map">
+		insert into StockRecord (billCode,centerId,billId,goodsId,preStockNum,
+		preStockPrice,acrossTime,acrossNum,acrossPrice,stockFlag,stockNum,stockPrice)
+		values
+		<foreach collection="goodsList" item="item" index="index" separator=",">
+			('${billCode}',${structId},${billId},#{item.goodsId},#{item.preStockNum},
+			#{item.preStockPrice},now(),#{item.num},#{item.price},3,
+			#{item.afterStockNum},#{item.preStockPrice})
+		</foreach>
+	</insert>
+	
+	<!-- 更新需求单据状态 -->
+	<update id="updateTuikuHState" parameterType="Map">
+		update tuikuH 
+		<include refid="updateTuikuHCon"></include>
+		where atNo=#{billId}
+	</update>
+	<sql id="updateTuikuHCon">
+		<set>
+			<if test="reviewState!=''">
+				reviewState=#{reviewState},
+			</if>
+			<if test="billDate!=''">
+				billDate=#{billDate}
+			</if>
+		</set>
+	</sql>
+	
+	
+	<!-- 查看退库详情 -->
+   	<select id="viewTuikuD" parameterType="Map" 
+   		resultType="com.qxh.exmodel.BaseGoods">	
+		select d.goodsId,
+		case when d.goodsId!=-1 then concat(g.brand,g.goodsNm) 
+		else d.goodsNm end goodsNm,
+		case when d.goodsId!=-1 then g.spec
+		else d.spec end spec,
+		case when d.goodsId!=-1 then g.unitNm 
+		else d.unitNm end unitNm,
+		g.code goodsCode,
+		d.num,d.price,d.num*d.price money
+		from tuikuD d left join goods g on d.goodsId=g.atNo 
+		where d.headAtNo=#{billId}
+		order by g.code,d.tempGoodsType
+	</select>
+	
+	
+	
+	<!-- 根据id查询退库表头 -->
+   	<select id="getTuikuHById" parameterType="Map" 
+   		resultType="com.qxh.model.TuikuH">	
+		select code,customerNm,billDate,reviewState from tuikuH
+		where atNo=#{billId}
+	</select>
+	
+	<!-- 导出退库单汇总 -->
+   	<select id="exportTuikuList" parameterType="Map" 
+   		resultType="com.qxh.exmodel.ExportTuikuModel">	
+		select h.atNo billId, h.billDate,h.code billCode,
+		h.customerNm,g.code goodsCode,
+		g.goodsNm,g.spec,g.unitNm,d.num,d.price,
+		d.num*d.price money
+		from tuikuh h left join tuikud d on h.atNo=d.headAtNo
+		left join goods g on d.goodsId=g.atNo
+		where h.centerId=#{structId}
+		<include refid="exportTuikuListCon"></include>
+	</select>
+	<sql id="exportTuikuListCon">
+		<if test=" state!=-1 ">
+			and h.reviewState=#{state}
+        </if>		
+   		<if test=" stime!='' ">
+   		<![CDATA[      
+		   	and h.billDate>=#{stime}
+		]]>   	
+   		</if>	 
+   		<if test=" etime!='' ">
+   		<![CDATA[ 
+		   	and h.billDate<=#{etime}
+   		]]>  
+   		</if>	
+   		<if test=" customerId!=-1 ">
+   		<![CDATA[ 
+		   	and h.customerId=#{customerId}
+   		]]>  
+   		</if>	      	    	       				
+	</sql>
+	<!-- 获取退库列表 -->
+   	<select id="getTuikuGoodsListByHeadAtNo" parameterType="Map" resultType="com.qxh.exmodel.BaseGoods">
+		SELECT d.goodsId, d.num,g.code goodsCode,d.atNo,d.goodsType,h.customerNm,h.customerId,
+		CASE WHEN d.goodsType=0 THEN CONCAT(g.brand,g.goodsNm) 
+		ELSE d.goodsNm END goodsNm,
+		CASE WHEN d.goodsType=0 THEN g.unitNm ELSE d.unitNm END unitNm,
+		CASE WHEN d.goodsType=0 THEN g.spec ELSE d.spec END spec, 
+		d.price,d.price*d.num money,d.remark
+		FROM tuikuD d 
+		LEFT JOIN goods g ON d.goodsId=g.atNo
+		LEFT JOIN tuikuh h ON h.atNo=d.headAtNo 
+		WHERE d.headAtNo=#{billId} 
+		order by d.goodsType,g.code,d.tempGoodsType
+   	</select>
+   	
+   	<!-- 批量添加 tuikuD-->
+	<insert id="batchAddTuikuD" parameterType="Map">
+		insert into tuikuD (headAtNo,goodsId,num,price,remark,goodsNm,unitNm,
+		spec,goodsType,tempGoodsType)
+		values
+		<foreach collection="newList" item="i" index="index" separator=",">
+			(${billId},#{i.goodsId},#{i.num},#{i.price},#{i.remark},#{i.goodsNm},
+			#{i.unitNm},#{i.spec},#{i.goodsType},#{i.tempGoodsType})
+		</foreach>
+	</insert>
+	
+	<!-- 批量更新 tuikuD -->
+	<update id="batchUpdateTuikuD" parameterType="Map">
+		update tuikuD
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="goodsId =case" suffix="end,">
+	        	<foreach collection="editList" item="i" index="index">
+	            	when atNo=#{i.atNo} then #{i.goodsId}
+	            </foreach>
+            </trim>
+            <trim prefix="num =case" suffix="end,">
+	        	<foreach collection="editList" item="i" index="index">
+	            	when atNo=#{i.atNo} then #{i.num}
+	            </foreach>
+            </trim>
+            <trim prefix="price =case" suffix="end,">
+	        	<foreach collection="editList" item="i" index="index">
+	            	when atNo=#{i.atNo} then #{i.price}
+	            </foreach>
+            </trim>
+            <trim prefix="remark =case" suffix="end,">
+	        	<foreach collection="editList" item="i" index="index">
+	            	when atNo=#{i.atNo} then #{i.remark}
+	            </foreach>
+            </trim>
+            <trim prefix="goodsNm =case" suffix="end,">
+	        	<foreach collection="editList" item="i" index="index">
+	            	when atNo=#{i.atNo} then #{i.goodsNm}
+	            </foreach>
+            </trim>
+            <trim prefix="goodsType =case" suffix="end,">
+	        	<foreach collection="editList" item="i" index="index">
+	            	when atNo=#{i.atNo} then #{i.goodsType}
+	            </foreach>
+            </trim>
+		</trim>
+		where atNo in (${idStr})
+	</update>
+	
+	<!-- 批量删除tuikuD -->
+	<delete id="batchTuikuD" parameterType="Map">
+		delete from TuikuD where atNo in (${delAtNo})
+	</delete>
+</mapper> 

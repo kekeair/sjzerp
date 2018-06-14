@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.structure.StructureMapper">
+	
+	<!-- 登陆组织架构列表 -->
+	<select id="getStructure" resultType="com.qxh.model.Structure">
+		select s.atNo,s.pId,s.code,s.name,s.isCenter,s.levelOrder,
+		d.provinceId,d.cityId,d.countyId,d.address 
+		from structure s left join diningCenter d
+		on s.atNo=d.structId
+		where s.delFlag=0
+	</select>
+	
+	<!-- 更新组织架构 -->
+	<update id="updateStructure" parameterType="Map">
+		update Structure set name=#{name},isCenter=#{isCenter},updateTime=now()
+		where atNo=#{atNo}
+	</update>
+	
+	<!-- 更新餐饮中心属性 -->
+	<update id="updateDiningCenter" parameterType="Map">
+		update DiningCenter set provinceId=#{provinceId},cityId=#{cityId},
+		countyId=#{countyId},address=#{address}
+		where structId=#{atNo}
+	</update>
+	
+	<!-- 添加架构 -->
+	<insert id="addStructure" parameterType="Map" useGeneratedKeys="true" keyProperty="atNo">
+		insert into structure (pId,code,name,levelOrder,isCenter,createTime,updateTime)
+		values 
+		(#{pId},#{code},#{name},#{levelOrder},#{isCenter},now(),now())
+	</insert>
+	
+	<!-- 添加餐饮中心 -->
+	<insert id="addDiningCenter" parameterType="Map">
+		insert into diningCenter (structId,provinceId,cityId,countyId,address)
+		values 
+		(#{atNo},#{provinceId},#{cityId},#{countyId},#{address})
+	</insert>
+	
+	
+	<!-- 更新架构顺序 -->
+	<update id="updateStructOrder" parameterType="Map">
+		update structure set pId=#{pId},levelOrder=#{levelOrder}
+		where atNo=#{atNo}
+	</update>
+	
+	<!-- 查询最大的架构编码 -->
+	<select id="getMaxStructCode" parameterType="Map" resultType="String">
+		select MAX(code) from structure where pId=#{pId}
+	</select>
+</mapper> 

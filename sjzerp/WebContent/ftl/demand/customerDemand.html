@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a href="demandInit.do">客户申报</a></li>
+							<li><a class="active" onclick="window.location.reload()">客户申请情况</a></li>
+						</ol>
+					</div>
+				</div>
+				
+				<!--提交按钮 
+				<div class="row">
+					<div class="col-sm-12">
+						<button type="button" id="submit"
+							class="btn btn-warning pull-right">提交</button>
+					</div>
+				</div> 
+				-->
+
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>餐饮中心</th>
+									<th>地址</th>
+									<th>电话</th>
+									<th>状态</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<!-- 对话框 -->
+	<div class="modal fade" id="submitModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">提交</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group" id="varyTime">
+							<label for="remark" class="col-sm-2 control-label">提交时间</label>
+							<div class="col-sm-4">
+							<input id="submitTime" type="text" readonly="readonly" 
+								class="whiteback form-control" onFocus="WdatePicker({isShowClear:false,readOnly:true})"/>
+							</div>
+						</div>	
+						<div class="form-group">
+							<label for="remark" class="col-sm-2 control-label">备注</label>
+							<div class="col-sm-10">
+								<textarea class="form-control" rows="3" id="remark">
+								</textarea>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+			      	<button type="button" id="uSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 对话框  -->
+	
+	<script>
+		var roleId=${roleId};
+	</script>
+	<#include "temple/commonJs.html">
+	<script type="text/javascript" src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/customerDemand.js?version=20170110"></script>
+
+	<!-- 列表模板 -->
+	<script id="demandTmpl" type="text/x-jquery-tmpl">
+	{{each(i,g) list}}
+	<tr>
+	<td>{{= g.customNm}}</td>
+	<td>{{= g.address}}</td>
+	<td>{{= g.phone}}</td>
+	<td>{{if g.teamDemandId==0}}未申报{{else}}已申报{{/if}}</td>
+	<td>
+		{{if g.teamDemandId==0}}
+			<a customerId="{{= g.atNo}}" customNm="{{= g.customNm}}" class="customerDemandNew">申报</a>
+		{{else billState==0}}<a customerId="{{= g.atNo}}" teamDemandId="{{= g.teamDemandId}}" class="edit">编辑</a>{{/if}}
+	</td>
+	</tr>
+	{{/each}}
+	</script>
+</body>
+</html>

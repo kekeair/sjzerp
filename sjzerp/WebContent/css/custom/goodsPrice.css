@@ -1,0 +1,84 @@
+.marginrow{
+	margin-top:20px;
+}
+.selectWidth{
+	width:180px!important;
+	background:white!important;
+}
+.white{
+	background:white;
+}
+.myborder{
+	margin-left: 0;
+	margin-right: 0;
+	border: 1px solid #cccccc;
+	padding: 10px;
+}
+.jobRow{
+	margin-left: 0;
+	margin-right: 0;
+	margin-bottom:10px;
+}
+.jobLbl{
+	float:left;
+	font-weight: 400;
+}
+.jobLbl1{
+	margin-left:20px;
+	float:left;
+	font-weight: 400;
+}
+.jobInputDiv{
+	float: left;
+	width: 25%;
+	margin-left: 20px;
+}
+.removeJobRow{
+	margin-left:5px;
+}
+.areaDiv{
+	float: left;
+	width: 25%;
+	margin-left: 5px;
+}
+.areaLbl{
+	margin-left:5px;
+	float:left;
+	font-weight: 400;
+}
+.supplyAttr{
+	padding-left:0;
+}
+#remark{
+	resize:none;
+}
+.normalWeight{
+	font-weight:400
+}
+.jobWarning{
+	margin-bottom:10px;
+	font-size:12px;
+	color:red;
+}
+.whiteBack{
+	background:white;
+}
+.textRight{
+	text-align:right;
+}
+.toright{
+	margin-right:10px
+}
+.bold{
+	font-weight:bold;
+}
+img{
+	margin-right:5px;
+	margin-top:-4px;
+}
+.importdiv{
+	width:50px;height:35px;
+}
+.importbtn{
+	opacity:0;width:50px;margin-left:-13px;margin-top:-20px;
+}

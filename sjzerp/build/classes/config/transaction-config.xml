@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		 http://www.springframework.org/schema/context
+         http://www.springframework.org/schema/context/spring-context-3.0.xsd
+         http://www.springframework.org/schema/tx
+         http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+         http://www.springframework.org/schema/aop 
+         http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+	<context:annotation-config />
+	<!-- ================================事务相关控制================================================= -->
+	<bean name="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource_base"></property>
+	</bean>
+	<!-- 餐饮中心物料 -->
+	<tx:advice id="centerGoodsAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="delCenterGoods" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="centerGoodsAop"
+			expression="execution(public * com.qxh.impl.centerGoods.*.*(..))" />
+		<aop:advisor pointcut-ref="centerGoodsAop" advice-ref="centerGoodsAdvice" />
+	</aop:config>
+	
+	<!-- 需求出库 -->
+	<tx:advice id="demandAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="dealDemandBill" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="delDemandBill" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="saveDemandD" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="demandAop"
+			expression="execution(public * com.qxh.impl.demand.*.*(..))" />
+		<aop:advisor pointcut-ref="demandAop" advice-ref="demandAdvice" />
+	</aop:config>
+	
+	<!-- 物料管理 -->
+	<tx:advice id="goodsAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="addGoods" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="goodsAop"
+			expression="execution(public * com.qxh.impl.goods.*.*(..))" />
+		<aop:advisor pointcut-ref="goodsAop" advice-ref="goodsAdvice" />
+	</aop:config>
+	
+	<!-- 物料价格 -->
+	<tx:advice id="goodsPriceAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="editGoodsPrice" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="goodsPriceAop"
+			expression="execution(public * com.qxh.impl.goodsPrice.*.*(..))" />
+		<aop:advisor pointcut-ref="goodsPriceAop" advice-ref="goodsPriceAdvice" />
+	</aop:config>
+	
+	<!-- 物料单位 -->
+	<tx:advice id="goodsUnitAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="editUnit" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="goodsUnitAop"
+			expression="execution(public * com.qxh.impl.goodsUnit.*.*(..))" />
+		<aop:advisor pointcut-ref="goodsUnitAop" advice-ref="goodsUnitAdvice" />
+	</aop:config>
+	
+	<!-- 采购入库 -->
+	<tx:advice id="purchaseAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="dealPurchaseBill" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="supplierSel" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="delPurchaseBill" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="savePurchaseD" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="purchaseAop"
+			expression="execution(public * com.qxh.impl.purchase.*.*(..))" />
+		<aop:advisor pointcut-ref="purchaseAop" advice-ref="purchaseAdvice" />
+	</aop:config>
+	
+	<!-- 组织架构 -->
+	<tx:advice id="structureAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="editStructure" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="structureAop"
+			expression="execution(public * com.qxh.impl.structure.*.*(..))" />
+		<aop:advisor pointcut-ref="structureAop" advice-ref="structureAdvice" />
+	</aop:config>
+	
+	<!-- 用户管理 -->
+	<tx:advice id="userAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="editUser" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="delUser" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="userAop"
+			expression="execution(public * com.qxh.impl.user.*.*(..))" />
+		<aop:advisor pointcut-ref="userAop" advice-ref="userAdvice" />
+	</aop:config>
+	
+	<!-- 库存修正 -->
+	<tx:advice id="stockFixAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="delStockFix" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="addStockFixD" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="selTmpGoods" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="dealStockFix" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="stockFixAop"
+			expression="execution(public * com.qxh.impl.stockFix.*.*(..))" />
+		<aop:advisor pointcut-ref="stockFixAop" advice-ref="stockFixAdvice" />
+	</aop:config>
+	
+	<!-- 退库 -->
+	<tx:advice id="tuikuAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="delTuikuBill" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="dealTuikuBill" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="saveTuikuD" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="tuikuAop"
+			expression="execution(public * com.qxh.impl.tuiku.*.*(..))" />
+		<aop:advisor pointcut-ref="tuikuAop" advice-ref="tuikuAdvice" />
+	</aop:config>
+	
+	<!-- 退货 -->
+	<tx:advice id="tuihuoAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="delTuihuoBill" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="dealTuihuoBill" propagation="REQUIRED"
+				read-only="false"></tx:method>
+			<tx:method name="saveTuihuoD" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="tuihuoAop"
+			expression="execution(public * com.qxh.impl.tuihuo.*.*(..))" />
+		<aop:advisor pointcut-ref="tuihuoAop" advice-ref="tuihuoAdvice" />
+	</aop:config>
+	
+	<!-- 测试 -->
+	<tx:advice id="testAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="test" propagation="REQUIRED"
+				read-only="false"></tx:method>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="testAop"
+			expression="execution(public * com.qxh.impl.test.*.*(..))" />
+		<aop:advisor pointcut-ref="testAop" advice-ref="testAdvice" />
+	</aop:config>
+</beans>

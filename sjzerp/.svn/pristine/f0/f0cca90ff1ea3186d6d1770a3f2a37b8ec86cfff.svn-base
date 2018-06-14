@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> 
+<#include "temple/commonCss.html">
+<link rel="stylesheet" href="../css/custom/user.css" type="text/css">
+
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+		</div>
+		<!-- main content end-->
+	</section>
+
+<!-- 任务列表模板 -->
+<script id="taskTmpl" type="text/x-jquery-tmpl">
+<tr>
+<td>{{= orderIndex}}</td>
+<td{{if readState==0}} style="font-weight:bolder"{{/if}}>
+<a class="billDetail" taskId={{= taskId}} dealState={{= dealState}} 
+	billId={{= billId}} billType={{= billType}} readState={{= readState}}>{{= title}}</a>
+</td>
+<td>{{= fromPersonNm}}</td>
+<td>{{if dealState==1}}已办理{{else}}未办理{{/if}}</td>
+<td>{{= receiveDate}}</td>
+<td>{{= dealDate}}</td>
+<td>{{if sendState==0}}<a taskId={{= taskId}} class="del">删除</a>{{/if}}</td>
+</tr>
+</script>
+
+<#include "temple/commonJs.html">
+
+</body>
+</html>

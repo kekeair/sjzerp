@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.purchaseTotalD.PurchaseTotalDMapper">
+	
+	<!-- 采购汇总明细 -->
+	<select id="getPurchaseTotalD" parameterType="Map" 
+		resultType="com.qxh.exmodel.PurchaseTotalD">
+	<![CDATA[		
+		select d.goodsId,d.tempGoodsType,
+		case when g.spec='' then concat(g.brand,g.goodsNm)
+		else concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm,
+		d.customerId,
+		if(d.customerId=-2,'配送中心',c.customNm) customerNm,
+		sum(d.orderNum) orderNum,g.kindId,0 goodsType
+		from purchaselisth h inner join purchaselistd d on h.atNo=d.headAtNo
+		left join goods g on d.goodsId=g.atNO
+		left join customer c on d.customerId=c.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime}
+		and h.reviewState>2 and h.centerId=#{structId} and d.goodstype=0
+		and d.supplierId=#{supplierId}
+		]]>
+		<include refid="getCustomerBySructId"></include> 
+        <![CDATA[
+		GROUP BY d.goodsId,d.customerId
+		union ALL
+		select d.goodsId,d.tempGoodsType,d.goodsNm,d.customerId,
+		if(d.customerId=-2,'配送中心',c.customNm) customerNm,
+		d.orderNum orderNum,-1 kindId,1 goodsType
+		from purchaselisth h inner join purchaselistd d on h.atNo=d.headAtNo
+		left join customer c on d.customerId=c.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime}
+		and h.reviewState>2 and h.centerId=#{structId} and d.goodstype=1
+		and d.supplierId=#{supplierId}
+		]]>
+		<include refid="getCustomerBySructId"></include> 
+		<![CDATA[
+		order by kindId=-1,kindId,goodsId,tempGoodsType,customerId
+	    ]]>   	
+	</select>
+	<!-- 条件查询 -->
+	<sql id="getCustomerBySructId">
+		<if test="customerId!=-1">
+			and d.customerId = #{customerId}
+		</if>
+	</sql>
+	<!-- 供应商列表 -->
+	<select id="getCustomerList" parameterType="Map" 
+		resultType="com.qxh.exmodel.PurchaseTotalCustomer">
+	<![CDATA[		
+		select d.customerId,if(d.customerId=-2,'配送中心',c.customNm) customerNm
+		from purchaselisth h inner join purchaselistd d on h.atNo=d.headAtNo
+		left join customer c on d.customerId=c.atNo
+		where h.billDate>=#{stime} and h.billDate<=#{etime}
+		and h.reviewState>2 and h.centerId=#{structId}
+		and d.supplierId=#{supplierId} 
+	]]>
+		<include refid="getCustomerBySructId"></include> 
+	<![CDATA[
+		GROUP BY d.customerId 
+	]]>   		
+	</select>
+	
+</mapper> 

@@ -1,0 +1,145 @@
+package com.qxh.exmodel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.qxh.model.SupplierGoods;
+
+public class SupplierSelData {
+
+	private int purchaseListDId;
+	private int goodsId;
+	private String goodsNm;
+	private String spec;
+	private String unitNm;
+	private Double price;
+	private double orderNum;
+	private Double money;
+	private double frontPrice;
+	private double frontMoney;
+	private int sId;
+	private List<SupplierGoods> supplierList = new ArrayList<>();
+	private double totalInNum;
+	private int goodsType;
+	private int supplierId;
+
+	public Double getMoney() {
+		return money;
+	}
+
+	public void setMoney(Double money) {
+		this.money = money;
+	}
+
+	public Double getPrice() {
+		return price;
+	}
+
+	public void setPrice(Double price) {
+		this.price = price;
+	}
+
+	public int getSupplierId() {
+		return supplierId;
+	}
+
+	public void setSupplierId(int supplierId) {
+		this.supplierId = supplierId;
+	}
+
+	public int getGoodsType() {
+		return goodsType;
+	}
+
+	public void setGoodsType(int goodsType) {
+		this.goodsType = goodsType;
+	}
+
+	public String getSpec() {
+		return spec;
+	}
+
+	public void setSpec(String spec) {
+		this.spec = spec;
+	}
+
+	public double getOrderNum() {
+		return orderNum;
+	}
+
+	public void setOrderNum(double orderNum) {
+		this.orderNum = orderNum;
+	}
+
+	public double getTotalInNum() {
+		return totalInNum;
+	}
+
+	public void setTotalInNum(double totalInNum) {
+		this.totalInNum = totalInNum;
+	}
+
+	public int getsId() {
+		return sId;
+	}
+
+	public void setsId(int sId) {
+		this.sId = sId;
+	}
+
+	public int getGoodsId() {
+		return goodsId;
+	}
+
+	public void setGoodsId(int goodsId) {
+		this.goodsId = goodsId;
+	}
+
+	public String getGoodsNm() {
+		return goodsNm;
+	}
+
+	public void setGoodsNm(String goodsNm) {
+		this.goodsNm = goodsNm;
+	}
+
+	public String getUnitNm() {
+		return unitNm;
+	}
+
+	public void setUnitNm(String unitNm) {
+		this.unitNm = unitNm;
+	}
+
+	public double getFrontPrice() {
+		return frontPrice;
+	}
+
+	public void setFrontPrice(double frontPrice) {
+		this.frontPrice = frontPrice;
+	}
+
+	public double getFrontMoney() {
+		return frontMoney;
+	}
+
+	public void setFrontMoney(double frontMoney) {
+		this.frontMoney = frontMoney;
+	}
+
+	public List<SupplierGoods> getSupplierList() {
+		return supplierList;
+	}
+
+	public void setSupplierList(List<SupplierGoods> supplierList) {
+		this.supplierList = supplierList;
+	}
+
+	public int getPurchaseListDId() {
+		return purchaseListDId;
+	}
+
+	public void setPurchaseListDId(int purchaseListDId) {
+		this.purchaseListDId = purchaseListDId;
+	}
+}

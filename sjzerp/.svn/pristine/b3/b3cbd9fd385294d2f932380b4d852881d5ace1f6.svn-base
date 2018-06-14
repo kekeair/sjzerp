@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.tagGoods.TagGoodsMapper">
+	
+	<!-- 查询物料库 -->
+	<select id="getLeftGoodsList" parameterType="Map" resultType="com.qxh.model.TagGoods">
+		SELECT t.atNo,t.taggoodsprice ,
+		case when g.spec='' then  concat(g.brand,g.goodsNm) 
+        else concat(g.brand,g.goodsNm,'(',g.spec,')') end tagGoodsNm,
+		t.goodsid
+		FROM taggoods t LEFT JOIN goods g ON t.goodsid = g.atNo
+		WHERE t.delFlag=0 AND t.tagId=#{tagId}
+   	    <include refid="getGoodsListCondition"></include>
+		order by g.code
+		limit ${rightPage},${pageSize}
+   	</select>
+   	
+   	<!-- 物料数量 -->
+   	<select id="getLeftGoodsCount" parameterType="Map" resultType="int">	
+		SELECT COUNT(*) FROM taggoods t ,goods g  WHERE t.goodsid = g.atNo AND  g.delFlag=0 AND t.tagId=#{tagId}
+   	    <include refid="getGoodsListCondition"></include>
+   	</select>
+   	
+	<sql id="getGoodsListCondition">
+   		<if test=" rkindCode!='' ">
+		   	and g.code like '${rkindCode}%'
+   		</if>
+	</sql>
+	
+	<!-- 查询餐饮中心物料 -->
+	<select id="getCenterGoodsList" parameterType="Map" resultType="com.qxh.model.CenterGoods">
+		SELECT c.atNo,c.goodsId,
+		case when g.spec='' then  concat(g.brand,g.goodsNm) 
+		else concat(g.brand,g.goodsNm,'(',g.spec,')') end goodsNm,
+		s.frontPrice price,
+		CASE WHEN t.atno>0 THEN 1 ELSE 0 END state
+		FROM centergoods c LEFT JOIN taggoods t ON c.goodsId=t.goodsId AND t.tagId=#{tagId}
+		LEFT JOIN goods g ON c.goodsId=g.atno
+		LEFT JOIN suppliergoods s ON c.goodsId=s.goodsId AND s.centerId=#{structId}  AND s.delFlag=0
+		WHERE c.centerId=#{structId} AND c.delFlag=0
+   	    <include refid="getCenterGoodsListCondition"></include>
+   	    order by g.code
+		limit ${leftPage},${pageSize}
+   	</select>
+   	
+   	<!-- 查询餐饮中心物料数量 -->
+	<select id="getCenterGoodsCount" parameterType="Map" resultType="int">
+		select count(*) from centerGoods c left join goods g on c.goodsId=g.atNo
+   	    where c.centerId=#{structId} and c.delFlag=0
+   	    <include refid="getCenterGoodsListCondition"></include>
+   	</select>
+   	
+   	<sql id="getCenterGoodsListCondition">
+     	<if test="name!=''">
+			and concat(g.brand,g.goodsNm,g.alias) like '%${name}%' 
+   		</if>
+   		<if test=" lkindCode!='' ">
+		   	and g.code like '${lkindCode}%'
+   		</if>
+   		<if test=" goodsCode!='' ">
+		   	and g.code = #{goodsCode}
+   		</if>	   	       				
+	</sql>
+	
+	<!-- 餐饮中心添加物料 -->	
+	<insert id="addTagGoods" parameterType="Map">	
+	   INSERT INTO taggoods (tagGoodsNm,tagGoodsPrice,tagId,goodsId) VALUES (#{goodsId},#{tagGoodsPrice},#{tagId},#{goodsId})
+   	</insert>
+   	
+   	<!-- 餐饮中心删除物料 -->	
+	<!-- <update id="delTagGoods" parameterType="Map">	
+		update TagGoods set delFlag=1 where atNo=#{atNo}
+   	</update> -->
+    <delete id="delTagGoods" parameterType="Map">
+      DELETE FROM TagGoods WHERE atNo=#{atNo}
+    </delete>
+   	
+   	<!-- 修改价格 -->	
+	<update id="editTagGoods" parameterType="Map">	
+		UPDATE TagGoods SET taggoodsprice=#{tagGoodsPrice} WHERE atNo=#{atNo}
+   	</update>
+   	
+   	<!-- 关联删除供应商物料 -->	
+	<update id="delSuppGoodsFromCenterGoods" parameterType="Map">	
+		update supplierGoods set delFlag=1 
+		where centerId=#{structId} and goodsId=#{goodsId}
+   	</update>
+   	
+   	<!-- 查询物料库存 -->
+	<select id="getGoodsStock" parameterType="Map" resultType="Double">
+		select stockNum from stock where centerId=#{structId}
+		and goodsId=#{goodsId} limit 1
+   	</select>
+   	
+   	
+   	<!-- 批量查詢 -->
+   	<select id="addAllGoodsList" parameterType="Map" resultType="com.qxh.model.TagGoods">
+	    SELECT c.atNo,c.goodsId,
+		CASE WHEN g.alias='' THEN  CONCAT(g.brand,g.goodsNm) 
+		ELSE CONCAT(g.brand,g.goodsNm,'(',g.alias,')') END goodsNm,
+		s.price,
+		CASE WHEN t.atno>0 THEN 1 ELSE 0 END state
+		FROM centergoods c LEFT JOIN taggoods t ON c.goodsId=t.goodsId AND t.tagId=#{tagId}
+		LEFT JOIN goods g ON c.goodsId=g.atno
+		LEFT JOIN stock s ON c.goodsId=s.goodsId AND s.centerId=#{structId}
+		WHERE c.centerId=#{structId} AND c.delFlag=0 AND t.atNo IS NULL
+		   <include refid="getCenterGoodsListCondition"></include>
+		    order by c.atNo desc
+   	</select>
+   	
+   	<!-- 批量添加 -->
+	<insert id="addAllTagGoods" parameterType="Map">
+		<!-- INSERT INTO SupplierGoods (centerId,supplierId,goodsId) values -->
+		INSERT INTO taggoods (tagGoodsNm,tagGoodsPrice,tagId,goodsId) VALUES
+		<foreach collection="tagGoodsList" item="item" index="index" separator=",">
+			 (#{item.goodsId},#{item.price},#{tagId},#{item.goodsId})
+		</foreach>
+	</insert>
+	<!-- 通过标签id查找标签价格集合 -->
+	<select id="getTagGoodsPriceListByTagId" parameterType="Map" resultType="com.qxh.model.TagGoods">
+		SELECT t.atNo,
+		case when g.spec='' then  concat(g.brand,g.goodsNm) 
+        else concat(g.brand,g.goodsNm,'(',g.spec,')') end tagGoodsNm,
+		t.tagGoodsPrice
+		FROM tagGoods t
+		LEFT JOIN goods g ON t.goodsId=g.atNo
+		WHERE tagid=#{tagId}
+		order by g.code
+	</select>
+	
+	<!-- 修改标签物料价格 -->
+	<update id="updateTagGoodsPriceAtNo" parameterType="Map">
+		update tagGoods
+		<trim prefix="set" suffixOverrides=",">
+             <trim prefix="tagGoodsPrice =case" suffix="end,">
+                 <foreach collection="priceList" item="i" index="index">
+                 	when atNo=#{i.atNo} then #{i.tagGoodsPrice}
+                 </foreach>
+              </trim>
+		</trim>
+		where atNo in (${idStr})
+	</update>
+</mapper> 

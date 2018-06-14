@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.customer.CustomerMapper">
+	
+	<!-- 客户列表 -->
+	<select id="getCustomerList" parameterType="Map" 
+		resultType="com.qxh.model.Customer">	
+		SELECT c.atno,c.customNm,c.address,c.phone,t.tagNm,u.userNm
+		FROM customer c LEFT JOIN tag t ON c.tagId=t.atNo
+		LEFT JOIN USER u ON u.atNo=c.countermanId
+		where c.delFlag=0 and c.structId=#{structId}
+		<include refid="getCustomerListCondition"></include> 
+		limit ${page},${pageSize}
+   	</select>
+   	
+   	<!-- count数量 -->
+   	<select id="getCustomerCount" parameterType="Map" resultType="int">
+  	 	SELECT COUNT(*) FROM customer c WHERE c.delFlag=0 and structId=#{structId}
+		<include refid="getCustomerListCondition"></include>
+   	</select>
+
+    <!-- 条件查询 -->
+ 	<sql id="getCustomerListCondition">
+		<if test="customerNm!=''">
+	    	and instr(c.customNm, #{customerNm} )>0
+  		</if>		
+	</sql>
+	
+	<!-- 添加客户 -->
+	<insert id="addCustomer" parameterType="Map">
+		INSERT INTO customer (structId,customNm,provinceId,cityId,
+		countyId,address,phone,countermanId) 
+		VALUES 
+		(#{structId},#{customNm},#{provinceId},#{cityId},
+		#{countyId},#{address},#{phone},#{countermanId})
+	</insert>
+	
+	<!-- 删除客户 -->
+	<update id="delCustomer" parameterType="Map">
+		UPDATE customer SET delFlag =1 WHERE atNo=#{atNo}
+	</update>
+	
+	
+	<!-- 通过id查询客户对象 -->
+	<select id="getCustomerById" parameterType="Map" resultType="com.qxh.model.Customer">
+		SELECT	c.customNm,c.address,c.provinceId,c.cityId,c.countyId,c.phone,u.userNm,c.countermanId 
+		FROM customer c
+        LEFT JOIN USER u ON u.atNo=c.countermanId
+        WHERE c.atNo = #{atNo}
+	</select>
+	
+	<!-- 通过strutsId获取客户名称 -->
+	<select id="getCustomByStrustId" parameterType="Map" resultType="com.qxh.model.Customer">
+		SELECT atNo,customNm FROM customer WHERE structId=#{structId}
+	</select>
+	
+	<!-- 通过id修改客户 -->
+	<update id="editCustomer" parameterType="Map">
+	    UPDATE customer 
+	    <!-- SET customNm='小丁',provinceId=1,cityId=35,countyId=375,address='依安',phone='1234567'  -->
+	    <set>
+	       <if test="customNm!=''">
+	       		customNm=#{customNm},
+	       </if>
+	        <if test="provinceId!='-1'">
+	       		provinceId=#{provinceId},
+	       </if>
+	        <if test="cityId!='-1'">
+	       		cityId=#{cityId},
+	       </if>
+	        <if test="countyId!='-1'">
+	       		countyId=#{countyId},
+	       </if>
+	        <if test="address!=''">
+	       		address=#{address},
+	       </if>
+	        <if test="phone!=''">
+	       		phone=#{phone},
+	       </if>
+	       <if test="countermanId!='-1'">
+	       		countermanId=#{countermanId},
+	       </if>
+	    </set>
+	    WHERE atNo=#{atNo}
+	</update>
+	<update id="editCustomTag" parameterType="Map">
+		UPDATE customer 
+		 <set>
+	       <if test="tagId!=''">
+	       		tagId=#{tagId},
+	       </if>
+	    </set>
+	    WHERE atNo=#{atNo}
+	</update>
+	<select id="getCountermanList" parameterType="Map" resultType="com.qxh.model.User">
+		SELECT u.userNm,u.atNo FROM USER  u
+		LEFT JOIN userrel ul ON u.atNo=ul.userId
+		WHERE  ul.structId=#{structId} AND ul.roleId=9
+	</select>
+</mapper> 

@@ -1,0 +1,199 @@
+var g_goodsId = sessionStorage.goodsId;
+var g_goodsType = sessionStorage.goodsType;
+var g_stime = sessionStorage.purchaseSummStime;
+var g_etime = sessionStorage.purchaseSummEtime;
+var g_demandListDId = sessionStorage.demandListDId;
+var g_purchaseListDId = sessionStorage.purchaseListDId;
+var g_customerId = sessionStorage.customerId;
+$(document).ready(
+		function() {
+			// GetProfitSummList();//获取毛利信息
+			// 路径配置
+			require.config({
+				paths : {
+					echarts : 'http://echarts.baidu.com/build/dist'
+				}
+			});
+			// 使用
+			require([ 'echarts', 'echarts/chart/line' // 使用柱状图就加载bar模块，按需加载
+			], function(ec) {
+				// 基于准备好的dom，初始化echarts图表
+				var ziDingYi = ec.init(document.getElementById('main'));
+				option = {
+					title : {
+						text : '单品统计'
+					},
+					tooltip : {
+						trigger : 'axis'
+					},
+					legend : {
+						data : [ '数量', '进价', '售价', '毛利率' ]
+					},
+					grid : {
+						left : '3%',
+						right : '4%',
+						bottom : '3%',
+						containLabel : true
+					},
+					toolbox : {
+						feature : {
+							saveAsImage : {}
+						}
+					},
+					xAxis : {
+						type : 'category',
+						boundaryGap : false,
+						data : [ '1日', '2日', '3日', '4日', '5日', '6日', '7日',
+								'8日', '9日', '10日', '11日', '12日', '13日', '14日',
+								'15日', '16日', '17日', '18日', '19日', '20日',
+								'21日', '22日', '23日', '24日', '25日', '26日',
+								'27日', '28日', '29日', '30日', '31日' ]
+					},
+					yAxis : {
+						type : 'value'
+					},
+					series : [
+							{
+								name : '数量',
+								type : 'line',
+								stack : '总量',
+								data : getOrderNum()
+							},
+							{
+								name : '进价',
+								type : 'line',
+								stack : '总量',
+								data : getPPrice()
+							},
+							{
+								name : '售价',
+								type : 'line',
+								stack : '总量',
+								data : getDPrice()
+							},
+							{
+								name : '毛利率',
+								type : 'line',
+								stack : '总量',
+								data : getRate()
+							} ]
+				};
+				// 为echarts对象加载数据
+				ziDingYi.setOption(option);
+			});
+
+		});
+
+// 获取采购列表
+function GetProfitSummList() {
+	var goodsNm = $("#goodsNm").val();
+	$.post("../purchaseSumm/getProfitSummList.do?", {
+		stime : g_stime,
+		etime : g_etime,
+		customerId : g_customerId,
+		goodsNm : goodsNm
+	}, function(data) {
+		if (data.code != 1000) {
+			tips(data.msg);
+		} else {
+			$("#tbody").empty();
+			$("#listTmpl").tmpl(data.data.list).appendTo("#tbody");
+			$("#totalTmpl").tmpl(data.data.totalList).appendTo("#tfoot");
+		}
+	}, "json");
+}
+// 获取每天的数量
+function getOrderNum() {
+	var list = [];
+	$.ajax({
+		type : "GET",
+		url : "../purchaseSumm/getOrderNum.do",
+		data : {
+			goodsId : g_goodsId,
+			goodsType : g_goodsType,
+			stime : g_stime,
+			etime : g_etime,
+			demandListDId : g_demandListDId,
+			purchaseListDId : g_purchaseListDId,
+			customerId : g_customerId
+		},
+		async : false,
+
+		success : function(data) {
+			list = data.data
+			return false;
+		}
+	});
+	return list;
+}
+// 获取每天的售价
+function getDPrice() {
+	var list = [];
+	$.ajax({
+		type : "GET",
+		url : "../purchaseSumm/getDPrice.do",
+		data : {
+			goodsId : g_goodsId,
+			goodsType : g_goodsType,
+			stime : g_stime,
+			etime : g_etime,
+			demandListDId : g_demandListDId,
+			purchaseListDId : g_purchaseListDId,
+			customerId : g_customerId
+		},
+		async : false,
+
+		success : function(data) {
+			list = data.data
+			return false;
+		}
+	});
+	return list;
+}
+// 获取每天的售价
+function getPPrice() {
+	var list = [];
+	$.ajax({
+		type : "GET",
+		url : "../purchaseSumm/getPPrice.do?",
+		data : {
+			goodsId : g_goodsId,
+			goodsType : g_goodsType,
+			stime : g_stime,
+			etime : g_etime,
+			demandListDId : g_demandListDId,
+			purchaseListDId : g_purchaseListDId,
+			customerId : g_customerId
+		},
+		async : false,
+
+		success : function(data) {
+			list = data.data
+			return false;
+		}
+	});
+	return list;
+}
+// 获取每天的毛利率
+function getRate() {
+	var list = [];
+	$.ajax({
+		type : "GET",
+		url : "../purchaseSumm/getRateInDay.do?",
+		data : {
+			goodsId : g_goodsId,
+			goodsType : g_goodsType,
+			stime : g_stime,
+			etime : g_etime,
+			demandListDId : g_demandListDId,
+			purchaseListDId : g_purchaseListDId,
+			customerId : g_customerId
+		},
+		async : false,
+		success : function(data) {
+			list = data.data
+			return false;
+		}
+	});
+	return list;
+}

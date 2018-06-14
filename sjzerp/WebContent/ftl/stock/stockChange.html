@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/stockChange.css" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>数据查询</a></li>
+							<li><a class="active" onclick="window.location.reload()">物料收发事务变动</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="form-inline">
+							<div class="form-group">
+								<label for="goodsNm">名称</label> 
+								<input type="text"
+									class="form-control width120px" maxlength="20" id="goodsNm">
+							</div>
+							<div class="form-group">
+								<label for="goodsNm">编码</label> <input type="text"
+									class="form-control width120px" maxlength="20" id="goodsCode">
+							</div>
+							<div class="form-group">
+								<label for="kindSel">分类</label> <input
+									class="form-control width120px" atNo="0" value="全部"
+									readonly="readonly" id="kindSel"> </input>
+							</div>
+							<div class="form-group">
+								<label>时间</label>
+								<input id="stime" type="text" readonly="readonly" 
+									class="whiteback form-control width120px" onFocus="WdatePicker({isShowClear:false,readOnly:true,maxDate:'#F{$dp.$D(\'etime\')}'})"/>
+								<span>-</span>
+	  	 						<input id="etime" type="text" readonly="readonly" 
+	  	 							class="whiteback form-control width120px" onFocus="WdatePicker({isShowClear:false,readOnly:true,minDate:'#F{$dp.$D(\'stime\')}'})"/>
+							</div>
+							<button type="button" id="search" class="btn btn-primary">搜索</button>
+						</div>
+					</div>
+				</div>	
+
+				<div class="row marginrow scrollx" >
+					<div class="col-md-12" >
+						<table 
+							class="table table-bordered table-hover table-condensed white"  >
+							<thead>
+								<tr>
+									<th rowspan="2" class="min100" >物料编号</th>
+									<th rowspan="2" class="min100">物料名称</th>
+									<th rowspan="2" class="min100">规格</th>
+									<th rowspan="2" class="min50">单位</th>
+									<th colspan="2" class="min150">期初</th>
+									<th colspan="2" class="min150">入库</th>
+									<th colspan="2" class="min150">出库</th>
+									<th colspan="2" class="min150">期末</th>
+								</tr>
+								<tr>
+									<th>数量</th>
+									<th>金额</th>
+									<th>数量</th>
+									<th>金额</th>
+									<th>数量</th>
+									<th>金额</th>
+									<th>数量</th>
+									<th>金额</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<div id="kindDiv" class="treeDiv">
+		<ul id="kindTree" class="ztree treeDemo"></ul>
+	</div>
+	
+	<script>
+		var roleId=${roleId}
+	</script>
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+	<script type="text/javascript" 
+		src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/stockChange.js"></script>
+
+	<!-- 列表模板 -->
+	<script id="stockTmpl" type="text/x-jquery-tmpl">
+	<tr {{if goodsId<=0}}class="red"{{/if}}{{if kindPId==0}}style="background-color:#95caca"{{/if}}{{if kindPId!=0 && goodsCode==null }}style="background-color:#d1e9e9"{{/if}}>
+	<td>{{= goodsCode}}</td>
+	<td>{{= goodsNm}}</td>
+	<td>{{= spec}}</td>
+	<td>{{= unitNm}}</td>
+	<td>{{if goodsCode!=null}}{{= sNum}}{{/if}}</td>
+	<td>{{= sMoney}}</td>
+	<td>{{if goodsCode!=null}}{{= rkNum}}{{/if}}</td>
+	<td>{{= rkMoney}}</td>
+	<td>{{if goodsCode!=null}}{{= ckNum}}{{/if}}</td>
+	<td>{{= ckMoney}}</td>
+	<td>{{if goodsCode!=null}}{{= eNum}}{{/if}}</td>
+	<td>{{= eMoney}}</td>
+	</tr>
+</body>
+</html>

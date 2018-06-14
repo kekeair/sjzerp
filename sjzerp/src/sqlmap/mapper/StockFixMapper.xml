@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.stockFix.StockFixMapper">
+	
+	<!-- 查询餐饮中心物料 -->
+	<select id="getCenterGoods" parameterType="Map"  
+		resultType="com.qxh.model.CenterGoods">
+		select c.goodsId,concat(g.brand,g.goodsNm) goodsNm,g.code,
+		case when d.atNo>0 then 0 else 1 end showAdd
+		from centergoods c left join goods g on c.goodsId=g.atNo
+		left JOIN stockfixd d on c.goodsId=d.goodsId and d.headAtNo=#{billId}
+		where c.centerId=#{structId} and c.delFlag=0
+		<include refid="getCenterGoodsCon"></include>
+		limit ${page},${pageSize}
+	</select>
+	
+	<!-- 查询餐饮中心物料数量 -->
+   	<select id="getCenterGoodsNum" parameterType="Map" resultType="int">	
+		select count(*) 
+		from centergoods c left join goods g on c.goodsId=g.atNo
+		where c.centerId=#{structId} and c.delFlag=0
+   		<include refid="getCenterGoodsCon"></include>
+   	</select>
+   
+	<sql id="getCenterGoodsCon">
+		<if test=" name!='' ">
+			and (instr(g.goodsNm, #{name} )>0 or instr(g.alias, #{name} )>0)
+   		</if>		
+   		<if test=" kindCode!=-1 ">
+   		<![CDATA[      
+		   	and g.code like '${kindCode}%'
+		]]>   	
+   		</if>	 
+	</sql>
+	
+	<!-- 查询库存修正单列表 -->
+   	<select id="getStockFixH" parameterType="Map" 
+   		resultType="com.qxh.model.StockFixH">	
+		select atNo billId,code,reviewState,
+		date_format(createTime,"%Y-%m-%d %H:%i") createTime
+		from stockFixH where centerId=#{structId}
+		and reviewState>=#{viewPower}
+		<include refid="getStockFixHCon"></include>
+		order by createTime desc
+		limit ${page},${pageSize}
+   	</select>
+   	
+   	<!-- 查询库存修正单列表数量 -->
+   	<select id="getStockFixHNum" parameterType="Map" resultType="int">	
+		select count(*) from stockFixH where centerId=#{structId}
+		and reviewState>=#{viewPower}
+   		<include refid="getStockFixHCon"></include>
+   	</select>
+   
+	<sql id="getStockFixHCon">
+		<if test=" state!=-1 ">
+			and reviewState=#{state}
+   		</if>		
+   		<if test=" stime!='' ">
+   		<![CDATA[      
+		   	and createTime>=#{stime}
+		]]>   	
+   		</if>	 
+   		<if test=" etime!='' ">
+   		<![CDATA[ 
+		   	and createTime<=#{etime}
+   		]]>  
+   		</if>	   	    	       				
+	</sql>
+	
+	<!-- 查询库存修正单详细 -->
+   	<select id="getStockFixD" parameterType="Map" 
+   		resultType="com.qxh.model.StockFixD">	
+		select d.atNo,d.goodsNum,
+		d.price,d.goodsId,
+		g.code goodsCode,
+		case when g.alias='' then  concat(g.brand,g.goodsNm) 
+		else concat(g.brand,g.goodsNm,'(',g.alias,')') end goodsNm
+		from stockFixD d left join goods g on d.goodsId=g.atNo
+		where d.headAtNo=#{billId}
+		<include refid="getStockFixDCon"></include>
+		order by g.code
+		limit ${page},${pageSize}
+   	</select>
+   	
+   	<!-- 查询库存修正单详细数量 -->
+   	<select id="getStockFixDNum" parameterType="Map" resultType="int">	
+		select count(*)
+		from stockFixD d left join goods g on d.goodsId=g.atNo
+		where d.headAtNo=#{billId}
+   		<include refid="getStockFixDCon"></include>
+   	</select>
+   
+	<sql id="getStockFixDCon">
+		<if test=" name!='' ">
+			and concat(g.brand,g.goodsNm,g.alias) like '%${name}%' 
+   		</if>		
+   		<if test=" kindCode!=-1 ">
+   		<![CDATA[      
+		   	and g.code like '${kindCode}%'
+		]]>   	
+   		</if>	      				
+	</sql>
+	
+	<!-- 删除库存修正头表 -->
+   	<delete id="delStockFixH" parameterType="Map">	
+		delete from stockFixH where atNo=#{billId}
+   	</delete>
+   	
+   	<!-- 删除库存修正详细表 -->
+   	<delete id="delStockFixD" parameterType="Map">	
+		delete from stockFixD where headAtNo=#{billId}
+   	</delete>
+   	
+   	<!-- 查询最大单据号 -->
+   	<select id="getMaxCodeOrder" parameterType="Map" resultType="int">	
+	<![CDATA[    
+		select codeOrder from stockFixH where centerId=#{structId}
+		and createTime>=date_format(now(),'%Y-%m-%d 00:00:00')
+		and createTime<=date_format(now(),'%Y-%m-%d 23:59:59')
+		order by codeOrder desc limit 1
+	]]>   
+   	</select>
+   	
+   	<!-- 添加库存修正头表  -->
+   	<insert id="addStockFixH" parameterType="Map"
+   		useGeneratedKeys="true" keyProperty="billId">	
+		insert into stockFixH (code,codeOrder,centerId,launcher,launcherNm,
+		createTime) values
+		(#{code},#{codeOrder},#{structId},#{userId},#{userNm},now())
+   	</insert>
+   	
+   	<!-- 添加库存修正详细  -->
+   	<insert id="addStockFixD" parameterType="Map">	
+		insert into stockFixD (headAtNo,goodsId,goodsNum,price) 
+		values
+		(#{billId},#{goodsId},#{goodsNum},#{goodsPrice})
+   	</insert>
+   	
+   	<!-- 根据删除库存修正详细 -->
+   	<delete id="delStockFixDById" parameterType="Map">	
+		delete from stockFixD where atNo=#{stockFixDId}
+   	</delete>
+   	
+   	<!-- 检查自定义物料是否重复 -->
+   	<select id="checkTmpGoodsNum" parameterType="Map" resultType="int">	
+		select count(*) from TmpGoods where centerId=#{structId}
+		and code=#{goodsCode}
+   	</select>
+   	
+   	<!-- 查询自定义物料列表 -->
+   	<select id="getTmpGoodsList" parameterType="Map" 
+   		resultType="com.qxh.exmodel.ListGoods">	
+		select atNo,code,goodsNm from TmpGoods where centerId=#{structId}
+   	</select>
+   	
+   	<!-- 批量插入物料详单 -->
+	<insert id="batchAddStockFixD" parameterType="Map">
+		insert into stockFixD (headAtNo,goodsId,goodsNum,price) 
+		values
+		<foreach collection="goodsIdArray" item="item" index="index" separator=",">
+			(${billId},#{item},0,0)
+		</foreach>
+	</insert>
+	
+	<!-- 添加自定义物料 -->
+	<insert id="addExtraGoods" parameterType="Map">
+		insert into TmpGoods (centerId,code,goodsNm,baseUnit,unitNm,createTime) 
+		values
+		(#{structId},#{goodsCode},#{goodsNm},#{goodsUnit},#{unitNm},now())
+	</insert>
+	
+	<!-- 更新库存修正详细 -->
+	<insert id="updateStockFixD" parameterType="Map">
+		update stockFixD set goodsNum=#{goodsNum},price=#{price}
+		where atNo=#{stockFixDId}
+	</insert>
+	
+	<!-- 处理库存修正单 -->
+	<update id="dealStockFix" parameterType="Map">
+		update stockFixH set reviewState=#{reviewState}
+		where atNo=#{billId}
+	</update>
+	
+	<!-- 查询库存修正单状态 -->
+   	<select id="getStockFixHState" parameterType="Map" resultType="Integer">	
+		select reviewState from stockFixH where atNo=#{billId}
+   	</select>
+   	
+   	<!-- 查询库存物料 -->
+   	<select id="getStock" parameterType="Map" 
+   		resultType="com.qxh.model.Stock">	
+		select stockNum,price from stock where centerId=#{structId}
+		and goodsId=#{goodsId} limit 1
+   	</select>
+   	
+   	<!-- 影响库存 -->
+	<insert id="updateStock" parameterType="Map">
+		insert into stock (centerId,goodsId,stockNum,price,updateTime,createTime)
+		select #{structId},goodsId,goodsNum,price,now(),now()
+		from stockFixD where headAtNo=#{billId}
+		on duplicate key update stockNum=values(stockNum),price=values(price)
+	</insert>
+	
+	<!-- 插入库存记录 -->
+	<insert id="addStockRecord" parameterType="Map">
+		insert into StockRecord (centerId,billId,billCode,goodsId,acrossTime,
+		stockFlag,stockNum,stockPrice,preStockNum,preStockPrice)
+		select #{structId},#{billId},#{billCode},d.goodsId,now(),2,
+		d.goodsNum,d.price,s.stockNum,s.price
+		from stockFixD d left join stock s on d.goodsId=s.goodsId 
+		and s.centerId=#{structId} where d.headAtNo=#{billId}
+	</insert>
+	
+	<!-- 根据id查询单据号 -->
+   	<select id="getBillCodeById" parameterType="Map" resultType="String">	
+		select code from stockFixH where atNo=#{billId}
+   	</select>
+	
+</mapper> 

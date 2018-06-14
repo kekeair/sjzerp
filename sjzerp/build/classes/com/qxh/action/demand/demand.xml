@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+                    
+	<!-- 需求上报 -->
+	<bean name="/demand/demandInit.do" class="com.qxh.action.demand.DemandInitAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/demand/getDemandListH.do" class="com.qxh.action.demand.GetDemandListHAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/demandByGroupInit.do" class="com.qxh.action.demand.DemandByGroupInitAction">
+	</bean>
+	<bean name="/demand/getDemandByGroup.do" class="com.qxh.action.demand.GetDemandByGroupAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/dealDemandBill.do" class="com.qxh.action.demand.DealDemandBillAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/clearTeamDemand.do" class="com.qxh.action.demand.ClearTeamDemandAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/delDemandBill.do" class="com.qxh.action.demand.DelDemandBillAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/getCustomerList.do" class="com.qxh.action.demand.GetCustomerListAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/customerDemandInit.do" class="com.qxh.action.demand.CustomerDemandInitAction">
+	</bean>
+	<!-- 导出 -->
+	<bean id="ExportOutBillView" class="com.qxh.action.demand.ExportOutBillView">
+	  	<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/exportOutBill.do" class="com.qxh.action.demand.ExportOutBillAction">
+		<property name="export" ref="ExportOutBillView"></property>
+	</bean>
+	
+	<!-- 查询方式(新) -->
+	<bean name="/demand/selectGoodsInit.do" class="com.qxh.action.demand.SelectGoodsInitAction">
+	</bean>
+	<!-- 按物料查看 -->
+	<bean name="/demand/selectDemandGoodsByGoods.do" class="com.qxh.action.demand.SelectDemandGoodsByGoodsAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<!-- 按客户查看 -->
+	<bean name="/demand/selectDemandGoodsByCustomer.do" class="com.qxh.action.demand.SelectDemandGoodsByCustomerAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<!-- 按作业组查看 -->
+	<bean name="/demand/selectDemandGoodsByTeam.do" class="com.qxh.action.demand.SelectDemandGoodsByTeamAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	
+	<!-- 客户申报按时间和状态导出 -->
+	<bean id="ExportOutDemandBillByStateAndTimeView" class="com.qxh.action.demand.ExportOutDemandBillByStateAndTimeView">
+	  	<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/exportOutDemandBillByStateAndTimeAction.do" class="com.qxh.action.demand.ExportOutDemandBillByStateAndTimeAction">
+		<property name="export" ref="ExportOutDemandBillByStateAndTimeView"></property>
+	</bean>
+	
+	<!-- 销售单导出 -->	
+	<bean id="ExportOutDemandListDBillView" class="com.qxh.action.demand.ExportOutDemandListDBillView">
+	  	<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/exportOutDemandListDBill.do" class="com.qxh.action.demand.ExportOutDemandListDBillAction">
+		<property name="export" ref="ExportOutDemandListDBillView"></property>
+	</bean>
+	
+	
+	
+	
+	
+	<!-- js打印 -->
+	<bean name="/demand/exportOutDemandBill.do" class="com.qxh.action.demand.ExportOutDemandBillAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/printOutDemandBill.do" class="com.qxh.action.demand.PrintOutDemandBillAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	
+	<bean name="/demand/editDemandInit.do" class="com.qxh.action.demand.EditDemandInitAction">
+	</bean>
+	<bean name="/demand/getDemandD.do" class="com.qxh.action.demand.GetDemandDAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/getGoodsPrice.do" class="com.qxh.action.demand.GetGoodsPriceAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<!-- 客户申报 -->
+	<bean name="/demand/applyDemandBillInit.do" class="com.qxh.action.demand.ApplyDemandBillInitAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<!-- 出库单详情列表 -->										
+	<bean name="/demand/excelOutDemandDetail.do" class="com.qxh.action.demand.ExcelOutDemandDetailInitAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	
+	<!-- 出库详情的列表集合 -->
+	<bean name="/demand/getDemandListByCustomerId.do" class="com.qxh.action.demand.GetDemandListByCustomerIdAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	
+	<bean name="/demand/saveDemandD.do" class="com.qxh.action.demand.SaveDemandDAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	
+	
+	<!-- 新录入方式 -->
+	<bean name="/demand/addDemandNewInit.do" class="com.qxh.action.demand.AddDemandNewInitAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/getAllDemandGoodsListByTeamId.do" class="com.qxh.action.demand.GetAllDemandGoodsListByTeamIdAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<!-- 出库单详情列表 -->
+	<bean name="/demand/printOutDemandDetail.do" class="com.qxh.action.demand.PrintOutDemandDetailInitAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	
+	<!-- 打印 -->
+	<bean name="/demand/printOutDemandBillNew.do" class="com.qxh.action.demand.PrintOutDemandBillNewAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	
+	<bean name="/demand/storageData.do" class="com.qxh.action.demand.StorageDataAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	
+	<!-- 物料价格提示集合 -->
+	<bean name="/demand/getRedisGoodsPriceListBykey.do" class="com.qxh.action.demand.GetRedisGoodsPriceListBykeyAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	
+	<!-- 销售单打印 -->
+	<bean name="/demand/printSureBill.do" class="com.qxh.action.demand.printSureBillAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<!-- 展示按分类打印的物料页面 -->
+	<bean name="/demand/showGoodsByclassInit.do" class="com.qxh.action.demand.showGoodsByclassInitAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean> 
+	<!-- 按条件查询物料 -->
+	<bean name="/demand/getGoodsByTerm.do" class="com.qxh.action.demand.GetGoodsByTermAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean> 
+	
+	<!-- 保存出库修改的做账信息 -->
+	<bean name="/demand/saveMakeBill.do" class="com.qxh.action.demand.SaveMakeBillAction">
+		<property name="demandService" ref="DemandService"></property>
+	</bean> 
+	<!-- 导出做账单 -->
+	<bean id="OutExcelMakeBillView" class="com.qxh.action.demand.OutExcelForMakeBillView">
+		<property name="demandService" ref="DemandService"></property>
+	</bean>
+	<bean name="/demand/outExeclForMakeBill.do" class="com.qxh.action.demand.OutExeclForMakeBillAction">
+		<property name="export" ref="OutExcelMakeBillView"></property>
+	</bean>
+</beans>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>打印表格</title>
+<script type="text/javascript" src="../js/plugins/LodopFuncs.js"></script>
+</head>
+<body>
+<p><br>
+<p><b><a href="javascript:PrintInFullPage();">预览打印</a>如下表格</b>：</p>
+<div id="div1">
+<style>td{border:1px solid #000;}</style>
+
+<table width="100%" border-collapse:collapse" cellspacing="0">
+	<#if roleId==10>
+		<#assign i = 0>
+		<#list data as list>
+		   <#if list.code=='-1'>
+	             <tr>
+					 <td colspan="8" style="border: 0; ">
+					 	<h2 align="center">
+					 		<font color="#009999">河北千喜鹤饮食股份有限公司</font>
+					 	</h2>
+					 </td> 
+				</tr>
+			<#elseif list.code=='-2'>
+				<tr>
+					<td colspan="8" align="right" style="border: 0;"><h3 align="center"><font color="#009999">销售出库单</font></h3></td>
+				</tr>	
+			<#elseif list.code=='-3'>
+				<tr>
+					<td colspan="5" style="border: 0;" ><b><font face="宋体" size="2">客户:${list.customNm}</font></b></td>
+					<td colspan="3" style="border: 0;" ><b><font face="宋体"size="2">日期:${list.billDate}</font></b></td>
+				</tr>
+				<tr>
+					<td colspan="6" style="border: 0; " ><b><font face="宋体" size="2">订单:${list.codeNm}</font></b></td>
+					<td colspan="2" style="border: 0;" ><b><font face="宋体" size="2"></font></b></td>
+				</tr>
+			<#elseif list.code=='-4'>
+				<tr bgcolor="aliceblue">
+					<td width="8%"><b><font face="宋体" size="3">序号 </font></b></td>
+					<td width="15%"><b><font face="宋体" size="3">物料编码</font></b></td>
+					<td width="15%"><b><font face="宋体" size="3">物料名称</font></b></td>
+					<td width="10%"><b><font face="宋体" size="3">规格</font></b></td>
+					<td width="10%"><b><font face="宋体" size="3">数量</font></b></td>
+					<td width="10%"><b><font face="宋体" size="3">单位</font></b></td>
+					<td width="10%"><b><font face="宋体" size="3">单价</font></b></td>
+				    <td width="10%"><b><font face="宋体" size="3">金额</font></b></td>
+				</tr>
+			<#elseif list.code=='-6'>
+				<tr>
+				     <td colspan="4" align="left"><b><font face="宋体" size="2">合计:${list.goodsNm}</font></b></td>
+					<td colspan="2" align="left"><b><font face="宋体" size="2">数量:${list.num}</font></b></td>
+					<td colspan="2" align="left"><b><font face="宋体" size="2">金额:${list.price}元</font></b></td>
+					<!-- <td colspan=8 align="left" width="426"><b><font face="宋体" size="2">合计:${list.goodsNm}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数量${list.num}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;金额:${list.price}元<font color="#000000"></font></font></b></td> -->
+				</tr>
+			<#elseif list.code=='-5'>
+				<!-- <tr><th colspan=8 width="426"><b><font face="宋体" size="2">总计:${list.goodsNm}&nbsp&nbsp&nbsp&nbsp${list.price}元<font color="#000000"></font></font></b></th></tr> -->
+			<#elseif list.code=='-7'>
+				<tr>
+					<td colspan="4" align="left" style="border: 0;"><b><font face="宋体" size="2">客户:</font></b></td>
+					<td colspan="4" align="left" style="border: 0;"><b><font face="宋体" size="2">业务员:</font></b></td>
+				</tr>
+			<#else>
+				<tr>
+			     <#assign i = i+1>
+					<td>${i}</td>        
+					<td>${list.code}</td>
+					<td>${list.goodsNm}</td>
+					<td>${list.spec}</td>
+					<td>${list.demandNum}</td>
+					<td>${list.unitNm}</td>
+					<td>${list.price}</td>
+					<td>${list.totalMonay}</td>
+				</tr>
+			</#if>
+		</#list>
+	<!-- 不是财务端口 -->
+	<#else>
+		<#assign i = 0>
+		<#list data as list>
+		
+		   <#if list.code=='-1'>
+	             <tr>
+					 <td colspan="6" style="border: 0; ">
+					 	<h2 align="center">
+					 		<font color="#009999">河北千喜鹤饮食股份有限公司</font>
+					 	</h2>
+					 </td> 
+				</tr>
+			<#elseif list.code=='-2'>
+				<tr>
+					<td colspan="6" style="border: 0;"><h3 align="center"><font color="#009999" > 销 售 出 库 单</font></h3></td>
+				</tr>	
+			<#elseif list.code=='-3'>
+				
+				<tr>
+					<td colspan="4" style="border: 0;" ><b><font face="宋体" size="2">客户:${list.customNm}</font></b></td>
+					<td colspan="2" style="border: 0;" ><b><font face="宋体" size="2">日期:${list.billDate}</font></b></td>
+				</tr>
+				<tr>
+					<td colspan="4" style="border: 0; " ><b><font face="宋体" size="2">订单:${list.codeNm}</font></b></td>
+					<td colspan="2" style="border: 0;" ><b><font face="宋体" size="2"></font></b></td>
+				</tr>
+				
+			<#elseif list.code=='-4'>
+				<tr bgcolor="aliceblue">
+					<td width="30px" height="24px"><b><font face="宋体" size="2">序号 </font></b></td>
+					<td width="50px" height="24px"><b><font face="宋体" size="2">物料编码</font></b></td>
+					<td width="50px" height="24px"><b><font face="宋体" size="2">物料名称</font></b></td>
+					<td width="50px" height="24px"><b><font face="宋体" size="2">规格</font></b></td>
+					<td width="50px" height="24px"><b><font face="宋体" size="2">数量</font></b></td>
+					<td width="50px" height="24px"><b><font face="宋体" size="2">单位</font></b></td>
+				</tr>
+			<#elseif list.code=='-6'>
+				<tr>
+				    <td colspan="3" align="left"><b><font face="宋体" size="2">合计:${list.goodsNm}</font></b></td>
+					<td colspan="1" align="left"><b><font face="宋体" size="2">数量:${list.num}</font></b></td>
+					<td colspan="2" align="left"><b><font face="宋体" size="2">金额:${list.price}元</font></b></td>
+					<!-- <td colspan="6" align="left" width="426"><b><font face="宋体" size="2">合计:${list.goodsNm}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数量:${list.num}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;金额:${list.price}元<font color="#000000"></font></font></b></td> -->
+				</tr>
+			<#elseif list.code=='-5'>
+				<!-- <tr><th colspan=8 width="426"><b><font face="宋体" size="2">总计:${list.goodsNm}&nbsp&nbsp&nbsp&nbsp${list.price}元<font color="#000000"></font></font></b></th></tr> -->
+			<#elseif list.code=='-7'>
+				<tr>
+					<td colspan="3" align="left" style="border: 0;"><b><font face="宋体" size="2">客户:</font></b></td>
+					<td colspan="3"  style="border: 0;"><b><font face="宋体" size="2">业务员:</font></b></td>
+				</tr>
+			<#else>
+				<tr>
+			     <#assign i = i+1>
+					<td>${i}</td>        
+					<!-- <td>${list.code}</td> -->
+					<td height="24px">${list.code}</td>
+					<td height="24px">${list.goodsNm}</td>
+					<td height="24px">${list.spec}</td>
+					<td height="24px">${list.demandNum}</td>
+					<td height="24px">${list.unitNm}</td>
+					
+				</tr>
+			</#if>
+		</#list>
+	</#if>
+</table>
+
+</div>
+
+<p>　
+</p>
+
+<script>
+		var roleId=${roleId};
+</script>
+
+<script type="text/javascript">
+var LODOP; //声明为全局变量
+var iRadioValue=1;
+function PrintOneURL(){
+LODOP=getLodop();  
+LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_按网址打印表格");
+LODOP.ADD_PRINT_TBURL(46,90,800,300,document.getElementById("T1").value);
+LODOP.SET_PRINT_STYLEA(0,"HOrient",3);
+LODOP.SET_PRINT_STYLEA(0,"VOrient",3);
+LODOP.PREVIEW();			
+};	
+function PreviewMytable(){
+LODOP=getLodop();  
+LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_预览打印表格");
+LODOP.ADD_PRINT_TABLE(100,5,500,280,document.getElementById("div1").innerHTML);
+LODOP.SET_PRINT_STYLEA(0,"TableHeightScope",iRadioValue);		
+LODOP.PREVIEW();
+};	
+function DesignMytable(){
+LODOP=getLodop();  
+LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_打印设计表格");
+LODOP.ADD_PRINT_TABLE(100,5,500,280,document.getElementById("div1").innerHTML);
+LODOP.SET_PRINT_STYLEA(0,"TableHeightScope",iRadioValue);		
+LODOP.PRINT_DESIGN();
+};		
+function PrintInFullPage(){
+LODOP=getLodop();  
+LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_整页表格");
+/* LODOP.SET_PRINT_PAGESIZE(2,0,0,"A4");	 */
+LODOP.ADD_PRINT_TABLE("2%","1%","96%","98%",document.getElementById("div1").innerHTML);
+LODOP.SET_PREVIEW_WINDOW(0,0,0,800,600,"");
+LODOP.PREVIEW();				
+};	
+function PrintNoBorderTable(){
+LODOP=getLodop();  
+LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_无边线表格");
+LODOP.ADD_PRINT_TABLE(50,10,"50%",220,document.getElementById("div2").innerHTML);
+//LODOP.SET_PRINT_STYLEA(0,"Top2Offset",-40); //这句可让次页起点向上移
+LODOP.ADD_PRINT_HTM(2,0,"50%",200,"<body style='margin-top:0'>表格后面用<font color=blue>ADD_PRINT_HTM</font>附加其它备注</body>");
+
+LODOP.SET_PRINT_STYLEA(0,"LinkedItem",-1);
+LODOP.PREVIEW();
+};		
+function check(thisValue){
+iRadioValue=thisValue;
+}
+
+</script>
+
+</body>
+</html>

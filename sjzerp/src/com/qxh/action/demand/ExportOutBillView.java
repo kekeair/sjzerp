@@ -1,0 +1,560 @@
+package com.qxh.action.demand;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFPrintSetup;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.springframework.web.servlet.view.document.AbstractExcelView;
+
+import com.qxh.exmodel.BillAndCustomTeam;
+import com.qxh.service.DemandService;
+import com.qxh.utils.IdWorker;
+import com.qxh.utils.MoneyUtil;
+import com.qxh.utils.NumUtil;
+import com.qxh.utils.Result;
+
+public class ExportOutBillView extends AbstractExcelView {
+	private DemandService demandService;
+
+	public void setDemandService(DemandService demandService) {
+		this.demandService = demandService;
+	}
+
+	@Override
+	protected void buildExcelDocument(Map<String, Object> arg0, HSSFWorkbook workbook, HttpServletRequest req,
+			HttpServletResponse response) throws Exception {
+		String teamBillId = req.getParameter("teamBillId");
+		String billId = req.getParameter("bill_Id");
+
+		Result result = demandService.getExclList(teamBillId, billId);
+		List<BillAndCustomTeam> list = (List<BillAndCustomTeam>) result.getData();
+
+		String typeNm = "出库单";
+		String fname = typeNm + ".xls";
+		response.setHeader("Content-disposition", "attachment; filename=" + java.net.URLEncoder.encode(fname, "UTF-8"));
+		response.setContentType("application/msexcel");
+		HSSFSheet sheet = workbook.createSheet(typeNm);
+		// 设置列宽
+		sheet.setColumnWidth(0, 1365);
+		sheet.setColumnWidth(1, 3276);
+		sheet.setColumnWidth(2, 2730);
+		sheet.setColumnWidth(3, 1911);
+		sheet.setColumnWidth(4, 1638);
+		sheet.setColumnWidth(5, 1638);
+		sheet.setColumnWidth(6, 2184);
+		sheet.setColumnWidth(7, 2184);
+		sheet.setColumnWidth(8, 2384);
+		// 打印格式设置
+		HSSFPrintSetup printSetup = sheet.getPrintSetup();
+		printSetup.setPaperSize(HSSFPrintSetup.A5_PAPERSIZE); // 纸张
+		printSetup.setLandscape(false);
+		sheet.setMargin(HSSFSheet.TopMargin, (double) 0); // 上边距
+		sheet.setMargin(HSSFSheet.BottomMargin, (double) 0); // 下边距
+		sheet.setMargin(HSSFSheet.LeftMargin, (double) 0.4); // 左边距
+		sheet.setMargin(HSSFSheet.RightMargin, (double) 0.4); // 右边距
+
+		// 格式 全表格 背景为蓝色 字体居中
+		HSSFCellStyle style = workbook.createCellStyle();
+		style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+		style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		// 格式 全表格 无背景 字体居中
+		HSSFCellStyle style1 = workbook.createCellStyle();
+		style1.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style1.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style1.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style1.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style1.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		style1.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		style1.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		// 格式 无右边框 无背景 字居中
+		HSSFCellStyle style2 = workbook.createCellStyle();
+		style2.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style2.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style2.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style2.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style2.setRightBorderColor(HSSFColor.WHITE.index);
+		// style2.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		style2.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+		style2.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		style2.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		/*
+		 * HSSFFont font = workbook.createFont();
+		 * font.setColor(HSSFColor.RED.index); style2.setFont(font);
+		 */
+		// 格式 只有上框
+		HSSFCellStyle style3 = workbook.createCellStyle();
+		style3.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style3.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style3.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style3.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style3.setBottomBorderColor(HSSFColor.WHITE.index);
+		style3.setLeftBorderColor(HSSFColor.WHITE.index);
+		style3.setRightBorderColor(HSSFColor.WHITE.index);
+		style3.setTopBorderColor(HSSFColor.WHITE.index);
+		style3.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		style3.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		style3.setAlignment(HSSFCellStyle.ALIGN_LEFT);
+		// 全表格
+		HSSFCellStyle style4 = workbook.createCellStyle();
+		style4.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style4.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style4.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style4.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style4.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		style4.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		style4.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+
+		// 左右无边框设置,字体居左
+		HSSFCellStyle style5 = workbook.createCellStyle();
+		style5.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style5.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style5.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style5.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style5.setLeftBorderColor(HSSFColor.LIGHT_CORNFLOWER_BLUE.index);
+		style5.setRightBorderColor(HSSFColor.LIGHT_CORNFLOWER_BLUE.index);
+		style5.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+		style5.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		style5.setAlignment(HSSFCellStyle.ALIGN_LEFT);
+		// 左无边框设置,字体居中
+		HSSFCellStyle style10 = workbook.createCellStyle();
+		style10.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style10.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style10.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style10.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style10.setLeftBorderColor(HSSFColor.WHITE.index);
+		// style10.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		style10.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
+		style10.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		style10.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		//// 无边框设置,字体居中
+		HSSFCellStyle style6 = workbook.createCellStyle();
+		style6.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style6.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style6.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style6.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style6.setBottomBorderColor(HSSFColor.WHITE.index);
+		style6.setLeftBorderColor(HSSFColor.WHITE.index);
+		style6.setRightBorderColor(HSSFColor.WHITE.index);
+		style6.setTopBorderColor(HSSFColor.WHITE.index);
+		style6.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		style6.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		style6.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		// 无表格 无背景色 字体 15
+		HSSFCellStyle style7 = workbook.createCellStyle();
+		style7.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style7.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style7.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style7.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style7.setBottomBorderColor(HSSFColor.WHITE.index);
+		style7.setLeftBorderColor(HSSFColor.WHITE.index);
+		style7.setRightBorderColor(HSSFColor.WHITE.index);
+		style7.setTopBorderColor(HSSFColor.WHITE.index);
+		style7.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		style7.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		style7.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		HSSFFont font7 = workbook.createFont();
+		font7.setFontHeightInPoints((short) 14);// 设置字体大小
+		//font7.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);// 字体增粗
+		// 把字体应用到当前的样式
+		style7.setFont(font7);
+		// 无表格 字体大小 14
+		HSSFCellStyle style8 = workbook.createCellStyle();
+		style8.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style8.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style8.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style8.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style8.setBottomBorderColor(HSSFColor.WHITE.index);
+		style8.setLeftBorderColor(HSSFColor.WHITE.index);
+		style8.setRightBorderColor(HSSFColor.WHITE.index);
+		style8.setTopBorderColor(HSSFColor.WHITE.index);
+		style8.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		style8.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		style8.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		HSSFFont font8 = workbook.createFont();
+		font8.setFontHeightInPoints((short) 14);// 设置字体大小
+		// font8.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);//字体增粗
+		// 把字体应用到当前的样式
+		style8.setFont(font8);
+
+		// 格式 无表格 字体大小 16 无背景
+		HSSFCellStyle style9 = workbook.createCellStyle();
+		style9.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style9.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style9.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style9.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style9.setBottomBorderColor(HSSFColor.WHITE.index);
+		style9.setLeftBorderColor(HSSFColor.WHITE.index);
+		style9.setRightBorderColor(HSSFColor.WHITE.index);
+		style9.setTopBorderColor(HSSFColor.WHITE.index);
+		style9.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+		style9.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		style9.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		HSSFFont font9 = workbook.createFont();
+		font9.setFontHeightInPoints((short) 16);// 设置字体大小
+		// font8.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);//字体增粗
+		// 把字体应用到当前的样式
+		style9.setFont(font9);
+
+		if (list == null || list.size() == 0) {
+			return;
+		}
+
+		int size = list.size();
+		int len = 0;// len控制大循环的次数
+		if (size <= 25) {
+			len = 1;
+		} else if (size % 25 != 0) {
+			len = size / 25 + 1;
+		} else {
+			len = size / 25;
+		}
+		// 设置行高
+		for (int i = 0; i < 34 * len; i++) {
+			HSSFRow createRow = sheet.createRow(i);
+			createRow.setHeightInPoints(20);
+		}
+
+		int count = -34; // 控制行标
+		int countSize = -25; // 控制集合循环的下标
+
+		Double tatolCounts = 0.00; // 总钱数
+		for (BillAndCustomTeam billAndCustomTeam : list) {
+			tatolCounts += NumUtil.trim0(billAndCustomTeam.getTotalMonay());
+		}
+		tatolCounts = NumUtil.trim0(tatolCounts);
+
+		for (int i = 0; i < len; i++) {
+			count = count + 34;
+			countSize = countSize + 25;
+			// =============start-bigTitle==========
+			HSSFCell cell1000 = getCell(sheet, count, 0);
+			cell1000.setCellStyle(style9);
+			HSSFCell cell1100 = getCell(sheet, count, 1);
+			cell1100.setCellStyle(style9);
+			HSSFCell cell1200 = getCell(sheet, count, 2);
+			cell1200.setCellStyle(style9);
+			HSSFCell cell1300 = getCell(sheet, count, 3);
+			cell1300.setCellStyle(style9);
+			HSSFCell cell1400 = getCell(sheet, count, 4);
+			cell1400.setCellStyle(style9);
+			cell1400.setCellValue("河北千喜鹤饮食股份有限公司 ");
+			HSSFCell cell1500 = getCell(sheet, count, 5);
+			cell1500.setCellStyle(style9);
+			HSSFCell cell1600 = getCell(sheet, count, 6);
+			cell1600.setCellStyle(style9);
+			HSSFCell cell1700 = getCell(sheet, count, 7);
+			cell1700.setCellStyle(style9);
+			HSSFCell cell1800 = getCell(sheet, count, 8);
+			cell1800.setCellStyle(style9);
+			// =============end-bigTitle============
+			// =============start-title=============
+			HSSFCell cell000 = getCell(sheet, count + 1, 0);
+			cell000.setCellStyle(style7);
+			HSSFCell cell100 = getCell(sheet, count + 1, 1);
+			cell100.setCellStyle(style7);
+			HSSFCell cell200 = getCell(sheet, count + 1, 2);
+			cell200.setCellStyle(style7);
+			HSSFCell cell300 = getCell(sheet, count + 1, 3);
+			cell300.setCellStyle(style7);
+			HSSFCell cell400 = getCell(sheet, count + 1, 4);
+			cell400.setCellStyle(style7);
+			cell400.setCellValue("销 售 出 库 单");
+			HSSFCell cell500 = getCell(sheet, count + 1, 5);
+			cell500.setCellStyle(style7);
+			HSSFCell cell600 = getCell(sheet, count + 1, 6);
+			cell600.setCellStyle(style7);
+			HSSFCell cell700 = getCell(sheet, count + 1, 7);
+			cell700.setCellStyle(style7);
+			HSSFCell cell800 = getCell(sheet, count + 1, 8);
+			cell800.setCellStyle(style7);
+
+			String code = list.get(0).getCodeNm();
+			HSSFCell cell0 = getCell(sheet, count + 2, 0);
+			cell0.setCellStyle(style3);
+			cell0.setCellValue("账单:");
+			HSSFCell cell1 = getCell(sheet, count + 2, 1);
+			cell1.setCellStyle(style3);
+			cell1.setCellValue(" " + code);
+			HSSFCell cell2 = getCell(sheet, count + 2, 2);
+			cell2.setCellStyle(style3);
+			HSSFCell cell3 = getCell(sheet, count + 2, 3);
+			cell3.setCellStyle(style3);
+			HSSFCell cell4 = getCell(sheet, count + 2, 4);
+			cell4.setCellStyle(style3);
+			HSSFCell cell5 = getCell(sheet, count + 2, 5);
+			cell5.setCellStyle(style3);
+			HSSFCell cell6 = getCell(sheet, count + 2, 6);
+			cell6.setCellStyle(style3);
+			HSSFCell cell7 = getCell(sheet, count + 2, 7);
+			cell7.setCellStyle(style3);
+			HSSFCell cell8 = getCell(sheet, count + 2, 8);
+			cell8.setCellStyle(style3);
+			// =============end-title=================================
+
+			// =============类型属性start===============================
+			String teamNm = list.get(0).getTeamNm();
+
+			String customNm = list.get(0).getCustomNm();
+			HSSFCell cell40 = getCell(sheet, count + 3, 0);
+			cell40.setCellStyle(style3);
+			cell40.setCellValue("客戶:");
+			HSSFCell cell41 = getCell(sheet, count + 3, 1);
+			cell41.setCellValue(" " + customNm);
+			cell41.setCellStyle(style3);
+			HSSFCell cell42 = getCell(sheet, count + 3, 2);
+			cell42.setCellStyle(style3);
+			HSSFCell cell43 = getCell(sheet, count + 3, 3);
+
+			cell43.setCellStyle(style3);
+			HSSFCell cell44 = getCell(sheet, count + 3, 4);
+			cell44.setCellStyle(style3);
+			HSSFCell cell45 = getCell(sheet, count + 3, 5);
+			cell45.setCellStyle(style3);
+			HSSFCell cell46 = getCell(sheet, count + 3, 6);
+			cell46.setCellValue("日期:");
+			cell46.setCellStyle(style3);
+			HSSFCell cell47 = getCell(sheet, count + 3, 7);
+			cell47.setCellValue(list.get(0).getBillDate().substring(0, 10));
+			cell47.setCellStyle(style3);
+			HSSFCell cell48 = getCell(sheet, count + 3, 8);
+			cell48.setCellStyle(style3);
+			// =============类型属性end===============================
+
+			// =============列名称start===============================
+			HSSFCell cell10 = getCell(sheet, count + 4, 0);
+			cell10.setCellStyle(style);
+			cell10.setCellValue("序号");
+			HSSFCell cell11 = getCell(sheet, count + 4, 1);
+			cell11.setCellStyle(style);
+			cell11.setCellValue("物料编码");
+			HSSFCell cell12 = getCell(sheet, count + 4, 2);
+			cell12.setCellStyle(style);
+			cell12.setCellValue("物料名称");
+			HSSFCell cell13 = getCell(sheet, count + 4, 3);
+			cell13.setCellStyle(style);
+			cell13.setCellValue("规格");
+			HSSFCell cell14 = getCell(sheet, count + 4, 4);
+			cell14.setCellStyle(style);
+			cell14.setCellValue("数量");
+			HSSFCell cell15 = getCell(sheet, count + 4, 5);
+			cell15.setCellStyle(style);
+			cell15.setCellValue("单位");
+			HSSFCell cell16 = getCell(sheet, count + 4, 6);
+			cell16.setCellStyle(style);
+			cell16.setCellValue("单价");
+			HSSFCell cell17 = getCell(sheet, count + 4, 7);
+			cell17.setCellStyle(style);
+			cell17.setCellValue("金额");
+			HSSFCell cell18 = getCell(sheet, count + 4, 8);
+			cell18.setCellStyle(style);
+			cell18.setCellValue("备注");
+			// =============列名称end===============================
+
+			// 小计
+			double smillCount = 0;// 金额小计
+			double sCount = 0;// 数量小计
+			if (size < 25) {
+				// 获取的集合进行遍历
+				for (int j = 0; j < size; j++) {
+					BillAndCustomTeam billAndCustomTeam = list.get(countSize + j);
+					HSSFCell cell20 = getCell(sheet, count + j + 5, 0);
+					cell20.setCellStyle(style4);
+					cell20.setCellValue(billAndCustomTeam.getOrderIndex());
+					HSSFCell cell21 = getCell(sheet, count + j + 5, 1);
+					cell21.setCellStyle(style4);
+					String code2 = billAndCustomTeam.getCode();
+					if(StringUtils.isEmpty(code2)){
+						String createId = "0101060707"+String.valueOf(countSize + j);
+						cell21.setCellValue(createId);
+					}else{
+						cell21.setCellValue(code2);
+					}
+					HSSFCell cell22 = getCell(sheet, count + j + 5, 2);
+					cell22.setCellStyle(style4);
+					cell22.setCellValue(billAndCustomTeam.getGoodsNm());
+					HSSFCell cell23 = getCell(sheet, count + j + 5, 3);
+					cell23.setCellStyle(style4);
+					cell23.setCellValue(billAndCustomTeam.getSpec());
+					HSSFCell cell24 = getCell(sheet, count + j + 5, 4);
+					cell24.setCellStyle(style4);
+					cell24.setCellValue(billAndCustomTeam.getDemandNum());
+					HSSFCell cell25 = getCell(sheet, count + j + 5, 5);
+					cell25.setCellStyle(style4);
+					cell25.setCellValue(billAndCustomTeam.getUnitNm());
+					HSSFCell cell26 = getCell(sheet, count + j + 5, 6);
+					cell26.setCellStyle(style4);
+					cell26.setCellValue(billAndCustomTeam.getPrice());
+					HSSFCell cell27 = getCell(sheet, count + j + 5, 7);
+					cell27.setCellStyle(style4);
+					cell27.setCellValue(billAndCustomTeam.getTotalMonay());
+					HSSFCell cell28 = getCell(sheet, count + j + 5, 8);
+					cell28.setCellStyle(style4);
+					smillCount += billAndCustomTeam.getTotalMonay();
+					sCount += Double.parseDouble(billAndCustomTeam.getDemandNum());
+				}
+
+				// ================合計start=========================
+				// 小计:
+				HSSFCell cell70 = getCell(sheet, count + size + 5, 0);
+				cell70.setCellStyle(style2);
+				cell70.setCellValue("合计:");
+				HSSFCell cell71 = getCell(sheet, count + size + 5, 1);
+				cell71.setCellStyle(style5);
+				cell71.setCellValue(" " + MoneyUtil.toChinese(smillCount + ""));
+				HSSFCell cell72 = getCell(sheet, count + size + 5, 2);
+				cell72.setCellStyle(style5);
+				HSSFCell cell73 = getCell(sheet, count + size + 5, 3);
+				cell73.setCellStyle(style2);
+				cell73.setCellValue("数量:");
+				HSSFCell cell74 = getCell(sheet, count + size + 5, 4);
+				cell74.setCellStyle(style10);
+				cell74.setCellValue(NumUtil.trim0(sCount));
+				HSSFCell cell75 = getCell(sheet, count + size + 5, 5);
+				cell75.setCellStyle(style2);
+				HSSFCell cell76 = getCell(sheet, count + size + 5, 6);
+				cell76.setCellStyle(style5);
+				cell76.setCellValue("金额");
+				HSSFCell cell77 = getCell(sheet, count + size + 5, 7);
+				cell77.setCellStyle(style5);
+				cell77.setCellValue("￥" + NumUtil.trim0(smillCount));
+				HSSFCell cell78 = getCell(sheet, count + size + 5, 8);
+				cell78.setCellStyle(style10);
+				// ================合計end==============================
+
+				// ================签字start===========================
+				HSSFCell cell90 = getCell(sheet, count + size + 6, 0);
+				cell90.setCellStyle(style3);
+				cell90.setCellValue("客户:");
+				HSSFCell cell91 = getCell(sheet, count + size + 6, 1);
+				cell91.setCellStyle(style3);
+				HSSFCell cell92 = getCell(sheet, count + size + 6, 2);
+				cell92.setCellStyle(style3);
+				HSSFCell cell93 = getCell(sheet, count + size + 6, 3);
+				cell93.setCellStyle(style3);
+				HSSFCell cell94 = getCell(sheet, count + size + 6, 4);
+				cell94.setCellStyle(style3);
+				HSSFCell cell95 = getCell(sheet, count + size + 6, 5);
+				cell95.setCellStyle(style3);
+				cell95.setCellValue("业务员:");
+				HSSFCell cell96 = getCell(sheet, count + size + 6, 6);
+				cell96.setCellStyle(style3);
+				HSSFCell cell97 = getCell(sheet, count + size + 6, 7);
+				cell97.setCellStyle(style3);
+				HSSFCell cell98 = getCell(sheet, count + size + 6, 8);
+				cell98.setCellStyle(style3);
+				// ================签字end=========================
+
+			} else {
+				for (int j = 0; j < 25; j++) {
+					BillAndCustomTeam billAndCustomTeam = list.get(countSize + j);
+
+					HSSFCell cell20 = getCell(sheet, count + j + 5, 0);
+					cell20.setCellStyle(style4);
+					cell20.setCellValue(billAndCustomTeam.getOrderIndex());
+					HSSFCell cell21 = getCell(sheet, count + j + 5, 1);
+					cell21.setCellStyle(style4);
+					String code2 = billAndCustomTeam.getCode();
+					if(StringUtils.isEmpty(code2)){
+						String createId = "0101060607"+String.valueOf(countSize + j);
+						cell21.setCellValue(createId);
+					}else{
+						cell21.setCellValue(code2);
+					}
+					HSSFCell cell22 = getCell(sheet, count + j + 5, 2);
+					cell22.setCellStyle(style4);
+					cell22.setCellValue(billAndCustomTeam.getGoodsNm());
+					HSSFCell cell23 = getCell(sheet, count + j + 5, 3);
+					cell23.setCellStyle(style4);
+					cell23.setCellValue(billAndCustomTeam.getSpec());
+					HSSFCell cell24 = getCell(sheet, count + j + 5, 4);
+					cell24.setCellStyle(style4);
+					cell24.setCellValue(billAndCustomTeam.getDemandNum());
+					HSSFCell cell25 = getCell(sheet, count + j + 5, 5);
+					cell25.setCellStyle(style4);
+					cell25.setCellValue(billAndCustomTeam.getUnitNm());
+					HSSFCell cell26 = getCell(sheet, count + j + 5, 6);
+					cell26.setCellStyle(style4);
+					cell26.setCellValue(billAndCustomTeam.getPrice());
+					HSSFCell cell27 = getCell(sheet, count + j + 5, 7);
+					cell27.setCellStyle(style4);
+					cell27.setCellValue(billAndCustomTeam.getTotalMonay());
+					HSSFCell cell28 = getCell(sheet, count + j + 5, 8);
+					cell28.setCellStyle(style4);
+					smillCount += billAndCustomTeam.getTotalMonay();
+					sCount += Double.parseDouble(billAndCustomTeam.getDemandNum());
+				}
+				size = size - 25;
+				// ================合計start=========================
+				// 小计:
+				HSSFCell cell70 = getCell(sheet, count + 25 + 5, 0);
+				cell70.setCellStyle(style2);
+				cell70.setCellValue("合计:");
+				HSSFCell cell71 = getCell(sheet, count + 25 + 5, 1);
+				cell71.setCellStyle(style5);
+				cell71.setCellValue(" " + MoneyUtil.toChinese(smillCount + ""));
+				HSSFCell cell72 = getCell(sheet, count + 25 + 5, 2);
+				cell72.setCellStyle(style5);
+				HSSFCell cell73 = getCell(sheet, count + 25 + 5, 3);
+				cell73.setCellStyle(style2);
+				cell73.setCellValue("数量:");
+				HSSFCell cell74 = getCell(sheet, count + 25 + 5, 4);
+				cell74.setCellStyle(style10);
+				cell74.setCellValue(NumUtil.trim0(sCount));
+				HSSFCell cell75 = getCell(sheet, count + 25 + 5, 5);
+				cell75.setCellStyle(style2);
+				HSSFCell cell76 = getCell(sheet, count + 25 + 5, 6);
+				cell76.setCellStyle(style5);
+				cell76.setCellValue("金额");
+				HSSFCell cell77 = getCell(sheet, count + 25 + 5, 7);
+				cell77.setCellStyle(style5);
+				cell77.setCellValue("￥" + NumUtil.trim0(smillCount));
+				HSSFCell cell78 = getCell(sheet, count + 25 + 5, 8);
+				cell78.setCellStyle(style10);
+				// ================合計end=========================
+
+				// ================签字start=======================
+				HSSFCell cell90 = getCell(sheet, count + 25 + 6, 0);
+				cell90.setCellStyle(style3);
+				cell90.setCellValue("客户:");
+				HSSFCell cell91 = getCell(sheet, count + 25 + 6, 1);
+				cell91.setCellStyle(style3);
+				HSSFCell cell92 = getCell(sheet, count + 25 + 6, 2);
+				cell92.setCellStyle(style3);
+				HSSFCell cell93 = getCell(sheet, count + 25 + 6, 3);
+				cell93.setCellStyle(style3);
+				HSSFCell cell94 = getCell(sheet, count + 25 + 6, 4);
+				cell94.setCellStyle(style3);
+				HSSFCell cell95 = getCell(sheet, count + 25 + 6, 5);
+				cell95.setCellStyle(style3);
+				cell95.setCellValue("业务员: ");
+				HSSFCell cell96 = getCell(sheet, count + 25 + 6, 6);
+				cell96.setCellStyle(style3);
+				HSSFCell cell97 = getCell(sheet, count + 25 + 6, 7);
+				cell97.setCellStyle(style3);
+				HSSFCell cell98 = getCell(sheet, count + 25 + 6, 8);
+				cell98.setCellStyle(style3);
+				// ================签字end=========================
+			}
+		}
+	}
+
+}

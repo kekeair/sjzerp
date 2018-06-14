@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+                    
+	<!-- 物料 -->
+	<bean name="/demandSumm/demandSummInit.do" class="com.qxh.action.demandSumm.DemandSummInitAction">
+	</bean>
+	<bean name="/demandSumm/getDemandSummary.do" class="com.qxh.action.demandSumm.GetDemandSummaryAction">
+		<property name="demandSummService" ref="DemandSummService"></property>
+	</bean>
+	<bean name="/demandSumm/demandSummByGoodsInit.do" class="com.qxh.action.demandSumm.DemandSummByGoodsInitAction">
+		<property name="demandSummService" ref="DemandSummService"></property>
+	</bean>
+	
+	<!-- 通过strutsId查找客户 -->
+	<bean name="/demandSumm/getCustom.do" class="com.qxh.action.demandSumm.GetCustomByStrustIdAction">
+		<property name="customerService" ref="CustomerService"></property>
+	</bean>
+	
+	<!-- 导出 -->
+	<bean id="ExportOutDemandSummView" class="com.qxh.action.demandSumm.ExportOutDemandSummView">
+  		<property name="demandSummService" ref="DemandSummService"></property>
+	</bean> 
+	<bean name="/demandSumm/exportOutDemandSummAction.do" class="com.qxh.action.demandSumm.ExportOutDemandSummAction">
+		<property name="export" ref="ExportOutDemandSummView"></property>
+	</bean>
+	
+	
+</beans>

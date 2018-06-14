@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+                    
+	<!-- 角色 -->
+	<bean name="/role/roleInit.do" class="com.qxh.action.role.RoleInitAction">
+	</bean>
+	<bean name="/role/getRole.do" class="com.qxh.action.role.GetRoleAction">
+		<property name="roleService" ref="RoleService"></property>
+	</bean>
+	<bean name="/role/addRole.do" class="com.qxh.action.role.AddRoleAction">
+		<property name="roleService" ref="RoleService"></property>
+	</bean>
+	<bean name="/role/editRoleNm.do" class="com.qxh.action.role.EditRoleNmAction">
+		<property name="roleService" ref="RoleService"></property>
+	</bean>
+	<bean name="/role/editRolePower.do" class="com.qxh.action.role.EditRolePowerAction">
+		<property name="roleService" ref="RoleService"></property>
+	</bean>
+	<bean name="/role/delRole.do" class="com.qxh.action.role.DelRoleAction">
+		<property name="roleService" ref="RoleService"></property>
+	</bean>
+	
+</beans>

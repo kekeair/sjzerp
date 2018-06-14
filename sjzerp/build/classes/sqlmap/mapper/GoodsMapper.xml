@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.goods.GoodsMapper">
+	
+	<!-- 物料列表 -->
+	<select id="getMaxGoodsCode" parameterType="com.qxh.model.Goods" resultType="String">
+		select max(code) from goods where kindId=#{kindId}
+   	</select>
+   	
+   	<!-- 查询物料分类编号 -->
+	<select id="getGoodsKindCode" parameterType="com.qxh.model.Goods" resultType="String">
+		select code from GoodsKind where atNo=#{kindId}
+   	</select>
+   		
+	<!-- 添加物料 -->
+	<insert id="addGoods" parameterType="com.qxh.model.Goods" 
+		useGeneratedKeys="true" keyProperty="atNo">
+		insert into goods (code,goodsNm,alias,kindId,baseUnit,unitNm,spec,illegal,
+		createTime,updateTime,brand) values
+		(#{code},#{goodsNm},#{alias},#{kindId},#{baseUnit},#{unitNm},#{spec},#{illegal},
+		now(),now(),#{brand})
+	</insert>
+	
+	<!-- 添加物料详细属性 -->
+	<insert id="addGoodsDetail" parameterType="com.qxh.model.Goods">
+		insert into GoodsDetail (goodsId,tradiNm,groupStandardCode,shortNm,assistUnit,
+		sequenceUnit,helpCode,barCode,approvalNumber,picNumber,assistAttr,grossWeight,
+		netWeight,weightUnit,length,width,height,lengthUnit,volume,volumeUnit,
+		equipAttr,tradeMark,depict,keyword,remark,summary,firstLetter,
+		englishNm,foreignNm,groupId,criteria,spell,minUnit,minUnitNm) 
+		values
+		(#{atNo},#{tradiNm},#{groupStandardCode},#{shortNm},#{assistUnit},
+		#{sequenceUnit},#{helpCode},#{barCode},#{approvalNumber},#{picNumber},#{assistAttr},
+		#{grossWeight},#{netWeight},#{weightUnit},#{length},#{width},#{height},#{lengthUnit},
+		#{volume},#{volumeUnit},#{equipAttr},#{tradeMark},#{depict},#{keyword},
+		#{remark},#{summary},#{firstLetter},#{englishNm},#{foreignNm},#{groupId},#{criteria},
+		#{spell},#{minUnit},#{minUnitNm})
+	</insert>
+	
+	<!-- 根据id查询物料 -->
+	<select id="getGoodsById" parameterType="Map" resultType="com.qxh.model.Goods">
+		SELECT g.code,g.brand,g.goodsNm,g.alias,g.kindId,g.baseUnit,g.spec,g.illegal,d.tradiNm,
+		d.groupStandardCode,d.shortNm,d.assistUnit,d.sequenceUnit,d.helpCode,d.barCode,
+		d.approvalNumber,d.picNumber,d.assistAttr,d.grossWeight,d.netWeight,d.weightUnit,
+		d.length,d.width,d.height,d.lengthUnit,d.volume,d.volumeUnit,d.equipAttr,
+		d.tradeMark,d.depict,d.keyword,d.remark,d.summary,d.firstLetter,d.englishNm,
+		d.foreignNm,d.groupId,d.criteria,d.spell,d.minUnit,d.minUnitNm,k.kindNm
+		FROM goods g LEFT JOIN goodsDetail d ON g.atNo=d.goodsId
+		LEFT JOIN goodsKind k ON g.kindId=k.atNo
+		WHERE g.atNo=#{goodsId} limit 1
+   	</select>
+   	
+   	<!-- 根据物料id查询分类id -->
+	<select id="getKindIdByGoodsId" parameterType="Map" resultType="int">
+		select kindId from goods where atNo=#{atNo} limit 1
+   	</select>
+   	
+   	<!-- 修改物料 -->
+	<update id="editGoods" parameterType="com.qxh.model.Goods">
+		update goods set code=#{code},goodsNm=#{goodsNm},alias=#{alias},
+		kindId=#{kindId},baseUnit=#{baseUnit},unitNm=#{unitNm},spec=#{spec},
+		illegal=#{illegal},updateTime=now(),brand=#{brand} where atNo=#{atNo}
+	</update>
+	
+	<!-- 编辑物料详细属性 -->
+	<insert id="editGoodsDetail" parameterType="com.qxh.model.Goods">
+		update GoodsDetail set tradiNm=#{tradiNm},groupStandardCode=#{groupStandardCode},
+		shortNm=#{shortNm},assistUnit=#{assistUnit},sequenceUnit=#{sequenceUnit},
+		helpCode=#{helpCode},barCode=#{barCode},approvalNumber=#{approvalNumber},
+		picNumber=#{picNumber},assistAttr=#{assistAttr},grossWeight=#{grossWeight},
+		netWeight=#{netWeight},weightUnit=#{weightUnit},length=#{length},width=#{width},
+		height=#{height},lengthUnit=#{lengthUnit},volume=#{volume},volumeUnit=#{volumeUnit},
+		equipAttr=#{equipAttr},tradeMark=#{tradeMark},depict=#{depict},
+		keyword=#{keyword},remark=#{remark},summary=#{summary},firstLetter=#{firstLetter},
+		englishNm=#{englishNm},foreignNm=#{foreignNm},groupId=#{groupId},
+		criteria=#{criteria},spell=#{spell},minUnit=#{minUnit},minUnitNm=#{minUnitNm}
+		where goodsId=#{atNo}
+	</insert>
+	
+	<!-- 查询单位名 -->
+	<select id="getUnitNm" parameterType="String" resultType="String">
+		select name from unitSet where atNo=#{baseUnit} limit 1
+   	</select>
+	
+</mapper> 

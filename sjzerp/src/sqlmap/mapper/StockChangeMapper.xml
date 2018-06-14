@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.stockChange.StockChangeMapper">
+
+	<!-- 库存变动列表 -->
+	<select id="getStockChangeRec" parameterType="Map"
+		resultType="com.qxh.exmodel.StockChange">	
+   	<![CDATA[      
+		select max(r.atNo) maxAtNo,g.atNo goodsId,g.code goodsCode,g.kindId,
+		concat(g.brand,g.goodsNm) goodsNm,g.spec,g.unitNm,k.kindNm,
+		r.preStockNum sNum,r.preStockPrice*r.preStockNum sMoney,
+		SUM(IF(r.stockFlag=1,r.acrossNum,0)) rkNum,
+		SUM(IF(r.stockFlag=1,r.acrossNum*r.acrossPrice,0)) rkMoney,
+		SUM(IF(r.stockFlag=0,r.acrossNum,0)) ckNum,
+		SUM(IF(r.stockFlag=0,r.acrossNum*r.acrossPrice,0)) ckMoney
+		from stockrecord r left join goods g on r.goodsId=g.atNo
+		left join goodsKind k on g.kindId=k.atNo
+		where r.centerId=#{structId}
+		and r.acrosstime>=#{stime}
+		and r.acrossTime<=#{etime}
+	]]>
+		<include refid="getStockChangeCon"></include>
+		GROUP BY r.goodsId
+	</select>
+
+	<!-- 查询库存记录表中的期末库存 -->
+	<select id="getEChangeList" parameterType="Map"
+		resultType="com.qxh.exmodel.StockChange">	
+   	<![CDATA[      
+		select r.stockNum eNum,r.stockPrice*r.stockNum eMoney
+		from stockrecord r
+		where r.atNo in (${eAtNo}) order by r.goodsId
+	]]>
+	</select>
+
+	<!-- 库存列表 -->
+	<select id="getStockList" parameterType="Map"
+		resultType="com.qxh.exmodel.StockChange">	
+   	<![CDATA[      
+		select g.atNo goodsId,g.code goodsCode,g.kindId,
+		concat(g.brand,g.goodsNm) goodsNm,g.spec,g.unitNm,k.kindNm
+		from stock s left join goods g on s.goodsId=g.atNo
+		left join goodsKind k on g.kindId=k.atNo
+		where s.centerId=#{structId}
+	]]>
+		<include refid="getStockChangeCon"></include>
+	</select>
+
+	<!-- 查询库存未变动的物料 -->
+	<select id="getUnChangeList" parameterType="Map"
+		resultType="com.qxh.exmodel.StockChange">	
+   	<![CDATA[      
+		select g.atNo goodsId,g.code goodsCode,g.kindId,
+		concat(g.brand,g.goodsNm) goodsNm,g.spec,g.unitNm,
+		r.stockNum sNum,r.stockNum*r.stockPrice sMoney,
+		r.stockNum eNum,r.stockNum*r.stockPrice eMoney,k.kindNm
+		from stockrecord r left join goods g on r.goodsId=g.atNo
+		left join goodsKind k on g.kindId=k.atNo
+		where r.atNo in (${unChangeAtNo})
+		order by g.code
+	]]>
+	</select>
+
+	<!-- 查询库存未变动的物料 -->
+	<select id="getUnChangeAtNoList" parameterType="Map" resultType="Integer">	
+   	<![CDATA[      
+		select max(r.atNo)
+		from stockrecord r left join goods g on r.goodsId=g.atNo
+		where r.centerId=#{structId} and r.acrosstime<#{stime}
+		and r.goodsId in (${unChangeStr})
+	]]>
+		<include refid="getStockChangeCon"></include>
+		GROUP BY r.goodsId
+		order by g.code
+	</select>
+
+	<sql id="getStockChangeCon">
+		<if test=" name!='' ">
+			<!-- and (instr(g.goodsNm, #{name} )>0 or instr(g.alias, #{name} )>0 ) -->
+			and concat(g.brand,g.goodsNm,g.alias) like '%${name}%'
+		</if>
+		<if test=" kindCode!='-1' ">
+   		<![CDATA[      
+		   	and g.code like '${kindCode}%'
+		]]>
+		</if>
+
+		<if test=" goodsCode!='' ">
+			and g.code = #{goodsCode}
+		</if>
+	</sql>
+
+</mapper> 

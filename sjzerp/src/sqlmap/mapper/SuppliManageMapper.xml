@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.suppliManage.SuppliManageMapper">
+	
+	<!-- 供应商列表 -->
+	<select id="getSupplierList" parameterType="Map" 
+		resultType="com.qxh.exmodel.ListUser">	
+		select u.atNo,u.userNm name,u.userAccount,u.phone,s.address
+		from user u left join userRel ur on u.atNo=ur.userId
+		left join supplierattr s on u.atNo=s.userId
+		where u.delFlag=0 and ur.roleId=8 and ur.structId=#{structId}
+   	</select>
+	
+</mapper> 

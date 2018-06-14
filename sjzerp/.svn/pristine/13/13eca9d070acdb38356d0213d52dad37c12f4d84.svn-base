@@ -1,0 +1,1134 @@
+package com.qxh.impl.purchase;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.alibaba.fastjson.JSON;
+import com.qxh.constant.CodeConstant;
+import com.qxh.exmodel.BillAndCustomTeam;
+import com.qxh.exmodel.CommonModel;
+import com.qxh.exmodel.EditInOutD;
+import com.qxh.exmodel.ExcelDemandBillByCondition;
+import com.qxh.exmodel.InStorageJson;
+import com.qxh.exmodel.PurchaseGoodsByGoods;
+import com.qxh.exmodel.PurchaseInModel;
+import com.qxh.exmodel.SupplierSelData;
+import com.qxh.impl.common.CommonMapper;
+import com.qxh.model.ExcelPurchaseBillByCondition;
+import com.qxh.model.PurchaseListH;
+import com.qxh.model.PurchaseTotallModel;
+import com.qxh.model.SupplierGoods;
+import com.qxh.model.User;
+import com.qxh.service.PurchaseService;
+import com.qxh.utils.DateUtil;
+import com.qxh.utils.ErrorCode;
+import com.qxh.utils.IPageConstants;
+import com.qxh.utils.NumUtil;
+import com.qxh.utils.PageUtil;
+import com.qxh.utils.Result;
+
+public class PurchaseServiceImpl implements PurchaseService {
+
+	Logger log = Logger.getLogger(this.getClass());
+	private PurchaseMapper purchaseMapper;
+	private CommonMapper commonMapper;
+
+	public void setPurchaseMapper(PurchaseMapper purchaseMapper) {
+		this.purchaseMapper = purchaseMapper;
+	}
+
+	public void setCommonMapper(CommonMapper commonMapper) {
+		this.commonMapper = commonMapper;
+	}
+
+	/**
+	 * 采购单列表
+	 */
+	@Override
+	public Result getPurchaseListH(String state, String stime, String etime, String page, int structId, int roleId,String customerId) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("state", state);
+		param.put("page", (Integer.parseInt(page) - 1) * IPageConstants.PageSize);
+		param.put("structId", structId);
+		param.put("customerId", customerId);
+		param.put("pageSize", IPageConstants.PageSize);
+		try {
+			if (!StringUtils.isEmpty(stime)) {
+				stime = stime + " 00:00:00";
+			} else {
+				stime = "";
+			}
+			if (!StringUtils.isEmpty(etime)) {
+				etime = etime + " 23:59:59";
+			} else {
+				etime = "";
+			}
+			param.put("stime", stime);
+			param.put("etime", etime);
+			switch (roleId) {
+			case 5:// 库管
+				param.put("viewPower", 0);
+				break;
+			case 4:// 经理
+			case 10:// 财务
+				param.put("viewPower", 1);
+				break;
+			case 7:// 采购员
+				param.put("viewPower", 2);
+				break;
+			}
+			List<PurchaseListH> list = purchaseMapper.getPurchaseListH(param);
+			if (list != null && list.size() > 0) {
+				int l = list.size();
+				int orderIndex = (Integer.parseInt(page) - 1) * IPageConstants.PageSize + 1;
+				for (int i = 0; i < l; i++) {
+					list.get(i).setOrderIndex(orderIndex);
+					orderIndex++;
+				}
+			}
+			int count = purchaseMapper.getPurchaseListHNum(param);
+			Map<String, Object> data = new HashMap<>();
+			data.put("list", list);
+			data.put("totalCount", count);
+			data.put("totalPage", PageUtil.getTotalPage(count, IPageConstants.PageSize));
+			result.setData(data);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			log.error("\r\n 查询采购单列表：  errorcode=" + ErrorCode.geterrocode(this) + "  \r\n" + e + "\r\n" + ",state:"
+					+ state + ",stime:" + stime + ",etime:" + etime + ",page:" + page + ",structId:" + structId
+					+ "\r\n\r\n");
+		}
+		return result;
+	}
+
+	/**
+	 * 处理采购订单
+	 */
+	@Override
+	public Result dealPurchaseBill(String billId, String reviewState, int structId, int userId, String userNm,
+			String operType, String remark, String billDate, String newList, String editList, String delAtNo,
+			String customerId, String teamId) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		param.put("reviewState", reviewState);
+		param.put("structId", structId);
+		param.put("billDate", billDate);
+		try {
+			if (!StringUtils.isEmpty(billId) && !billId.equals("-1")) {
+				// 检查是否已办理过
+				Integer nowState = purchaseMapper.getPurchaseListHState(param);
+				if (nowState == null) {
+					result.setCode(CodeConstant.CODE200);
+					result.setMsg("单据不存在");
+					return result;
+				}
+				if (operType.equals("0") && nowState >= Integer.parseInt(reviewState)
+						|| operType.equals("1") && nowState <= Integer.parseInt(reviewState)) {
+					result.setCode(CodeConstant.CODE200);
+					result.setMsg("此单据已被办理过");
+					return result;
+				}
+			}
+			// 保存修改
+			billId = saveEditPurchase(newList, editList, delAtNo, billId, customerId, teamId, structId, userId,
+					reviewState);
+			param.put("billId", billId);
+			purchaseMapper.updatePurchaseListHState(param);
+			if (reviewState.equals("4")) {
+				// 更新申报单中的额外物料状态
+				purchaseMapper.updateDemandExtraState(param);
+				synchronized (this) {
+					// 增加库存
+					List<PurchaseInModel> goodsList = purchaseMapper.getGoodsListBeforeIn(param);
+					if (goodsList != null && goodsList.size() > 0) {
+						String stockIdStr = "";
+						List<PurchaseInModel> stockList = new ArrayList<>();
+						List<PurchaseInModel> unStockList = new ArrayList<>();
+						int l = goodsList.size();
+						for (int i = 0; i < l; i++) {
+							PurchaseInModel goods = goodsList.get(i);
+							if (goods.getStockId() > 0) {
+								stockList.add(goods);
+								stockIdStr += goods.getStockId() + ",";
+							} else {
+								unStockList.add(goods);
+							}
+						}
+						if (stockList.size() > 0) {
+							param.put("stockList", stockList);
+							stockIdStr = stockIdStr.substring(0, stockIdStr.length() - 1);
+							param.put("stockIdStr", stockIdStr);
+							purchaseMapper.updateStock(param);
+						}
+						if (unStockList.size() > 0) {
+							param.put("unStockList", unStockList);
+							purchaseMapper.addStock(param);
+						}
+						String billCode = purchaseMapper.getBillCodeById(param);
+						param.put("billCode", billCode);
+						param.put("goodsList", goodsList);
+						purchaseMapper.addInStockRecord(param);
+					}
+				}
+			}
+			// 插入审批流程
+			param.put("billType", 1);
+			switch (reviewState) {
+			case "0":
+				param.put("nodeNm", "经理确认");
+				break;
+			case "1":
+				if (operType.equals("0"))
+					param.put("nodeNm", "库管确认");
+				else
+					param.put("nodeNm", "采购员确认");
+				break;
+			case "2":
+				if (operType.equals("0"))
+					param.put("nodeNm", "经理确认");
+				else
+					param.put("nodeNm", "库管质检确认");
+				break;
+			case "3":
+				param.put("nodeNm", "采购员确认");
+				break;
+			case "4":
+				param.put("nodeNm", "库管质检确认");
+				// 更新DemandListH表中的采购状态为已采购(1)
+				Integer demandAtNo = purchaseMapper.getDemandBypuchaseBillId(param);
+				purchaseMapper.updatePurchaseState(demandAtNo);
+				break;
+			}
+			if (operType.equals("0")) {
+				param.put("operNm", "通过");
+
+			} else {
+				param.put("operNm", "驳回");
+			}
+			param.put("operatorId", userId);
+			param.put("operatorNm", userNm);
+			param.put("remark", remark == null ? "" : remark);
+			commonMapper.addReviewProcess(param);
+			if (reviewState.equals("5")) {
+				param.put("nodeNm", "结束");
+				param.put("operNm", "");
+				param.put("operatorId", -1);
+				param.put("operatorNm", "");
+				param.put("remark", "");
+				commonMapper.addReviewProcess(param);
+
+			}
+
+		} catch (Exception e) {
+			log.error("\r\n 处理采购订单：  errorcode=" + ErrorCode.geterrocode(this) + "  \r\n" + e + "\r\n" + ",billId:"
+					+ billId + "\r\n\r\n");
+			throw new RuntimeException();
+		}
+		return result;
+	}
+
+	/**
+	 * 作业组列表
+	 */
+	@Override
+	public Result getTeamList(User user, String teamId) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		try {
+			List<CommonModel> teamList = new ArrayList<>();
+			if (!StringUtils.isEmpty(teamId)) {
+				String teamNm;
+				if (teamId.equals("-2"))
+					teamNm = "库管";
+				else
+					teamNm = commonMapper.getUserNmById(teamId);
+				CommonModel team = new CommonModel();
+				team.setAtNo(Integer.parseInt(teamId));
+				team.setName(teamNm);
+				teamList.add(team);
+			}
+			result.setData(teamList);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			log.error("\r\n 查询作业组列表：  errorcode=" + ErrorCode.geterrocode(this) + "  \r\n" + e + "\r\n" + ",user:"
+					+ user.getAtNo() + "\r\n\r\n");
+		}
+		return result;
+	}
+
+	/**
+	 * 供应商选择数据列表
+	 */
+	@Override
+	public Result getSuppliserSelData(String billId, int structId) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		param.put("structId", structId);
+		try {
+			// 物料列表
+			List<SupplierSelData> goodsList = purchaseMapper.getSuppliserSelData(param);
+			if (goodsList != null && goodsList.size() > 0) {
+				Map<Integer, Integer> keyMap = new HashMap<>();
+				int l = goodsList.size();// 集合长度
+				String goodsIdStr = "";
+				for (int i = 0; i < l; i++) {
+					SupplierSelData goods = goodsList.get(i);
+					if (goods.getGoodsType() == 0) {
+						// 记录物料在集合中的位置
+						keyMap.put(goods.getGoodsId(), i);
+						goodsIdStr += goods.getGoodsId() + ",";
+					}
+				}
+				List<SupplierGoods> supplierAllListDesc = new ArrayList<>();// 自采和所有集采供应商列表
+				// 创建供应商物料
+				SupplierGoods supplierZC = new SupplierGoods();
+				supplierZC.setSupplierId(-1);
+				supplierZC.setSupplierNm("自采");
+				supplierZC.setFrontPrice(0);
+				supplierAllListDesc.add(supplierZC); // 所有集采供应商列表和自采
+				// 获得所有供应商
+				List<CommonModel> allSupplier = commonMapper.getSupplier(param);
+				for (int i = 0; i < allSupplier.size(); i++) {
+					SupplierGoods supplier = new SupplierGoods();
+					supplier.setSupplierId(allSupplier.get(i).getAtNo());
+					supplier.setSupplierNm(allSupplier.get(i).getName());
+					supplier.setFrontPrice(0);
+					supplierAllListDesc.add(supplier);
+				}
+				// 将所有的供应商添加到物料对应的供应商列表中
+				if (goodsList != null && goodsList.size() > 0) {
+					for (int i = 0; i < goodsList.size(); i++) {
+						SupplierSelData goods = goodsList.get(i);
+
+						List<SupplierGoods> tmpList = goods.getSupplierList();// 获取物料信息中供应商
+						int ll = supplierAllListDesc.size();
+						for (int j = 0; j < ll; j++) {
+							tmpList.add(supplierAllListDesc.get(j));
+						}
+						goods.setFrontPrice(0.0);
+						goods.setFrontMoney(0.0);
+
+					}
+				}
+
+				// =======目前集合中每个jicaiD对象中都有所有供应商=================
+
+				if (goodsIdStr.length() > 0) {
+					goodsIdStr = goodsIdStr.substring(0, goodsIdStr.length() - 1);
+					param.put("goodsIdStr", goodsIdStr);
+					// 通过条件查询供应商列表
+					List<SupplierGoods> supplierList = purchaseMapper.getSupplierList(param);
+
+					Map<Integer, Double> priceMap = new HashMap<>();// 记录价格
+					if (supplierList != null && supplierList.size() > 0) {
+						for (int j = 0; j < supplierList.size(); j++) {
+							SupplierGoods sg = supplierList.get(j);
+
+							Integer location = keyMap.get(sg.getGoodsId());// 获取物料对应的供应商
+							SupplierSelData jiCaiD = goodsList.get(location);// 获取供应商信息
+							List<SupplierGoods> list = jiCaiD.getSupplierList();
+
+							// 相同的物料不同的供应商的取价格最小的
+							Double price = priceMap.get(sg.getGoodsId());
+							for (int i = 0; i < list.size(); i++) {
+								if (list.get(i).getSupplierId() == sg.getSupplierId()) {
+									list.set(i, sg);
+									SupplierGoods n = list.get(0);
+									if (price == null) {
+										jiCaiD.setFrontMoney(
+												NumUtil.trim0(jiCaiD.getFrontPrice() * jiCaiD.getOrderNum()));
+										jiCaiD.setFrontPrice(sg.getFrontPrice());
+										priceMap.put(sg.getGoodsId(), sg.getFrontPrice());
+										jiCaiD.setSupplierId(sg.getSupplierId());
+										list.set(0, list.get(i));// 将当前的供应商放在第一位置上
+										list.set(i, n);// 将第一个元素放在当前位置
+									} else {
+										price = (price <= sg.getFrontPrice() ? price : sg.getFrontPrice());// 取最小价格
+										jiCaiD.setFrontMoney(NumUtil.trim0(price * jiCaiD.getOrderNum()));
+										jiCaiD.setFrontPrice(price);
+										priceMap.put(sg.getGoodsId(), price);
+										if (price <= sg.getFrontPrice() ? false : true) {
+											jiCaiD.setSupplierId(sg.getSupplierId());
+											list.set(0, list.get(i));// 将当前的供应商放在第一位置上
+											list.set(i, n);// 将第一个元素放在当前位置
+										}
+									}
+
+								}
+							}
+
+						}
+					}
+				}
+			}
+			result.setData(goodsList);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			log.error("\r\n 供应商选择数据列表：  errorcode=" + ErrorCode.geterrocode(this) + "  \r\n" + e + "\r\n" + ",billId:"
+					+ billId + "\r\n\r\n");
+		}
+		return result;
+	}
+
+	/**
+	 * 选择供应商
+	 * 
+	 * @param billId
+	 * @param supplierJson
+	 * @param structId
+	 * @return
+	 */
+	@Override
+	public Result supplierSel(String billId, String supplierJson, int structId, int userId, String userNm,
+			String remark) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		param.put("structId", structId);
+		param.put("reviewState", 3);
+		try {
+			if (!StringUtils.isEmpty(supplierJson)) {
+				List<SupplierSelData> jsonList = JSON.parseArray(supplierJson, SupplierSelData.class);
+				if (jsonList != null && jsonList.size() > 0) {
+					// 分开系统物料和临时物料
+					List<SupplierSelData> sysGoodsList = new ArrayList<>();
+					List<SupplierSelData> tmpGoodsList = new ArrayList<>();
+					int l = jsonList.size();
+					String tmpAtNoStr = "";
+					for (int i = 0; i < l; i++) {
+						SupplierSelData d = jsonList.get(i);
+						if (d.getGoodsType() == 0) {
+							sysGoodsList.add(d);
+						} else {
+							tmpGoodsList.add(d);
+							tmpAtNoStr += d.getPurchaseListDId() + ",";
+						}
+					}
+					// 更新PurchaseListD中的供应商和价格
+					if (sysGoodsList.size() > 0) {
+						param.put("sysGoodsList", sysGoodsList);
+						purchaseMapper.supplierSel(param);
+					}
+					if (tmpGoodsList.size() > 0) {
+						param.put("tmpGoodsList", tmpGoodsList);
+						tmpAtNoStr = tmpAtNoStr.substring(0, tmpAtNoStr.length() - 1);
+						param.put("tmpAtNoStr", tmpAtNoStr);
+						purchaseMapper.supplierSel_tmp(param);
+					}
+				}
+			}
+			purchaseMapper.updatePurchaseListHState(param);
+			// 插入审批流程
+			param.put("billType", 1);
+			param.put("nodeNm", "采购员确认");
+			param.put("operNm", "通过");
+			param.put("operatorId", userId);
+			param.put("operatorNm", userNm);
+			param.put("remark", remark == null ? "" : remark);
+			commonMapper.addReviewProcess(param);
+		} catch (Exception e) {
+			log.error("\r\n 选择供应商：  errorcode=" + ErrorCode.geterrocode(this) + "  \r\n" + e + "\r\n" + ",billId:"
+					+ billId + "\r\n\r\n");
+			throw new RuntimeException();
+		}
+		return result;
+	}
+
+	/**
+	 * 入库保存
+	 */
+	@Override
+	public Result inStorageSave(String billId, String supplierId, String changeJson) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		param.put("supplierId", supplierId);
+		try {
+			List<InStorageJson> jsonList = JSON.parseArray(changeJson, InStorageJson.class);
+			if (jsonList != null && jsonList.size() > 0) {
+				param.put("jsonList", jsonList);
+				purchaseMapper.inStorageSave(param);
+			}
+
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			log.error("\r\n 入库保存：  errorcode=" + ErrorCode.geterrocode(this) + "  \r\n" + e + "\r\n" + ",billId:"
+					+ billId + ",supplierId:" + supplierId + ",changeJson:" + changeJson + "\r\n\r\n");
+		}
+		return result;
+	}
+
+	@Override
+	public Result getPurchaseTotalList(String centerId, String code, String userNm, String page) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		int centerid = Integer.parseInt(centerId);
+		param.put("centerId", centerid);
+		param.put("code", code);
+		int atNo = Integer.parseInt(userNm);
+		System.out.println(atNo);
+		param.put("atNo", atNo);
+		// param.put("page",
+		// (Integer.parseInt(page)-1)*IPageConstans2.PageSize);
+		// param.put("pageSize", IPageConstans2.PageSize);
+		try {
+			List<PurchaseTotallModel> newList = new ArrayList<PurchaseTotallModel>();
+			Double allMoney = 0.0;// 总金额
+			int pageCount = 0;// 内层遍历的起始值
+			List<PurchaseTotallModel> list = purchaseMapper.selectPurchaseTotalList(param);
+			int allCount = list.size();// 总数据条数
+			PurchaseTotallModel model = null;
+			for (int i = 0; i < list.size(); i++) {
+				Double money = list.get(i).getMoney();
+				allMoney += money;
+			}
+			while (pageCount <= allCount) {
+				if (pageCount + 7 < allCount) {
+					Double pageMoney = 0.0;
+					for (int y = pageCount; y < (pageCount + 7); y++) {
+						model = list.get(y);
+						newList.add(model);
+						pageMoney += model.getMoney();
+					}
+					pageCount = pageCount + 7;
+					PurchaseTotallModel addModel = new PurchaseTotallModel();
+					addModel.setGoodsNm("本页小计");
+					addModel.setMoney(pageMoney);
+					newList.add(addModel);
+					PurchaseTotallModel addModel2 = new PurchaseTotallModel();
+					addModel2.setGoodsNm("总金额:");
+					addModel2.setMoney(allMoney);
+					newList.add(addModel2);
+				} else {
+					Double pageMoney = 0.0;
+					for (int y = pageCount; y < allCount; y++) {
+						model = list.get(y);
+						newList.add(model);
+						pageMoney += model.getMoney();
+					}
+
+					PurchaseTotallModel addModel = new PurchaseTotallModel();
+					addModel.setGoodsNm("本页小计:");
+					addModel.setMoney(pageMoney);
+					newList.add(addModel);
+					pageCount = pageCount + 7;// 用于加载下一页
+				}
+			}
+			Integer count = purchaseMapper.selectPurchaseTotalListCount(param);
+			Map<String, Object> data = new HashMap<>();
+			data.put("list", newList);
+			data.put("totalCount", count);
+			data.put("allMoney", allMoney);
+			/*
+			 * data.put("totalPage", PageUtil.getTotalPage(count,
+			 * IPageConstans2.PageSize));
+			 */
+			result.setData(data);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			log.error("\r\n 查询采购单汇总列表：  errorcode=" + ErrorCode.geterrocode(this) + "\r\n\r\n");
+		}
+		return result;
+	}
+
+	@Override
+	public Map<String, Object> exportPurchaseTotallList(int centerId, String billId, String supplierId) {
+		// 导出列表
+		List<PurchaseTotallModel> list = null;
+		Double allMoney = 0.0;
+		HashMap<String, Object> hashMap = null;
+		Map<String, Object> param = new HashMap<>();
+		param.put("centerId", centerId);
+		param.put("billId", billId);
+		param.put("supplierId", supplierId);
+		try {
+			list = purchaseMapper.selectPurchaseTotalList(param);
+			for (int i = 0; i < list.size(); i++) {
+				String billDate = list.get(i).getBillDate();
+				String subs = billDate.substring(0, 10);
+				list.get(i).setBillDate(subs);
+				Double money = list.get(i).getMoney();
+				allMoney += money;
+			}
+			// newList.add(allMoney);
+			// Integer count =
+			// purchaseMapper.selectPurchaseTotalListCount(param);
+			// Map<String, Object> data=new HashMap<>();
+			// data.put("list", list);
+			// data.put("totalCount", count);
+			// data.put("allMoney", allMoney);
+			hashMap = new HashMap<>();
+			hashMap.put("list", list);
+			hashMap.put("allMoney", allMoney);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return hashMap;
+	}
+
+	/**
+	 * 删除采购单
+	 */
+	@Override
+	public Result delPurchaseBill(String billId) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		try {
+			purchaseMapper.delPurchaseH(param);
+			purchaseMapper.delPurchaseD(param);
+			purchaseMapper.updateDemandH(param);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			log.error("\r\n 删除采购单：  errorcode=" + ErrorCode.geterrocode(this) + "  \r\n" + e + "\r\n" + ",billId:"
+					+ billId + "\r\n\r\n");
+		}
+		return result;
+	}
+
+	@Override
+	public Map<String, Object> exportPurchaseInStrockList(String centerId, String code, String supplierId) {
+		// 导出列表
+		List<PurchaseTotallModel> list = null;
+		Double allMoney = 0.0;
+		HashMap<String, Object> hashMap = null;
+		Map<String, Object> param = new HashMap<>();
+		int centerid = Integer.parseInt(centerId);
+		param.put("centerId", centerid);
+		param.put("code", code);
+		int atNo = Integer.parseInt(supplierId);
+		param.put("atNo", atNo);
+		try {
+			list = purchaseMapper.selectPurchaseTotalList(param);
+			for (int i = 0; i < list.size(); i++) {
+				Double money = list.get(i).getMoney();
+				allMoney += money;
+			}
+			hashMap = new HashMap<>();
+			hashMap.put("list", list);
+			hashMap.put("allMoney", allMoney);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return hashMap;
+	}
+
+	/*
+	 * Todo : [采购明细导出]
+	 * 
+	 * @时间:2016年11月25日上午9:45:45
+	 */
+	@Override
+	public Result getExclList(String billId, String teamId) {
+
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		param.put("teamId", teamId);
+		try {
+			List<BillAndCustomTeam> billAndCustomTeamList = purchaseMapper.getExclList(param);
+
+			String page = "1";
+			if (billAndCustomTeamList != null && billAndCustomTeamList.size() > 0) {
+				int l = billAndCustomTeamList.size();
+				int orderIndex = (Integer.parseInt(page) - 1) * IPageConstants.PageSize + 1;
+				for (int i = 0; i < l; i++) {
+					billAndCustomTeamList.get(i).setOrderIndex(orderIndex);
+					orderIndex++;
+				}
+			}
+			result.setData(billAndCustomTeamList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException();
+		}
+		return result;
+	}
+
+	/**
+	 * 查询供应商
+	 */
+	@Override
+	public Result getExportSupplier(String billId) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		try {
+			List<CommonModel> list = purchaseMapper.getExportSupplier(param);
+			result.setData(list);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			log.error("\r\n 查询供应商：  errorcode=" + ErrorCode.geterrocode(this) + "  \r\n" + e + "\r\n" + ",billId:"
+					+ billId + "\r\n\r\n");
+		}
+		return result;
+	}
+
+	/*
+	 * Todo : []
+	 * 
+	 * @时间:2016年11月29日上午8:49:06
+	 */
+	@Override
+	public Result getSuppliserSelExist(String billId, int structId) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		param.put("structId", structId);
+		try {
+			int countNum = purchaseMapper.getSuppliserSelExist(param);
+			result.setData(countNum);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			log.error("\r\n 供应商选择数据列表：  errorcode=" + ErrorCode.geterrocode(this) + "  \r\n" + e + "\r\n" + ",billId:"
+					+ billId + "\r\n\r\n");
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	/*
+	 * Todo : []
+	 * 
+	 * @时间:2016年12月13日下午5:42:48
+	 */
+	@Override
+	public List<BillAndCustomTeam> getExportOutPurchaseBill(String billId, String teamId) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		param.put("teamId", teamId);
+		try {
+			List<BillAndCustomTeam> billAndCustomTeamList = purchaseMapper.getExclList(param);
+
+			String page = "1";
+			if (billAndCustomTeamList != null && billAndCustomTeamList.size() > 0) {
+				int l = billAndCustomTeamList.size();
+				int orderIndex = (Integer.parseInt(page) - 1) * IPageConstants.PageSize + 1;
+				for (int i = 0; i < l; i++) {
+					billAndCustomTeamList.get(i).setOrderIndex(orderIndex);
+					orderIndex++;
+				}
+			}
+			return billAndCustomTeamList;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException();
+		}
+
+	}
+
+	/*
+	 * Todo : [按物料查看]
+	 * 
+	 * @时间:2016年12月23日上午11:32:44
+	 */
+	@Override
+	public Result selectPurchaseGoodsByGoods(String billId, int structId, String type, String goodsNm) {
+
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		param.put("structId", structId);
+		param.put("selectType", type);
+		param.put("goodsNm", goodsNm);
+		try {
+			List<PurchaseGoodsByGoods> purchaseGoodsList = purchaseMapper.selectPurchaseGoodsByGoods(param);
+			// 设置标志位
+			if (purchaseGoodsList != null && purchaseGoodsList.size() > 0) {
+				int n = 0;
+				double totalMoney = 0;
+				int orderIndex = 1;
+				for (int i = 0; i < purchaseGoodsList.size(); i++) {
+					// 添加序号
+					purchaseGoodsList.get(i).setOrderIndex(orderIndex);
+					orderIndex++;
+					PurchaseGoodsByGoods purchaseGoodsByGoods = purchaseGoodsList.get(i);
+					if (i > 0) {
+						if (purchaseGoodsList.get(i - 1).getGoodsNm().equals(purchaseGoodsByGoods.getGoodsNm())) {
+							if (i == purchaseGoodsList.size() - 1) {
+								purchaseGoodsList.get(i - (n + 1)).setFlat(n + 2);
+								purchaseGoodsByGoods.setFlat(0);
+								n = 0;
+							} else {
+								purchaseGoodsByGoods.setFlat(0);
+								n = n + 1;
+							}
+						} else {
+							purchaseGoodsList.get(i - (n + 1)).setFlat(n + 1);
+							purchaseGoodsByGoods.setFlat(1);
+							n = 0;
+						}
+					} else {
+						purchaseGoodsByGoods.setFlat(1);
+					}
+					totalMoney += purchaseGoodsByGoods.getMoney();
+				}
+				PurchaseGoodsByGoods total = new PurchaseGoodsByGoods();
+				total.setGoodsNm("合计");
+				total.setMoney(totalMoney);
+				purchaseGoodsList.add(total);
+			}
+			result.setData(purchaseGoodsList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	/*
+	 * Todo : [按客户查看]
+	 * 
+	 * @时间:2016年12月23日下午2:09:31
+	 */
+	@Override
+	public Result selectPurchaseGoodsByGroup(String billId, int structId, String type) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		param.put("structId", structId);
+		param.put("selectType", type);
+		try {
+			List<PurchaseGoodsByGoods> purchaseGoodsList = purchaseMapper.selectPurchaseGoodsByGoods(param);
+			// 设置标志位
+			if (purchaseGoodsList != null && purchaseGoodsList.size() > 0) {
+				int n = 0;
+				Double totalMonay = 0.00;
+				int orderIndex = 1;
+				for (int i = 0; i < purchaseGoodsList.size(); i++) {
+					purchaseGoodsList.get(i).setOrderIndex(orderIndex);
+					orderIndex++;
+					PurchaseGoodsByGoods purchaseGoodsByGoods = purchaseGoodsList.get(i);
+					if (i > 0) {
+						if (purchaseGoodsList.get(i - 1).getTeamNm().equals(purchaseGoodsByGoods.getTeamNm())) {
+							if (i == purchaseGoodsList.size() - 1) {
+								purchaseGoodsList.get(i - (n + 1)).setFlat(n + 2);
+								purchaseGoodsList.get(i - (n + 1))
+										.setTotalMonay(totalMonay + purchaseGoodsByGoods.getPrice()
+												* Double.parseDouble(purchaseGoodsByGoods.getOrderNum()));
+								purchaseGoodsByGoods.setFlat(0);
+								n = 0;
+							} else {
+								purchaseGoodsByGoods.setFlat(0);
+								totalMonay += purchaseGoodsByGoods.getPrice()
+										* Double.parseDouble(purchaseGoodsByGoods.getOrderNum());
+								n = n + 1;
+							}
+						} else {
+							purchaseGoodsList.get(i - (n + 1)).setFlat(n + 1);
+							purchaseGoodsList.get(i - (n + 1)).setTotalMonay(totalMonay);
+							purchaseGoodsByGoods.setFlat(1);
+							purchaseGoodsByGoods.setTotalMonay(purchaseGoodsByGoods.getPrice()
+									* Double.parseDouble(purchaseGoodsByGoods.getOrderNum()));
+							n = 0;
+							totalMonay = purchaseGoodsByGoods.getPrice()
+									* Double.parseDouble(purchaseGoodsByGoods.getOrderNum());
+						}
+					} else {
+						purchaseGoodsByGoods.setFlat(1);
+						purchaseGoodsByGoods.setTotalMonay(purchaseGoodsByGoods.getPrice()
+								* Double.parseDouble(purchaseGoodsByGoods.getOrderNum()));
+						totalMonay = purchaseGoodsByGoods.getPrice()
+								* Double.parseDouble(purchaseGoodsByGoods.getOrderNum());
+					}
+				}
+			}
+			result.setData(purchaseGoodsList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	/*
+	 * Todo : [按照供应商进行查看]
+	 * 
+	 * @时间:2016年12月23日下午3:20:50
+	 */
+	@Override
+	public Result selectPurchaseGoodsBySupplier(String billId, int structId, String type) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		param.put("structId", structId);
+		param.put("selectType", type);
+		try {
+			List<PurchaseGoodsByGoods> purchaseGoodsList = purchaseMapper.selectPurchaseGoodsByGoods(param);
+			// 设置标志位
+			if (purchaseGoodsList != null && purchaseGoodsList.size() > 0) {
+				int n = 0;
+				Double totalMonay = 0.00;
+				double totalMoney = 0;
+				int orderIndex = 1;
+				for (int i = 0; i < purchaseGoodsList.size(); i++) {
+					purchaseGoodsList.get(i).setOrderIndex(orderIndex);
+					orderIndex++;
+					PurchaseGoodsByGoods purchaseGoodsByGoods = purchaseGoodsList.get(i);
+					// purchaseGoodsByGoods.setMonay(purchaseGoodsByGoods.getPrice()*Double.parseDouble(purchaseGoodsByGoods.getOrderNum()));
+					if (i > 0) {
+						if (purchaseGoodsList.get(i - 1).getUserNm().equals(purchaseGoodsByGoods.getUserNm())) {
+							if (i == purchaseGoodsList.size() - 1) {
+								purchaseGoodsList.get(i - (n + 1)).setFlat(n + 2);
+								purchaseGoodsList.get(i - (n + 1))
+										.setTotalMonay(totalMonay + purchaseGoodsByGoods.getMoney());
+								purchaseGoodsByGoods.setFlat(0);
+								n = 0;
+							} else {
+								purchaseGoodsByGoods.setFlat(0);
+								totalMonay += purchaseGoodsByGoods.getMoney();
+								n = n + 1;
+							}
+						} else {
+							purchaseGoodsList.get(i - (n + 1)).setFlat(n + 1);
+							purchaseGoodsList.get(i - (n + 1)).setTotalMonay(totalMonay);
+							purchaseGoodsByGoods.setFlat(1);
+							purchaseGoodsByGoods.setTotalMonay(purchaseGoodsByGoods.getMoney());
+							n = 0;
+							totalMonay = purchaseGoodsByGoods.getMoney();
+						}
+					} else {
+						purchaseGoodsByGoods.setFlat(1);
+						purchaseGoodsByGoods.setTotalMonay(purchaseGoodsByGoods.getMoney());
+						totalMonay = purchaseGoodsByGoods.getMoney();
+					}
+					totalMoney += purchaseGoodsByGoods.getMoney();
+				}
+				PurchaseGoodsByGoods total = new PurchaseGoodsByGoods();
+				total.setUserNm("合计");
+				total.setTotalMonay(totalMoney);
+				purchaseGoodsList.add(total);
+			}
+			result.setData(purchaseGoodsList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	/**
+	 * 入库单详情
+	 */
+	@Override
+	public Result getPurchaseD(String billId) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("billId", billId);
+		try {
+			Integer billState = purchaseMapper.getPurchaseListHState(param);
+			List<EditInOutD> list = purchaseMapper.getPurchaseD(param);
+			Map<String, Object> data = new HashMap<>();
+			data.put("billState", billState);
+			data.put("list", list);
+			result.setData(data);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			log.error("\r\n 查询入库单详情：  errorcode=" + ErrorCode.geterrocode(this) + "  \r\n" + e + "\r\n" + ",billId:"
+					+ billId + "\r\n\r\n");
+		}
+		return result;
+	}
+
+	/**
+	 * 保存入库单详情
+	 */
+	@Override
+	public Result savePurchaseD(String newList, String editList, String delAtNo, String billId, String customerId,
+			String teamId, int structId, int userId) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		try {
+			saveEditPurchase(newList, editList, delAtNo, billId, customerId, teamId, structId, userId, "0");
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			log.error("\r\n 保存入库单详情：  errorcode=" + ErrorCode.geterrocode(this) + "  \r\n" + e + "\r\n" + ",newList:"
+					+ newList + ",editList:" + editList + ",delAtNo:" + delAtNo + ",billId:" + billId + ",customerId:"
+					+ customerId + ",teamId:" + teamId + "\r\n\r\n");
+		}
+		return result;
+	}
+
+	private String saveEditPurchase(String newListStr, String editListStr, String delAtNo, String billId,
+			String customerId, String teamId, int structId, int userId, String reviewState) {
+		if (billId.equals("-1")) {
+			synchronized (this) {
+				// 生成单据号
+				Map<String, Object> param = new HashMap<>();
+				param.put("structId", structId);
+				Integer maxCodeOrder = purchaseMapper.getMaxCodeOrder(param);
+				if (maxCodeOrder == null) {
+					maxCodeOrder = 1;
+				} else {
+					maxCodeOrder++;
+				}
+				String codeStr = String.valueOf(maxCodeOrder);
+				if (codeStr.length() == 1) {
+					codeStr = "00" + codeStr;
+				} else if (codeStr.length() == 2) {
+					codeStr = "0" + codeStr;
+				}
+				String centerCode = commonMapper.getStructCodeById(param);
+				String code = "cg-" + centerCode + "-" + DateUtil.getDate(new Date(), "yyMMdd") + "-" + codeStr;
+				param.put("code", code);
+				param.put("codeOrder", maxCodeOrder);
+				param.put("billId", billId);
+				param.put("userId", userId);
+				param.put("reviewState", reviewState);
+				purchaseMapper.addPurchaseListH(param);
+				billId = param.get("billId").toString();
+			}
+		}
+		List<EditInOutD> newList = JSON.parseArray(newListStr, EditInOutD.class);
+		if (newList != null && newList.size() > 0) {
+			Map<String, Object> param = new HashMap<>();
+			param.put("newList", newList);
+			param.put("billId", billId);
+			param.put("customerId", customerId);
+			param.put("teamId", teamId);
+			param.put("structId", structId);
+			purchaseMapper.batchAddPurchaseD(param);
+		}
+		List<EditInOutD> editList = JSON.parseArray(editListStr, EditInOutD.class);
+		if (editList != null && editList.size() > 0) {
+			int l = editList.size();
+			String idStr = "";
+			for (int i = 0; i < l; i++) {
+				idStr += editList.get(i).getAtNo() + ",";
+			}
+			if (idStr.length() > 0)
+				idStr = idStr.substring(0, idStr.length() - 1);
+			Map<String, Object> param = new HashMap<>();
+			param.put("idStr", idStr);
+			param.put("editList", editList);
+			purchaseMapper.batchUpdatePurchaseD(param);
+		}
+		if (!StringUtils.isEmpty(delAtNo)) {
+			Map<String, Object> param = new HashMap<>();
+			param.put("delAtNo", delAtNo);
+			purchaseMapper.batchDelPurchaseD(param);
+		}
+		return billId;
+	}
+
+	/*
+	 * kekeair : [采购入库汇总导出]
+	 * 
+	 * @时间:2017年3月4日上午8:52:04
+	 */
+	@Override
+	public List<ExcelPurchaseBillByCondition> getExcelOutPurchaseListHBill(String state, String stime, String etime,
+			int structId, int roleId, String customerId) {
+		Map<String, Object> param = new HashMap<>();
+		param.put("state", state);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("structId", structId);
+		param.put("customerId", customerId);
+		List<ExcelPurchaseBillByCondition> list = null;
+		try {
+			if (!StringUtils.isEmpty(stime)) {
+				stime = stime + " 00:00:00";
+			} else {
+				stime = "";
+			}
+			if (!StringUtils.isEmpty(etime)) {
+				etime = etime + " 23:59:59";
+			} else {
+				etime = "";
+			}
+			param.put("stime", stime);
+			param.put("etime", etime);
+			switch (roleId) {
+			case 9:// 业务员
+				param.put("viewPower", 0);
+				break;
+			case 4:// 经理
+			case 10:// 财务
+			case 5:// 库管
+				param.put("viewPower", 1);
+				break;
+			}
+			list = purchaseMapper.getExcelOutPurchaseListHBill(param);
+			// int n = 0;
+			for (int i = 0; i < list.size(); i++) {
+				ExcelPurchaseBillByCondition purchaseBillByCondition = list.get(i);
+				if (i > 0) {
+					if (list.get(i - 1).getBillCode().equals(purchaseBillByCondition.getBillCode())) {// 账单号相同的情况
+						if (list.get(i - 1).getCustomerId() == -2) {
+							list.get(i - 1).setName("配送中心");
+						}
+						if (list.get(i - 1).getCustomerId() != purchaseBillByCondition.getCustomerId()) {// 客户名相同情况
+							purchaseBillByCondition.setName(purchaseBillByCondition.getCustomNm());
+
+						}
+					} else {
+						purchaseBillByCondition.setName(purchaseBillByCondition.getCustomNm());
+						purchaseBillByCondition.setBill(purchaseBillByCondition.getBillCode());
+						purchaseBillByCondition.setTime(purchaseBillByCondition.getBillDate().substring(0,10));
+
+					}
+
+				} else {
+					purchaseBillByCondition.setName(purchaseBillByCondition.getCustomNm());
+					purchaseBillByCondition.setBill(purchaseBillByCondition.getBillCode());
+					purchaseBillByCondition.setTime(purchaseBillByCondition.getBillDate().substring(0, 10));
+				}
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+}

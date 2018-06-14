@@ -1,0 +1,53 @@
+package com.qxh.service;
+
+import java.util.List;
+
+import com.qxh.model.PurchaseSumm;
+import com.qxh.utils.Result;
+
+/**
+ * @author Mr chen
+ * @name : TmpGoodsRecordService
+ * @todo : [采购汇总接口]
+ * 
+ * 创建时间 ： 2016年11月23日上午9:45:25
+ */
+public interface PurchaseSummService {
+
+	/**
+	 * @description : [获取列表]
+	 * @param stime
+	 * @param etime
+	 * @param page
+	 * @param structId
+	 * @param roleId
+	 * @param customerId 
+	 * @return
+	 * @时间:2016年12月2日上午11:33:48
+	 */
+	Result getPurchaseSummList(String stime, String etime, int structId, int roleId, String customerId);
+	/**
+	 * 
+	 * @description : [导出专用]
+	 * @param stime
+	 * @param etime
+	 * @param structId
+	 * @param roleId
+	 * @param customerId
+	 * @return
+	 * @时间:2016年12月19日下午2:58:48
+	 */
+	List<PurchaseSumm> getOutExcelPurchaseSummList(String stime, String etime, int structId, int roleId, String customerId);
+
+	/**
+	 * @description : [详情页面]
+	 * @param goodsId
+	 * @param structId
+	 * @param customerId 
+	 * @return
+	 * @时间:2016年12月2日下午2:17:44
+	 */
+	Result getPurchaseSummDList(String goodsId,String stime,String etime ,String goodsType,int structId,String purchaselistDId, String customerId);
+
+
+}

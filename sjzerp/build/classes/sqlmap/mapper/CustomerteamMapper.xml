@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.customerteam.CustomerteamMapper">
+	
+    <!-- count数量 -->
+   	<select id="getCustomerteamCount" parameterType="Map" resultType="int">
+  	 	SELECT COUNT(*) FROM customteam c WHERE c.delFlag=0
+		<include refid="getCustomerteamListCondition"></include>
+   	</select>
+   	
+    <!-- 客户列表 -->
+	<select id="getCustomerteamList" parameterType="Map" resultType="com.qxh.model.CustomTeam">	
+		SELECT * FROM customteam c WHERE c.delFlag=0
+		 <include refid="getCustomerteamListCondition"></include> 
+		group by c.atNo 
+   	</select>
+   	
+   	<!-- 条件查询 -->
+ 	<sql id="getCustomerteamListCondition">
+		<if test="teamNm!=''">
+	    	and instr(c.teamNm, #{teamNm} )>0
+  		</if>
+  		<if test="headAtNo!=''">
+	    	and instr(c.headAtNo, #{headAtNo} )>0
+  		</if>		
+	</sql>
+	
+	<!-- 添加工作组 -->
+	<insert id="addCustomerteam" parameterType="Map">
+	     INSERT INTO customteam (headAtNo,teamNm) VALUES (#{headAtNo},#{teamNm})
+	</insert>
+	
+	<!-- 通过id获取工作组 -->
+	<select id="getCustomerteamById" parameterType="Map" resultType="com.qxh.model.CustomTeam">
+		SELECT	* FROM customteam WHERE atNo = #{atNo}
+	</select>
+	
+	<!-- 通过id修改工作组 -->
+	<update id="editCustomerteam" parameterType="Map">
+	    UPDATE customteam 
+	    <set>
+	       <if test="teamNm!=''">
+	       		teamNm=#{teamNm},
+	       </if>
+	    </set>
+	    WHERE atNo=#{atNo}
+	</update>
+	
+	<!-- 删除工作组 -->
+	<update id="delCustomerteam" parameterType="Map">
+		UPDATE customteam SET delFlag =1 WHERE atNo=#{atNo}
+	</update>
+	
+	<select id="getCustomTeamNameListByBillId" parameterType="Map" resultType="com.qxh.model.CustomTeam" >
+		SELECT atNo,teamNm FROM customteam WHERE atNo IN (${teamIds})
+	</select>
+	
+</mapper> 

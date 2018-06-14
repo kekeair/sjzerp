@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a class="active" href="purchaseSummInit.do">采购汇总</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-10">
+						<div class="form-inline">
+						    <div class="form-group">
+								<label for="goodsNm">物料名称</label> <input type="text"
+									class="form-control" id="goodsNm">
+							</div>
+							<div class="form-group">
+								<label for="kindSel">分类</label> <input type="text"
+									readonly="readonly" atNo="0" value="全部"
+									class="form-control whiteback" id="kindSel">
+							</div>
+							<div class="form-group">
+								<label>供应商</label>
+								<select id="supplier" class="form-control">
+								<#list data as list>
+									<option value="${list.atNo}">${list.name}</option>
+								</#list>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2">
+						<button type="button" id="add" style="display:none"
+							class="btn btn-warning pull-right" >发起物料申请</button>
+					</div>
+				</div>
+				
+				
+				<div class="row" style="margin-top: 10px;">
+					<div class="col-sm-10">
+						<div class="form-inline">
+						    <div class="form-group">
+								<label>客户</label>
+									<select id="custom" class="form-control">
+									</select>
+							</div>
+							<div class="form-group">
+								<label>时间</label>
+								<input id="stime" type="text" readonly="readonly" 
+									class="whiteback form-control" onFocus="WdatePicker({isShowClear:false,dateFmt:'yyyy-MM-dd HH:00:00',readOnly:true,maxDate:'#F{$dp.$D(\'etime\')}'})"/>
+								<span>-</span>
+	  	 						<input id="etime" type="text" readonly="readonly" 
+	  	 							class="whiteback form-control" onFocus="WdatePicker({isShowClear:false,dateFmt:'yyyy-MM-dd HH:00:00',readOnly:true,minDate:'#F{$dp.$D(\'stime\')}'})"/>
+							</div>
+							<button type="button" id="search" class="btn btn-primary">搜索</button>
+							<button type="button" id="excelOut" class="btn btn-primary">导出</button>
+						</div>
+					</div>
+				</div>
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+								    <th>序号</th>
+									<th>物料</th>
+									<th>数量</th>
+									<th>单位</th>
+									<th>单价</th>
+									<th>金额</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	<!-- ----分类菜单------ -->
+	<div id="kindDiv" class="treeDiv">
+		<ul id="kindTree" class="ztree treeDemo"></ul>
+	</div>
+	<!-- -----分类菜单结束---- -->
+	<script>
+		var roleId=${roleId};
+	</script>
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+	<script type="text/javascript" src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/purchaseSumm.js?version=20161219"></script>
+
+	<!-- 列表模板 -->
+	<script id="listTmpl" type="text/x-jquery-tmpl">
+	<tr  goodsNm="{{= goodsId}}" class="goodsNm"  goodsType="{{= goodsType}}" purchaselistDId="{{= purchaselistDId}}">
+	<td>{{= orderIndex}}</td>
+    <td>{{= goodsNm}}</td>
+	<td>{{= totalNum}}</td>
+	<td>{{= unitNm}}</td>
+	<td>{{= price}}</td>
+	<td>{{= totalMn}}</td>
+	</tr>
+	</script>
+	<!-- 客户列表模板 -->
+	<script id="customTmpl" type="text/x-jquery-tmpl">
+	<option value=-1> 全部</option>
+	{{each(i,list) list}}
+		<option value="{{= list.atNo}}">{{= list.customNm}}</option>
+	{{/each}}
+	</script>
+	
+</body>
+</html>

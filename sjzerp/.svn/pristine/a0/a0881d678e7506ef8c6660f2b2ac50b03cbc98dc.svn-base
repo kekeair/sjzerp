@@ -1,0 +1,85 @@
+var g_goodsId = sessionStorage.goodsId;
+var g_goodsType = sessionStorage.goodsType;
+var g_stime = sessionStorage.purchaseSummStime;
+var g_etime = sessionStorage.purchaseSummEtime;
+var g_demandListDId = sessionStorage.demandListDId;
+var g_purchaseListDId = sessionStorage.purchaseListDId;
+var g_customerIds = sessionStorage.purchaseSummCustomerIds||-1;
+$(document).ready(
+		function() {
+			/*var stime = new Date(g_stime);
+			var etime = new Date(g_etime);
+			var syear = stime.getFullYear();
+			var eyear = etime.getFullYear();
+			var year = eyear - syear;
+			var smonth = stime.getMonth();
+			var emonth = etime.getMonth();
+			var month = emonth - smonth;*/
+			// 路径配置
+			require.config({
+				paths: {
+					echarts: '../js/plugins/echarts-2.2.7/build/dist'
+				}
+			});
+			// 使用
+			require(
+				[
+					'echarts',
+					'echarts/chart/pie' // 使用柱状图就加载bar模块，按需加载
+				],
+				function(ec) {
+					// 基于准备好的dom，初始化echarts图表
+					var ziDingYi = ec.init(document.getElementById('main'));
+					option = {
+						title: {
+							text: '分类收入占比',
+							subtext: '千喜鹤集团',
+							x: 'center'
+						},
+						legend: {
+							orient: 'vertical',
+							x: 'left',
+							data: ['蔬菜类', '水果类', '猪肉鲜品', '牛肉鲜品', '羊肉鲜品',
+							       '禽肉鲜品','水产鲜品','肉类冻品','调料类','米面粮油',
+							       '蛋奶类','豆制品类','熟食类','物耗','小商品']
+						},
+						calculable: true,
+						series: [{
+							name: '访问来源',
+							type: 'pie',
+							radius: '55%',
+							center: ['50%', '60%'],
+							data:getSelectBigKind()
+						}]
+					};
+					// 为echarts对象加载数据 
+					ziDingYi.setOption(option);
+				}
+			);
+		
+		});
+//------------------------按日查-----------------------------
+// 获取每天的数量
+function getSelectBigKind() {
+	var list = [];
+	$.ajax({
+		type : "GET",
+		url : "../purchaseSumm/getSelectBigKind.do",
+		data : {
+			goodsId : g_goodsId,
+			goodsType : g_goodsType,
+			stime : g_stime,
+			etime : g_etime,
+			demandListDId : g_demandListDId,
+			purchaseListDId : g_purchaseListDId,
+			customerIds : g_customerIds
+		},
+		async : false,
+
+		success : function(data) {
+			list = data.data;
+			return false;
+		}
+	});
+	return list;
+}

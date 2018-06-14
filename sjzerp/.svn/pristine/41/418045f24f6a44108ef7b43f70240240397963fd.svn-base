@@ -1,0 +1,117 @@
+package com.qxh.impl.purchaseSumm;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.qxh.constant.CodeConstant;
+import com.qxh.model.PurchaseSumm;
+import com.qxh.model.PurchaseSummD;
+import com.qxh.service.PurchaseSummService;
+import com.qxh.utils.Result;
+
+/**
+ * @author Mr chen
+ * @name : PurchaseSummServiceImpl
+ * @todo : [采购汇总实现类]
+ * 
+ * 创建时间 ： 2016年12月2日上午11:27:31
+ */
+public class PurchaseSummServiceImpl implements PurchaseSummService {
+
+	private PurchaseSummMapper purchaseSummMapper;
+	
+	public void setPurchaseSummMapper(PurchaseSummMapper purchaseSummMapper) {
+		this.purchaseSummMapper = purchaseSummMapper;
+	}
+
+	
+	/* 
+	 * Todo : [获取列表]
+	 * @时间:2016年12月2日上午11:34:04
+	 */
+	@Override
+	public Result getPurchaseSummList(String stime, String etime, int structId, int roleId,String customerId) {
+		
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("structId", structId);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("customerId", customerId);
+		
+		try {
+			//集合
+			List<PurchaseSumm> list = purchaseSummMapper.getPurchaseSummList(param);
+			Map<String, Object> data = new HashMap<>();
+			data.put("list", list);
+			result.setData(data);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	
+	
+	@Override
+	public List<PurchaseSumm> getOutExcelPurchaseSummList(String stime, String etime, int structId, int roleId,String customerId) {
+
+		Map<String, Object> param = new HashMap<>();
+		param.put("structId", structId);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("customerId", customerId);
+		
+		try {
+			//集合
+			List<PurchaseSumm> list = purchaseSummMapper.getPurchaseSummList(param);
+			return list;
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
+		return null;
+	}
+	
+
+
+	/* 
+	 * Todo : [详情页面]
+	 * @时间:2016年12月2日下午2:18:01
+	 */
+	@Override
+	public Result getPurchaseSummDList(String goodsId, String stime,String etime,String goodsType,int structId,String purchaselistDId,String customerId) {
+		
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("goodsId", goodsId);
+		param.put("structId", structId);
+		param.put("goodsType", goodsType);
+		param.put("purchaselistDId", purchaselistDId);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("customerId", customerId);
+		try {
+			//集合
+			List<PurchaseSummD> list = purchaseSummMapper.getPurchaseSummDList(param);
+			
+			Map<String, Object> data = new HashMap<>();
+			data.put("list", list);
+			result.setData(data);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+
+
+}

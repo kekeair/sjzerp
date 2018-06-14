@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/centerGoods.css"
+	type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>配送中心设置</a></li>
+							<li><a class="active" onclick="window.location.reload()">配送中心物料</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="row myborder">
+						<div class="header"><h3>总物料库</h3></div>
+							<div class="col-sm-12">
+								<div class="form-inline toTop" id="tagGoodsId">
+									<div class="form-group">
+										<label for="goodsNm">名称</label> <input type="text"
+											class="form-control width120px" maxlength="20" id="goodsNm">
+									</div>
+									<div class="form-group" style="  margin-right: -15px;  margin-left: -10px;">
+										<label for="goodsNm">编码</label> <input type="text"
+											class="form-control width120px" maxlength="20" id="goodsCode">
+									</div>
+									<div class="form-group">
+										<label for="leftSel">分类</label> <input
+											class="form-control width120px" atNo="0" value="全部"
+											readonly="readonly" id="leftSel"> </input>
+									</div>
+									<button type="button" id="search" class="btn btn-primary">搜索</button>
+								</div>
+								<table
+									class="table toTop table-bordered table-hover table-condensed">
+									<thead>
+										<tr>
+											<th>物料编号</th>
+											<th>物料名称</th>
+											<th>操作<a class="allAdd">(批量添加)</a></th>
+										</tr>
+									</thead>
+									<tbody id="leftbody">
+
+									</tbody>
+								</table>
+								<div class="form-inline pull-right tobottom">
+									<button class="btn btn-default" id="leftPrePage">上一页</button>
+									<label class="control-label"><font id="leftCurPage">1</font>/<font
+										id="leftTotalPage">1</font></label>
+									<button class="btn btn-default" id="leftNextPage">下一页</button>
+									<label class="control-label">第</label> <input type="text"
+										class="form-control pageInput" id="leftPageInput"> <label
+										class="control-label">页</label>
+									<button class="btn btn-primary" id="leftPageSure">跳转</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="row myborder">
+							<div class="header"><h3>配送中心使用物料</h3></div>
+							<div class="col-sm-12">
+								<div class="form-inline toTop">
+									<div class="form-group">
+										<label for="rightSel">分类</label> <input
+											class="form-control width120px" atNo="0" value="全部"
+											readonly="readonly" id="rightSel"> </input>
+									</div>
+								</div>
+								<table
+									class="table toTop table-bordered table-hover table-condensed">
+									<thead>
+										<tr>
+											<th>物料名称</th>
+											<th>操作</th>
+										</tr>
+									</thead>
+									<tbody id="rightbody">
+
+									</tbody>
+								</table>
+								<div class="form-inline pull-right tobottom">
+									<button class="btn btn-default" id="rightPrePage">上一页</button>
+									<label class="control-label"><font id="rightCurPage">1</font>/<font
+										id="rightTotalPage">1</font></label>
+									<button class="btn btn-default" id="rightNextPage">下一页</button>
+									<label class="control-label">第</label> <input type="text"
+										class="form-control pageInput" id="rightPageInput"> <label
+										class="control-label">页</label>
+									<button class="btn btn-primary" id="rightPageSure">跳转</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+
+	<div id="leftDiv" class="treeDiv">
+		<ul id="leftTree" class="ztree treeDemo"></ul>
+	</div>
+	<div id="rightDiv" class="treeDiv">
+		<ul id="rightTree" class="ztree treeDemo"></ul>
+	</div>
+
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+	<script type="text/javascript" src="../js/custom/centerGoods.js"></script>
+
+	<!-- 物料库模板 -->
+	<script id="leftTmpl" type="text/x-jquery-tmpl">
+	<tr>
+	<td>{{= code}}</td>
+	<td>{{= goodsNm}}</td>
+	<td>
+		<a atNo={{= atNo}} id="add{{= atNo}}" 
+		{{if state==1}}style="display:none"{{/if}}  class="add">添加</a>
+	</td>
+	</tr>
+	</script>
+	
+	<!-- 餐饮中心物料模板 -->
+	<script id="rightTmpl" type="text/x-jquery-tmpl">
+	<tr class="rightGoods">
+	<td>{{= goodsNm}}</td>
+	<td>
+		<a atNo={{= atNo}} goodsId={{= goodsId}} class="del">删除</a>&nbsp;
+	</td>
+	</tr>
+	</script>
+</body>
+</html>

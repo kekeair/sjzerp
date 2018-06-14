@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+                    
+	<!-- 餐饮中心物料设置 -->
+	<bean name="/tuihuo/tuihuoInit.do" class="com.qxh.action.tuihuo.TuihuoInitAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	
+	<bean name="/tuihuo/getTuihuoListH.do" class="com.qxh.action.tuihuo.GetTuihuoListHAction">
+		<property name="tuihuoService" ref="TuihuoService"></property>
+	</bean>
+	
+	<bean name="/tuihuo/addTuihuoInit.do" class="com.qxh.action.tuihuo.AddTuihuoInitAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	
+	<bean name="/tuihuo/getTuihuoGoodsByHeadAtNo.do" class="com.qxh.action.tuihuo.GetTuihuoGoodsByHeadAtNoAction">
+		<property name="tuihuoService" ref="TuihuoService"></property>
+	</bean>
+	<bean name="/tuihuo/dealTuihuoBill.do" class="com.qxh.action.tuihuo.DealTuihuoBillAction">
+		<property name="tuihuoService" ref="TuihuoService"></property>
+	</bean>
+	<bean name="/tuihuo/delTuihuoBill.do" class="com.qxh.action.tuihuo.DelTuihuoBillAction">
+		<property name="tuihuoService" ref="TuihuoService"></property>
+	</bean>
+	<bean name="/tuihuo/viewTuihuoDInit.do" class="com.qxh.action.tuihuo.ViewTuihuoDInitAction">
+	</bean>
+	<bean name="/tuihuo/viewTuihuoD.do" class="com.qxh.action.tuihuo.ViewTuihuoDAction">
+		<property name="tuihuoService" ref="TuihuoService"></property>
+	</bean>
+	
+	<bean id="ExportTuihuoBillListView" class="com.qxh.action.tuihuo.ExportTuihuoBillListView">
+	  	<property name="tuihuoService" ref="TuihuoService"></property>
+	</bean>
+	<bean name="/tuihuo/exportTuihuoBillList.do" class="com.qxh.action.tuihuo.ExportTuihuoBillListAction">
+		<property name="export" ref="ExportTuihuoBillListView"></property>
+	</bean>
+	
+	<bean name="/tuihuo/saveTuihuoD.do" class="com.qxh.action.tuihuo.SaveTuihuoDAction">
+		<property name="tuihuoService" ref="TuihuoService"></property>
+	</bean>
+	
+</beans>

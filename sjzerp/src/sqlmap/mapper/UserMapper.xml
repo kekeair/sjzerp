@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.user.UserMapper">
+	
+	<!-- 用户列表 -->
+	<select id="getUserList" parameterType="Map" resultType="com.qxh.exmodel.ListUser">	
+		select u.atNo,u.userNm name,u.userAccount,u.phone
+   	    from user u left join userRel ur on u.atNo=ur.userId
+   	    where u.delFlag=0
+   	    <include refid="getUserListCondition"></include>
+		group by u.atNo limit ${page},${pageSize}
+   	</select>
+   	
+   	<!-- 用户数量 -->
+   	<select id="getUserCount" parameterType="Map" resultType="int">	
+		select count(*) from 
+		(select u.atNo 
+   	    from user u left join userRel ur on u.atNo=ur.userId
+   	    where u.delFlag=0
+   	    <include refid="getUserListCondition"></include>
+		group by u.atNo ) s
+   	</select>
+   
+	<sql id="getUserListCondition">
+			<if test="name!=''">
+		    	and instr(u.userNm, #{name} )>0
+   			</if>		
+   			<if test=" structId!=0 ">
+		    	and ur.structId=#{structId}
+   			</if>	
+   			<if test=" roleId!=0 ">
+		    	and ur.roleId=#{roleId}
+   			</if>	   	       				
+	</sql>
+	
+	<!-- 查询用户所属架构和角色 -->	
+	<select id="getUserStructAndRole" parameterType="Map" resultType="com.qxh.exmodel.CommonModel">	
+		select u.userId atNo,concat(s.name,'---',r.name) name,u.roleId pId 
+		from userRel u left join structure s on u.structId=s.atNo
+		left join role r on u.roleId=r.atNo
+		where u.userId in (${uId})
+   	</select>
+   	
+   	<!-- 判断账户名是否重复 -->	
+	<select id="checkUserAccount" parameterType="Map" resultType="int">	
+		select count(*) from user where userAccount=#{userAccount}
+		and delFlag=0
+		<if test=" userId>0 ">
+		    and atNo!=#{userId}
+   		</if>	
+   	</select>
+   	
+   	<!-- 添加用户 -->	
+	<insert id="addUser" parameterType="Map" useGeneratedKeys="true" keyProperty="userId">	
+		insert into user (userAccount,pwd,userNm,phone,sex,createTime,updateTime)
+		values
+		(#{userAccount},#{pwd},#{userNm},#{phone},#{sex},now(),now())
+   	</insert>
+	
+	<!-- 插入用户关系 -->
+	<insert id="addUserRel" parameterType="Map">
+		insert into userRel(userId,structId,roleId)
+		values
+		<foreach collection="relList" item="item" index="index" separator=",">
+			( #{userId}, #{item.structId}, #{item.roleId})
+		</foreach>
+	</insert>
+	
+	<!-- 更新用户 -->	
+	<update id="updateUser" parameterType="Map">	
+		update user set userAccount=#{userAccount},pwd=#{pwd},
+		userNm=#{userNm},phone=#{phone},sex=#{sex},updateTime=now()
+		where atNo=#{userId}
+   	</update>
+   	
+   	<!-- 根据用户id删除用户关系 -->	
+	<delete id="delUserRelByUserId" parameterType="Map">	
+		delete from userRel where userId=#{userId}
+   	</delete>
+   	
+   	<!-- 根据id查询用户 -->	
+	<select id="getUserById" parameterType="Map" resultMap="myUser">	
+		select u.atNo,u.userAccount,u.pwd,u.userNm,u.phone,u.sex,
+		s.provinceId,s.cityId,s.countyId,s.address,s.remark
+		from user u left join supplierAttr s
+		on u.atNo=s.userId
+		where u.atNo=#{userId} and u.delFlag=0 limit 1
+   	</select>
+   	<resultMap type="com.qxh.model.User" id="myUser">
+		<result column="userAccount" property="userAccount" />
+		<result column="pwd" property="pwd" />
+		<result column="userNm" property="userNm" />
+		<result column="phone" property="phone" />
+		<result column="sex" property="sex" />
+		<result column="provinceId" property="provinceId" />
+		<result column="cityId" property="cityId" />
+		<result column="countyId" property="countyId" />
+		<result column="address" property="address" />
+		<result column="remark" property="remark" />
+		<collection property="relList" column="{userId=atNo}"
+			ofType="com.qxh.model.UserRel" javaType="java.util.ArrayList"
+			select="getRelListByUserId">
+		</collection>
+	</resultMap>
+	<select id="getRelListByUserId" parameterType="Map" resultType="com.qxh.model.UserRel">	
+		select u.structId,u.roleId,s.name structNm,r.name roleNm 
+		from userRel u left join structure s on u.structId=s.atNo
+		left join role r on u.roleId=r.atNo
+		where u.userId=#{userId}
+   	</select>
+   	
+   	<!-- 删除用户 -->	
+	<update id="delUser" parameterType="Map">	
+		update user set delFlag=1
+		where atNo=#{userId}
+   	</update>
+   	
+   	<!-- 添加供应商属性 -->
+	<insert id="addSupplierAttr" parameterType="Map">
+		insert into supplierAttr (userId,provinceId,cityId,countyId,address,remark)
+		values
+		(#{userId},#{provinceId},#{cityId},#{countyId},#{address},#{remark})
+	</insert>
+	
+	<!-- 检测用户是否是供应商 -->
+	<select id="checkSupplier" parameterType="Map" resultType="int">	
+		select count(*) from supplierAttr where userId=#{userId}
+   	</select>
+   	
+   	<!-- 更新供应商属性 -->
+	<update id="updateSupplierAttr" parameterType="Map">
+		update supplierAttr set provinceId=#{provinceId},cityId=#{cityId},
+		countyId=#{countyId},address=#{address},remark=#{remark}
+		where userId=#{userId}
+	</update>
+	
+	<!-- 删除供应商属性 -->
+	<update id="delSupplierAttr" parameterType="Map">
+		delete from supplierAttr where userId=#{userId}
+	</update>
+	
+	
+	<!-- 修改登录密码 -->	
+	<update id="updatePwd" parameterType="Map">
+		update user set pwd=#{confirmPwd} where atNo=#{userId}
+	</update>
+	<!-- 修改名称 -->
+	<update id="updateNm" parameterType="Map">
+		update user set userNm=#{userNm} where atNo=#{userId}
+	</update>
+	
+	<select id="getUserListToTag" resultType="com.qxh.model.User">
+		SELECT * FROM USER 
+	</select>
+	
+</mapper> 

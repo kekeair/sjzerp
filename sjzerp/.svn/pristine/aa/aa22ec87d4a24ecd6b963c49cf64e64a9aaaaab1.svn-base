@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+			<#include "temple/head.html">
+			<section class="wrapper">
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a href="demandInit.do">客户申报</a></li>
+							<li><a href="excelOutDemandDetail.do">出单</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+							<button type="button" id="printOut" class="btn btn-primary ">打印</button>
+					</div>
+				</div>
+				
+				<div class="row marginrow">
+					<div class="col-md-12" id="tTable">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>物料编号</th>
+									<th>物料名称</th>
+									<th>规格</th>
+									<th>单位</th>
+									<th>数量</th>
+									<th>单价</th>
+									<th>金额</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<#include "temple/commonJs.html">
+	<script type="text/javascript" src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/demandDetailView.js?version=20170110"></script>
+
+
+	<!-- 按物料进行查询 -->
+	<script id="customerTmpl" type="text/x-jquery-tmpl">
+		<tr>
+			<td>{{= code}}</td>
+			<td>{{= goodsNm}}</td>
+			<td>{{= spec}}</td>
+			<td>{{= unitNm}}</td>
+			<td><input class="goodsNmTd"  price="{{= price}}" value="{{= demandNum}}"></td>
+			<td>{{= formatDouble(price)}}</td>
+			<td id="totalMonayTd" >{{= formatDouble(totalMonay)}}</td>
+		</tr>
+	</script>
+	
+</body>
+</html>

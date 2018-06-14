@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>库存</a></li>
+							<li><a class="active" onclick="window.location.reload()">临时物料记录</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="form-inline">
+							<div class="form-group">
+								<label>时间</label>
+								<input id="stime" type="text" readonly="readonly" 
+									class="whiteback form-control" onFocus="WdatePicker({isShowClear:false,readOnly:true,maxDate:'#F{$dp.$D(\'etime\')}'})"/>
+								<span>-</span>
+	  	 						<input id="etime" type="text" readonly="readonly" 
+	  	 							class="whiteback form-control" onFocus="WdatePicker({isShowClear:false,readOnly:true,minDate:'#F{$dp.$D(\'stime\')}'})"/>
+							</div>
+							<button type="button" id="search" class="btn btn-primary">搜索</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>物料名称</th>
+									<th>单位名称</th>
+									<th>规格</th>
+									<th>数量</th>
+									<th>单价</th>
+									<th>时间</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="form-inline pull-right">
+					<button class="btn btn-default" id="prePage">上一页</button>
+					<label class="control-label"><font id="curPage"></font>/<font
+						id="totalPage"></font></label>
+					<button class="btn btn-default" id="nextPage">下一页</button>
+					<label class="control-label">第</label> <input type="text"
+						class="form-control pageInput" id="pageInput"> <label
+						class="control-label">页</label>
+					<button class="btn btn-primary" id="pageSure">跳转</button>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<script>
+		var roleId=${roleId}
+	</script>
+	<#include "temple/commonJs.html">
+	<script type="text/javascript" src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/TmpGoodsRecord.js?version=20161026"></script>
+
+	<!-- 列表模板 -->
+	<script id="tmpGoodsRecordTmpl" type="text/x-jquery-tmpl">
+	{{each(i,g) list}}
+	<tr {{if roleId==5&&g.reviewState==0||roleId==4&&g.reviewState==1}}
+	class="bold"{{/if}}>
+	<td>{{= g.orderIndex}}</td>
+	<td>{{= g.goodsNm}}</td>
+	<td>{{= g.unitNm}}</td>
+	<td>{{= g.spec}}</td>
+	<td>{{= g.num}}</td>
+	<td>{{= g.price}}</td>
+	<td>{{= g.createTime}}</td>
+	</tr>
+	{{/each}}	
+	</script>
+	
+</body>
+</html>

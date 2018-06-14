@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025"
+	type="text/css">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/plugins/jquery.bigautocomplete.css?version=20170110"
+	type="text/css">
+	
+	<style type="text/css">
+	.list-group li{ height:32px; line-height:32px; text-align:center}
+	.list-group-item{ padding:0;    border: 1px solid #eee;}
+	/* .list-group li:hover{ background:#ec971f; color:#fff} */
+	</style>
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a href="demandInit.do">客户申报</a></li>
+							<#if roleId==9&&type=='add'><li><a href="customerDemandInit.do">客户申报情况</a></li>
+							<#else><li><a href="demandByGroupInit.do">作业组申报</a></li></#if>
+							<li><a class="active" id="gHead" onclick="window.location.reload()">添加申报物料</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+				<div class="col-sm-6">
+						<div class="form-inline">
+							<div class="form-group">
+								<label for="team" class="toleft15">作业组</label> 
+								<select class="form-control selectwidth" id="team">
+									<#list data as list>
+										<option value="${list.atNo}">${list.name}</option>
+									</#list>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6" style="position:relative;">
+					    <button type="button" id="goback" class="btn btn-warning pull-right">返回</button>
+						<button type="button" id="deal"	class="btn btn-warning pull-right toright">提交</button>
+						<button type="button" id="save"	class="btn btn-warning pull-right toright">保存</button>
+						<button type="button" id="addGoods"	class="btn btn-warning pull-right toright">添加物料</button>
+
+						<div type="button" id="addTmp" class="advanced" >
+							<span class="advancedSpan">临时</span><br>
+							<span class="toleft20px">物料</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="row marginrow">
+					<div class="col-sm-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									
+									<th style="width:5%">序号</th>
+									<th style="width:10%">物料编号</th>
+									<th style="width:17%">物料名称</th>
+									<th style="width:10%">规格</th>
+									<th style="width:5%">单位</th>
+									<th style="width:10%">客户</th>
+									<!-- <th style="width:10%">作业组</th> -->
+									<th style="width:9%">数量</th>
+									<th style="width:9%">单价</th>
+									<th style="width:9%">金额</th>
+									<th style="width:6%">备注</th>
+									<th style="width:6%">操作</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+					
+							</tbody>
+							<tr>
+								<th colspan="9" style="border: white;">合计:</th>
+								<th id="addDemandToMonay" colspan="3" style="border:white;"></th>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	<!-- 对话框 -->
+	<div class="modal fade" id="submitModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">提交</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group" id="varyTime">
+							<label for="remark" class="col-sm-2 control-label">提交时间</label>
+							<div class="col-sm-4">
+							<input id="submitTime" type="text" readonly="readonly" 
+								class="whiteback form-control" onFocus="WdatePicker({isShowClear:false,readOnly:true})"/>
+							</div>
+						</div>	
+						<div class="form-group">
+							<label for="remark" class="col-sm-2 control-label">备注</label>
+							<div class="col-sm-10">
+								<textarea class="form-control" rows="3" id="remark">
+								</textarea>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+			      	<button type="button" id="subSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 对话框  -->
+	
+	<!-- 提示价格框 -->
+	<div class="col-sm-4" id="priceDiv" style="position: absolute;">
+		<ul class="list-group" id="priceUl">
+		
+		</ul>
+	</div>
+	
+	<#include "temple/input.html">
+	<script>
+		var roleId=${roleId};
+	</script>
+		<script>
+		var type='${type}';
+	</script>
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+	<script type="text/javascript" src="../js/plugins/jquery.bigautocomplete.js?version=20170110"></script>
+	<script type="text/javascript" src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/addDemandNew.js?version=20170111"></script>
+	
+	<!-- 列表模版 <td>{{= teamNm}}</td> -->
+	<script id="demandTmpl" type="text/x-jquery-tmpl">
+	<tr id="oldTr{{= atNo}}" class="oldTr" atNo="{{= atNo}}">
+	<td id="oldIndex{{= atNo}}"  orderIndex="{{= orderIndex}}" >{{= orderIndex}}</td>
+	<td id="goodsCode{{= atNo}}">{{= goodsCode}}</td>
+	<td>
+		<div class="input-group">
+			<input type="text" rowType="old" {{if goodsType==1}}disabled="disabled"{{/if}} goodsType="{{= goodsType}}" goodsId="{{= goodsId}}" atNo="{{= atNo}}" id="goodsNm{{= atNo}}" class="form-control goodsNm" value="{{= goodsNm}}">
+      		<span class="input-group-btn">
+        		<button rowType="old" atNo="{{= atNo}}" class="goodsBtn btn btn-default" {{if goodsType==1}}disabled="disabled"{{/if}} type="button"><span class="glyphicon glyphicon-search"></span></button>
+      		</span>
+    	</div>
+	</td>
+	<td id="spec{{= atNo}}">{{= spec}}</td>
+	<td id="unitNm{{= atNo}}">{{= unitNm}}</td>
+	<td>{{= customerNm}}</td>
+	<td><input type="text" oldValue="{{= num}}" class="form-control num" atNo="{{= atNo}}" id="num{{= atNo}}" value="{{= num}}"></td>
+	<td><input type="text" rowType="old" id="price{{= atNo}}" goodsId="{{= goodsId}}" value="{{= price}}" atNo="{{= atNo}}" class="form-control price"></td>
+	<td id="money{{= atNo}}" class="oldMonay" >{{= money}}</td>
+	<td><input id="remark{{= atNo}}" class="form-control" atNo="{{= atNo}}" oldValue="{{= remark}}" type="text" value="{{= remark}}"></td>
+	<td><a class="oldDel" id="oldDel{{= atNo}}" atNo="{{= atNo}}">删除</a></td>
+	</tr>
+	</script>
+	
+	<!-- 物料单位模板 -->
+	<script id="unitTmpl" type="text/x-jquery-tmpl">
+	{{each(i,list) data}}
+		<option value="{{= list.atNo}}">{{= list.name}}</option>
+	{{/each}}	
+	</script>
+	
+	
+	<!-- 物料单位模板 -->
+	<script id="priceTmpl" type="text/x-jquery-tmpl">
+	{{each(i,list) data}}
+ 		<li class="list-group-item list-group-item-info">{{= list}}</li>
+	{{/each}}
+	</script>
+	
+</body>
+</html>

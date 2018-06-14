@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/supplierSel.css?version=20161026" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a href="purchaseInit.do">采购入库</a></li>
+							<li><a class="active" id="gHead" 
+								onclick="window.location.reload()">选择供应商</a></li>
+						</ol>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-sm-12">
+						<button type="button" id="submit"
+							class="btn btn-warning pull-right">提交</button>
+						<button type="button" id="refuse"
+							class="btn btn-warning pull-right toright">驳回</button>
+					</div>
+				</div>
+
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>物料名称</th>
+									<th>需求总量</th>
+									<th>选择供应商</th>
+									<th>单价(元)</th>
+									<th>总价(元)</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<!-- 对话框 -->
+	<div class="modal fade" id="uModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">提交</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label for="remark" class="col-sm-2 control-label">备注</label>
+							<div class="col-sm-10">
+								<textarea class="form-control" rows="3" id="remark">
+								</textarea>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+			      	<button type="button" id="uSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 对话框  -->
+	
+	<#include "temple/commonJs.html">
+	<script type="text/javascript" src="../js/custom/supplierSel.js?version=20170110"></script>
+
+	<!-- 列表模板 -->
+	<script id="detailTmpl" type="text/x-jquery-tmpl">
+	<tr class="dt">
+	<td>{{= goodsNm}}</td>
+	<td>{{= orderNum}}{{= unitNm}}</td>
+	<td>
+		<select goodsId="{{= goodsId}}" purchaseListDId="{{= purchaseListDId}}" class="form-control supplierSel">
+		{{each(i,s) supplierList}}
+			<option frontPrice={{= s.frontPrice}} value="{{= s.supplierId}}" 
+			{{if s.supplierId==sId}}selected="selected"{{/if}}>
+			{{= s.supplierNm}}
+			</option>
+		{{/each}}
+		</select>
+	</td>
+	  <td><input purchaseListDId="{{= purchaseListDId}}" goodsId="{{= goodsId}}" 
+		id="frontPrice{{if goodsType==0}}{{= goodsId}}{{else}}{{= purchaseListDId}}{{/if}}" 
+		class="priceInput" type="text" value={{= frontPrice}} /></td>
+	  <td num="{{= num}}" id="frontMoney{{if goodsType==0}}{{= goodsId}}{{else}}{{= purchaseListDId}}{{/if}}">{{= frontMoney}}</td>
+	</tr>
+	</script>
+</body>
+</html>

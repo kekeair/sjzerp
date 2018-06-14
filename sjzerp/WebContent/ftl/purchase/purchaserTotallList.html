@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a href="purchaseInit.do">采购入库</a></li>
+							<li><a class="active" id="gHead" onclick="window.location.reload()">采购汇总表单</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+				<div class="col-sm-10">
+				  <div class="form-inline">
+				       <div class="form-group" style="width:110px;">
+								<label for="supplier">供应商</label> 
+								<select class="form-control" id="supplier">
+									<#list data as list>
+										<option value="${list.atNo}">${list.name}</option>
+									</#list>
+								</select>
+				       </div>
+				   </div>
+				   </div>
+				    <div class="col-sm-2">
+						<button type="button" id="exportIn"
+							class="btn btn-warning pull-right">采购入库导出</button>
+				   </div>
+				    <div class="col-sm-2">
+						<button type="button" id="export"
+							class="btn btn-warning pull-right">采购汇总导出</button>
+				   </div>
+			       <div class="col-sm-2">
+						<button type="button" id="print"
+							class="btn btn-warning pull-right">打印</button>
+				   </div>
+				</div>
+			<!-- 打印内容 -->
+			
+				<div class="row marginrow">
+					<div class="col-md-12">
+					<div id="printExcell">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+							 <tr><td colspan="11" align="center">采购汇总单</td></tr>
+                             <tr><th colspan="8">供应商:</th><th colspan="3">日期:</th></tr>
+								<tr>
+									<th>序号</th>
+									<th>物料代码</th>
+									<th>物料名称</th>
+									<th>规格</th>
+									<th>库存数量</th>
+									<th>申购量</th>
+									<th>实收量</th>
+									<th>单位</th>
+									<th>单价</th>
+									<th>金额</th>
+									<th>备注</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+							</tbody>
+						</table>
+					</div>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	
+	<script>
+		var roleId=${roleId};	
+	</script>
+	<#include "temple/commonJs.html">
+	<script type="text/javascript" src="../js/custom/purchaseTotalList.js?version=20170110"></script>
+
+	<!-- 列表模板 -->
+	<script id="detailTmpl" type="text/x-jquery-tmpl">
+      {{each(i,t) list}}
+	<tr>
+	<td>{{= t.orderIndex}}</td>
+	<td>{{= t.code}}</td>
+	<td>{{= t.goodsNm}}</td>
+    <td/>
+	<td>{{= t.stockNum}}</td>
+	<td>{{= t.orderNum}}</td>
+     <td/>
+    <td>{{= t.unitNm}}</td>
+    <td>{{= t.price}}</td>
+    <td>{{= t.money}}</td>
+    <td/>
+	</tr>
+	{{/each}}
+     <tr>
+       <td colspan="3" align="center">合计金额:</td>
+       <td colspan="6" align="right">￥</td>
+       <td colspan="2">{{= allMoney}}</td>
+     </tr>
+     <tr>
+       <td colspan="3">经理:</td>
+       <td colspan="3">库管:</td>
+       <td colspan="3">采购:</td>
+       <td colspan="2">财务:</td>
+     </tr>
+	</script>
+</body>
+</html>

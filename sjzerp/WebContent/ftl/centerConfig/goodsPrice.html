@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/goodsPrice.css?version=20161224" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>配送中心设置</a></li>
+							<li><a class="active" onclick="window.location.reload()">物料价格设置</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="form-inline">
+							<div class="form-group">
+								<label for="supplier">供应商</label> 
+								<select class="form-control" id="supplier">
+									<#list data as list>
+										<option value="${list.atNo}">${list.name}</option>
+									</#list>
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="goodsNm">名称</label> <input type="text"
+									class="form-control width120px" id="goodsNm">
+							</div>
+							<div class="form-group">
+								<label for="goodsCode">编码</label> <input type="text"
+									class="form-control width120px" id="goodsCode">
+							</div>
+							<div class="form-group">
+								<label for="kindSel">分类</label> <input
+									class="form-control width120px" atNo="0" value="全部"
+									readonly="readonly" id="kindSel"> </input>
+							</div>
+							<button type="button" id="search" class="btn btn-primary">搜索</button>
+							<div id="importdiv" class="btn btn-warning toright pull-right importdiv" style="display:none">
+							<span>导入</span>
+							<input type="file" class="importbtn" id="inFile" name="inFile" multiple="multiple" />
+							</div>
+							<button type="button" id="outExcel" style="display:none"
+								class="btn btn-warning toright pull-right">导出</button>
+							    <button type="button" id="save" style="display:none"
+								class="btn btn-warning toright pull-right">保存</button>
+						 </div>
+					</div>
+				</div>
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>编码</th>
+									<th>名称</th>
+									<th>原前置价格</th>
+									<th>新前置价格</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="form-inline pull-right">
+					<button class="btn btn-default" id="prePage">上一页</button>
+					<label class="control-label"><font id="curPage">1</font>/<font
+						id="totalPage">1</font></label>
+					<button class="btn btn-default" id="nextPage">下一页</button>
+					<label class="control-label">第</label> <input type="text"
+						class="form-control pageInput" id="pageInput"> <label
+						class="control-label">页</label>
+					<button class="btn btn-primary" id="pageSure">跳转</button>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+
+	<div id="kindDiv" class="treeDiv">
+		<ul id="kindTree" class="ztree treeDemo"></ul>
+	</div>
+
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+	<script type="text/javascript" src="../js/plugins/ajax/ajaxfileupload.js?version=20161223"></script>
+	<script type="text/javascript" src="../js/custom/goodsPrice.js?version=20161224"></script>
+	
+	<script>
+		var roleId=${roleId};
+	</script>
+
+	<!-- 物料列表模板 -->
+	<script id="goodsPriceTmpl" type="text/x-jquery-tmpl">
+	{{each(i,list) goodsPriceList}}
+	<tr>
+	<td>{{= list.orderIndex}}</td>
+	<td>{{= list.goodsCode}}</td>
+	<td>{{= list.goodsNm}}</td>
+	<td id="frontPrice{{= list.atNo}}">{{= list.frontPrice}}</td>
+	<td>
+	{{if roleId==10}}
+	<input type="text" id="newPrice{{= list.atNo}}" supplierGoodsId="{{= list.atNo}}" 
+		class="newPrice" centerId="{{= list,centerId}}" supplierId="{{= list.supplierId}}"
+		goodsId="{{= list.goodsId}}" value="{{= list.frontPrice}}">
+	{{else}}{{= list.frontPrice}}{{/if}}
+	</td>
+	</tr>
+	{{/each}}
+	</script>
+</body>
+</html>

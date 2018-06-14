@@ -1,0 +1,32 @@
+.marginrow{
+	margin-top:20px;
+}
+.selectWidth{
+	width:180px!important;
+	background:white!important;
+}
+.white{
+	background:white;
+	margin-top:20px;
+}
+.myborder{
+	border: 1px solid #cccccc;
+    margin: 20px;
+    background: white;
+}
+.header{
+	border-bottom:1px solid #cccccc;
+	padding-left:20px;
+}
+.toleft{
+	margin-left:20px;
+}
+#remark{
+    resize:none;
+}
+.toright{
+	margin-right:20px;
+}
+.textRight{
+	text-align:right
+}

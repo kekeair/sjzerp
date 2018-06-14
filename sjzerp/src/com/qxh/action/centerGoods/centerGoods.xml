@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+                    
+	<!-- 餐饮中心物料设置 -->
+	<bean name="/centerGoods/centerGoodsInit.do" 
+		class="com.qxh.action.centerGoods.CenterGoodsInitAction">
+	</bean>
+	<bean name="/centerGoods/getCenterGoodsData.do" class="com.qxh.action.centerGoods.GetCenterGoodsDataAction">
+		<property name="centerGoodsService" ref="CenterGoodsService"></property>
+	</bean>
+	<bean name="/centerGoods/getLeftGoodsList.do" class="com.qxh.action.centerGoods.GetLeftGoodsListAction">
+		<property name="centerGoodsService" ref="CenterGoodsService"></property>
+	</bean>
+	<bean name="/centerGoods/getCenterGoodsList.do" class="com.qxh.action.centerGoods.GetCenterGoodsListAction">
+		<property name="centerGoodsService" ref="CenterGoodsService"></property>
+	</bean>
+	<bean name="/centerGoods/addCenterGoods.do" class="com.qxh.action.centerGoods.AddCenterGoodsAction">
+		<property name="centerGoodsService" ref="CenterGoodsService"></property>
+	</bean>
+	<bean name="/centerGoods/delCenterGoods.do" class="com.qxh.action.centerGoods.DelCenterGoodsAction">
+		<property name="centerGoodsService" ref="CenterGoodsService"></property>
+	</bean>
+	<!-- 批量添加 -->
+	<bean name="/centerGoods/allAddCenterGoods.do" class="com.qxh.action.centerGoods.AllAddCenterGoodsAction">
+		<property name="centerGoodsService" ref="CenterGoodsService"></property>
+	</bean>
+	
+</beans>

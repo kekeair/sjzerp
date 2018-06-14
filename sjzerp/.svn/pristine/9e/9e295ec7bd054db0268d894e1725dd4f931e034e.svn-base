@@ -1,0 +1,135 @@
+<!-- 物料框 -->
+	<div class="modal fade bs-example-modal-lg" id="goodsModal">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">选择物料</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-inline tobottom15">
+								<div class="form-group">
+									<label for="kindSel">分类</label> <input
+										class="form-control selectWidth" atNo="0" value="全部"
+										readonly="readonly" id="kindSel"> </input>
+								</div>
+								<button type="button" id="search" class="btn btn-primary">搜索</button>
+							</div>
+							<div class="tablediv">
+							<table
+								class="table table-bordered table-hover table-condensed white">
+								<thead>
+									<tr>
+										<th>物料编号</th>
+										<th>物料名称</th>
+										<th>规格</th>
+										<th>单位</th>
+									</tr>
+								</thead>
+								
+									<tbody id="goodsbody">
+	
+									</tbody>
+								
+							</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="kindDiv" class="treeDiv">
+			<ul id="kindTree" class="ztree treeDemo"></ul>
+		</div>
+	</div>
+	<!-- 物料框  -->
+	
+	
+	<!-- 临时物料对话框 -->
+	<div class="modal fade" id="tmpModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">添加临时物料</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label for="tmpGoodsNm" class="col-sm-3 control-label">物料名</label>
+							<div class="col-sm-8">
+								<input type="text" class="form-control" maxlength="100" id="tmpGoodsNm">
+							</div>
+							<label class="control-label">*</label>
+						</div>
+						<div class="form-group">
+							<label for="tmpSpec" class="col-sm-3 control-label">规格</label>
+							<div class="col-sm-8">
+								<input type="text" class="form-control" id="tmpSpec" maxlength="20">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="tmpUnit" class="col-sm-3 control-label">单位</label>
+							<div class="col-sm-8">
+								<select class="form-control" id="tmpUnit"></select>
+							</div>
+							<label class="control-label">*</label>
+						</div>
+						<div class="form-group">
+							<label for="tempGoodsType" class="col-sm-3 control-label">类型</label>
+							<div class="col-sm-8">
+								<select class="form-control" id="tempGoodsType">
+									<option value="1">蔬菜</option>
+									<option value="2">肉类</option>
+									<option value="3">水果</option>
+									<option value="4">其他</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="tmpNum" class="col-sm-3 control-label">数量</label>
+							<div class="col-sm-8">
+								<input type="text" class="form-control" id="tmpNum">
+							</div>
+							<label class="control-label">*</label>
+						</div>
+						<div class="form-group">
+							<label for="tmpPrice" class="col-sm-3 control-label">单价</label>
+							<div class="col-sm-8">
+								<input type="text" class="form-control" id="tmpPrice">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="tmpRemark" class="col-sm-3 control-label">备注</label>
+							<div class="col-sm-8">
+								<input type="text" class="form-control" id="tmpRemark">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+			      	<button type="button" id="tmpSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 临时物料对话框  -->
+	
+	
+	<!-- 物料模板 -->
+	<script id="goodsTmpl" type="text/x-jquery-tmpl">
+	<tr class="goodstr" goodsId="{{= goodsId}}" >
+	<td>{{= goodsCode}}</td>
+	<td>{{= goodsNm}}</td>
+	<td>{{= spec}}</td>
+	<td>{{= unitNm}}</td>
+	</tr>
+	</script>
+	

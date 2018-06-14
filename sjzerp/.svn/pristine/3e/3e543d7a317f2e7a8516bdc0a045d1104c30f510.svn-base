@@ -1,0 +1,959 @@
+package com.qxh.impl.purchaseSumm;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.io.filefilter.PrefixFileFilter;
+import org.apache.commons.lang.StringUtils;
+import org.apache.poi.util.Units;
+
+import com.alibaba.fastjson.JSON;
+import com.qxh.constant.CodeConstant;
+import com.qxh.exmodel.DemandGoods;
+import com.qxh.exmodel.DemandSummaryD;
+import com.qxh.exmodel.EditInOutD;
+import com.qxh.impl.demandSumm.DemandSummMapper;
+import com.qxh.model.GoodsClass;
+import com.qxh.model.ProfitSumm;
+import com.qxh.model.PurchaseSumm;
+import com.qxh.model.PurchaseSummD;
+import com.qxh.service.DemandSummService;
+import com.qxh.service.PurchaseSummService;
+import com.qxh.utils.ErrorCode;
+import com.qxh.utils.NumUtil;
+import com.qxh.utils.Result;
+
+/**
+ * @author Mr chen
+ * @name : PurchaseSummServiceImpl
+ * @todo : [采购汇总实现类]
+ * 
+ *       创建时间 ： 2016年12月2日上午11:27:31
+ */
+public class PurchaseSummServiceImpl implements PurchaseSummService {
+
+	private PurchaseSummMapper purchaseSummMapper;
+
+	public void setPurchaseSummMapper(PurchaseSummMapper purchaseSummMapper) {
+		this.purchaseSummMapper = purchaseSummMapper;
+	}
+
+	private DemandSummMapper demandSummMapper;
+
+	public void setDemandSummMapper(DemandSummMapper demandSummMapper) {
+		this.demandSummMapper = demandSummMapper;
+	}
+
+	/*
+	 * Todo : [获取列表]
+	 * 
+	 * @时间:2016年12月2日上午11:34:04
+	 */
+	@Override
+	public Result getPurchaseSummList(String stime, String etime, int structId, int roleId, String customerId,
+			String goodsNm, String kindCode, String supplierId) {
+
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("structId", structId);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("customerId", customerId);
+		param.put("goodsNm", goodsNm);
+		param.put("kindCode", kindCode);
+		param.put("supplierId", supplierId);
+
+		try {
+			// 集合
+			Double totalMoney = 0.00;// 总计
+			Integer orderIndex = 1;
+			List<PurchaseSumm> list = purchaseSummMapper.getPurchaseSummList(param);
+			for (int i = 0; i < list.size(); i++) {
+				list.get(i).setOrderIndex(orderIndex);
+				orderIndex++;
+				Double totalMn = list.get(i).getTotalMn();
+				totalMoney = totalMoney + totalMn;
+			}
+			PurchaseSumm purchaseSumm = new PurchaseSumm();
+			purchaseSumm.setGoodsNm("合计");
+			purchaseSumm.setTotalMn(totalMoney);
+			list.add(purchaseSumm);
+			Map<String, Object> data = new HashMap<>();
+			data.put("list", list);
+			result.setData(data);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	@Override
+	public List<PurchaseSumm> getOutExcelPurchaseSummList(String stime, String etime, int structId, int roleId,
+			String customerId, String goodsNm, String goodskind, String supplierId) {
+
+		Map<String, Object> param = new HashMap<>();
+		param.put("structId", structId);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("customerId", customerId);
+		param.put("goodsNm", goodsNm);
+		param.put("kindCode", goodskind);
+		param.put("supplierId", supplierId);
+		try {
+			// 集合
+			List<PurchaseSumm> list = purchaseSummMapper.getPurchaseSummList(param);
+			return list;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/*
+	 * Todo : [详情页面]
+	 * 
+	 * @时间:2016年12月2日下午2:18:01
+	 */
+	@Override
+	public Result getPurchaseSummDList(String goodsId, String stime, String etime, String goodsType, int structId,
+			String purchaselistDId, String customerId) {
+
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("goodsId", goodsId);
+		param.put("structId", structId);
+		param.put("goodsType", goodsType);
+		param.put("purchaselistDId", purchaselistDId);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("customerId", customerId);
+		try {
+			PurchaseSumm purchaseSumm = purchaseSummMapper.getGoodsNmByPurchaseListD(param);
+			String goodsNm = purchaseSumm.getGoodsNm();
+			param.put("godosNm", goodsNm);
+			// 集合
+			List<PurchaseSummD> list = purchaseSummMapper.getPurchaseSummDList(param);
+			Map<String, Object> data = new HashMap<>();
+			data.put("list", list);
+			result.setData(data);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	/*
+	 * Todo : [单品毛利汇总]
+	 * 
+	 * @时间:2017年3月6日上午11:34:04
+	 */
+	@Override
+	public Result getProfitSummDList(String customerIds, String stime, String etime, int structId, String goodsNm) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("structId", structId);
+		// param.put("customerIds", customerIds);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("goodsNm", goodsNm);
+		param.put("customerIdsStr",customerIds);
+		try {
+			// 创建单品毛利信息集合
+			List<ProfitSumm> profitList = new ArrayList<>();
+			Double totalProMoney = 0.00;// 毛利总计
+			Double totalRate = 0.00;// 毛利率总计
+			// 获取订单(销售)汇总信息
+			List<DemandGoods> demandSummList = demandSummMapper.getDemandSummaryForProfit(param);
+			Integer orderIndex = 1;
+			Double totaldMoney = 0.00;// 销售合计
+			for (int i = 0; i < demandSummList.size(); i++) {
+				DemandGoods demandGoods = demandSummList.get(i);
+				ProfitSumm profitSumm = new ProfitSumm();
+				profitSumm.setGoodsId(demandGoods.getGoodsId());// 物料Id
+				profitSumm.setGoodsNm(demandGoods.getGoodsNm());// 物料名称
+				profitSumm.setBillDate(demandGoods.getBillDate().substring(0, 10));// 时间
+				profitSumm.setGoodsType(demandGoods.getGoodsType());// 类型
+				profitSumm.setOrderNum(demandGoods.getDemandNum());// 数量
+				profitSumm.setdPirce(demandGoods.getPrice());// 销售价
+				profitSumm.setdMoney(demandGoods.getMoney());// 销售收入
+				totaldMoney += demandGoods.getMoney();
+				profitSumm.setTcode(demandGoods.getTcode());// 标注临时物料
+				profitSumm.setUnitNm(demandGoods.getUnitNm());// 单位
+				profitSumm.setDemandListDId(demandGoods.getDemandListDId());// 需求订单物料Id
+				profitSumm.setOrderIndex(orderIndex);
+				orderIndex++;
+				if (!StringUtils.isEmpty(demandGoods.getKindNm())) {
+					if (demandGoods.getCode().length() > 4) {
+						Integer pId = demandGoods.getpId();
+						param.put("pId", pId);
+						GoodsClass threClass = purchaseSummMapper.getThreClass(param);
+						if (threClass.getCode().length() > 4) {
+							param.put("pId2", threClass.getpId());
+							GoodsClass secClass = purchaseSummMapper.getSecClass(param);
+							profitSumm.setKindNm(secClass.getKindNm());
+						} else {
+							profitSumm.setKindNm(threClass.getKindNm());
+						}
+					} else {
+						profitSumm.setKindNm(demandGoods.getKindNm());
+					}
+				} else {
+					if ("1".equals(demandGoods.getCode())) {
+						profitSumm.setKindNm("蔬菜");
+					}
+					if ("2".equals(demandGoods.getCode())) {
+						profitSumm.setKindNm("肉类");
+					}
+					if ("3".equals(demandGoods.getCode())) {
+						profitSumm.setKindNm("水果");
+					}
+					if ("4".equals(demandGoods.getCode())) {
+						profitSumm.setKindNm("其他");
+					}
+				}
+				profitList.add(profitSumm);
+			}
+			// 获取采购汇总信息
+			List<PurchaseSumm> PurchaseSummList = purchaseSummMapper.getProfitSummList(param);
+			Double totalPMoney = 0.00;// 成本合计
+			for (int i = 0; i < PurchaseSummList.size(); i++) {
+				PurchaseSumm purchaseSumm = PurchaseSummList.get(i);
+				for (int j = 0; j < profitList.size(); j++) {
+					ProfitSumm profitSumm = profitList.get(j);
+					if (!StringUtils.isEmpty(purchaseSumm.getTcode())) {
+						// 修改因为:按条件查到purchaselistd中有两条符合条件的临时物料 取tcode出了问题
+						// if
+						// (purchaseSumm.getTcode().equals(profitSumm.getTcode()))
+						// {
+						if (purchaseSumm.getGoodsNm().equals(profitSumm.getGoodsNm())) {
+							profitSumm.setpPrice(purchaseSumm.getPrice());// 成本价
+							profitSumm.setpMoney(purchaseSumm.getPrice() * profitSumm.getOrderNum());// 成本
+							profitSumm.setPurchaseListDId(purchaseSumm.getPurchaselistDId());// 采购订单物料Id
+							totalPMoney += profitSumm.getpMoney();
+							Double profitMoney = profitSumm.getdMoney() - profitSumm.getpMoney();
+							profitSumm.setProfitMoney(profitMoney);
+							totalProMoney += profitMoney;
+							Double rate = profitMoney / profitSumm.getdMoney();
+							profitSumm.setRate(String.valueOf(NumUtil.trim0(rate * 100)));
+						}
+					} else {
+						// 添加常规物料的采购信息
+						if (purchaseSumm.getGoodsId().equals(profitSumm.getGoodsId().toString())
+								&& profitSumm.getGoodsId() != -1) {
+							profitSumm.setpPrice(purchaseSumm.getPrice());// 成本价
+							profitSumm.setpMoney(purchaseSumm.getPrice() * profitSumm.getOrderNum());// 成本
+							profitSumm.setPurchaseListDId(purchaseSumm.getPurchaselistDId());// 采购订单物料Id
+							totalPMoney += profitSumm.getpMoney();
+							Double profitMoney = profitSumm.getdMoney() - profitSumm.getpMoney();
+							profitSumm.setProfitMoney(profitMoney);
+							totalProMoney += profitMoney;
+							Double rate = profitMoney / profitSumm.getdMoney();
+							profitSumm.setRate(String.valueOf(NumUtil.trim0(rate * 100)));
+						}
+					}
+				}
+			}
+			ProfitSumm profitSumm = new ProfitSumm();
+			profitSumm.setGoodsNm("合计");
+			profitSumm.setdMoney(totaldMoney);
+			profitSumm.setpMoney(totalPMoney);
+			profitSumm.setProfitMoney(totalProMoney);
+			totalRate = totalProMoney / totaldMoney;
+			profitSumm.setRate(String.valueOf(NumUtil.trim0(totalRate * 100)));
+			// 总计集合
+			ArrayList<Object> totalList = new ArrayList<>();
+			totalList.add(profitSumm);
+			Map<String, Object> data = new HashMap<>();
+			data.put("list", profitList);
+			data.put("totalList", totalList);
+			data.put("profitSumm", profitSumm);
+			result.setData(data);
+
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	/**
+	 * 根据物料查询毛利汇总
+	 */
+	public Result getProfitSummDListByGoods(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("goodsId", goodsId);
+		param.put("goodsType", goodsType);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("structId", structId);
+		param.put("demandListDId", demandListDId);
+		param.put("purchaselistDId", purchaseListDId);
+		param.put("customerIdsStr",customerIds);
+		try {
+			// 创建单品毛利信息集合
+			List<ProfitSumm> profitList = new ArrayList<>();
+			Double totalProMoney = 0.00;// 毛利总计
+			Double totalRate = 0.00;// 毛利率总计
+			// 获取订单(销售)汇总信息
+			DemandSummaryD demandSummaryDforGoodsNm = demandSummMapper.getGoodsNmByDemandListDId(param);
+			String goodsNm = demandSummaryDforGoodsNm.getGoodsNm();
+			param.put("goodsNm", goodsNm);
+			List<DemandGoods> demandSummList = demandSummMapper.getDemandSummByGoodsForProfit(param);
+			Integer orderIndex = 1;
+			Double totaldMoney = 0.00;// 销售合计
+			for (int i = 0; i < demandSummList.size(); i++) {
+				DemandGoods demandGoods = demandSummList.get(i);
+				ProfitSumm profitSumm = new ProfitSumm();
+				profitSumm.setGoodsId(demandGoods.getGoodsId());// 物料Id
+				profitSumm.setGoodsNm(demandGoods.getGoodsNm());// 物料名称
+				profitSumm.setBillDate(demandGoods.getBillDate().substring(0, 10));// 时间
+				profitSumm.setGoodsType(demandGoods.getGoodsType());// 类型
+				profitSumm.setOrderNum(demandGoods.getDemandNum());// 数量
+				profitSumm.setdPirce(demandGoods.getPrice());// 销售价
+				profitSumm.setdMoney(demandGoods.getMoney());// 销售收入
+				totaldMoney += demandGoods.getMoney();
+				profitSumm.setTcode(demandGoods.getTcode());// 标注临时物料
+				profitSumm.setUnitNm(demandGoods.getUnitNm());// 单位
+				profitSumm.setPurchaseListHId(demandGoods.getPurchaseListHId());
+				profitSumm.setOrderIndex(orderIndex);
+				orderIndex++;
+				if (!StringUtils.isEmpty(demandGoods.getKindNm())) {
+					if (demandGoods.getCode().length() > 4) {
+						Integer pId = demandGoods.getpId();
+						param.put("pId", pId);
+						GoodsClass threClass = purchaseSummMapper.getThreClass(param);
+						if (threClass.getCode().length() > 4) {
+							param.put("pId2", threClass.getpId());
+							GoodsClass secClass = purchaseSummMapper.getSecClass(param);
+							profitSumm.setKindNm(secClass.getKindNm());
+						} else {
+							profitSumm.setKindNm(threClass.getKindNm());
+						}
+					} else {
+						profitSumm.setKindNm(demandGoods.getKindNm());
+					}
+				} else {
+					if ("1".equals(demandGoods.getCode())) {
+						profitSumm.setKindNm("蔬菜");
+					}
+					if ("2".equals(demandGoods.getCode())) {
+						profitSumm.setKindNm("肉类");
+					}
+					if ("3".equals(demandGoods.getCode())) {
+						profitSumm.setKindNm("水果");
+					}
+					if ("4".equals(demandGoods.getCode())) {
+						profitSumm.setKindNm("其他");
+					}
+				}
+				profitList.add(profitSumm);
+			}
+			// 获取采购汇总信息
+			PurchaseSumm goodsNmByPurchaseListD = purchaseSummMapper.getGoodsNmByPurchaseListD(param);
+			String goodsNm2 = goodsNmByPurchaseListD.getGoodsNm();
+			param.put("goodsNm", goodsNm);
+			List<PurchaseSumm> PurchaseSummList = purchaseSummMapper.getPurchaseSummDListForProfit(param);
+			Double totalPMoney = 0.00;// 成本合计
+			for (int i = 0; i < PurchaseSummList.size(); i++) {
+				PurchaseSumm purchaseSumm = PurchaseSummList.get(i);
+				for (int j = 0; j < profitList.size(); j++) {
+					ProfitSumm profitSumm = profitList.get(j);
+					if (!StringUtils.isEmpty(purchaseSumm.getTcode())) {
+						if (purchaseSumm.getTcode().equals(profitSumm.getTcode())) {
+							profitSumm.setpPrice(purchaseSumm.getPrice());// 成本价
+							profitSumm.setpMoney(purchaseSumm.getTotalMn());// 成本
+							totalPMoney += purchaseSumm.getTotalMn();
+							Double profitMoney = profitSumm.getdMoney() - profitSumm.getpMoney();
+							profitSumm.setProfitMoney(profitMoney);
+							totalProMoney += profitMoney;
+							Double rate = profitMoney / profitSumm.getdMoney();
+							profitSumm.setRate(String.valueOf(NumUtil.trim0(rate * 100)) + "%");
+						}
+					} else {
+						// 添加常规物料的采购信息
+						if (purchaseSumm.getPurchaseListHId().equals(profitSumm.getPurchaseListHId())) {
+							profitSumm.setpPrice(purchaseSumm.getPrice());// 成本价
+							profitSumm.setpMoney(purchaseSumm.getTotalMn());// 成本
+							totalPMoney += purchaseSumm.getTotalMn();
+							Double profitMoney = profitSumm.getdMoney() - profitSumm.getpMoney();
+							profitSumm.setProfitMoney(profitMoney);
+							totalProMoney += profitMoney;
+							Double rate = profitMoney / profitSumm.getdMoney();
+							profitSumm.setRate(String.valueOf(NumUtil.trim0(rate * 100)) + "%");
+						}
+					}
+				}
+			}
+			ProfitSumm profitSumm = new ProfitSumm();
+			profitSumm.setGoodsNm("合计");
+			profitSumm.setdMoney(totaldMoney);
+			profitSumm.setpMoney(totalPMoney);
+			profitSumm.setProfitMoney(totalProMoney);
+			totalRate = totalProMoney / totaldMoney;
+			profitSumm.setRate(String.valueOf(NumUtil.trim0(totalRate * 100)) + "%");
+			profitList.add(profitSumm);
+			result.setData(profitList);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+		}
+		return result;
+	}
+
+	/***
+	 * 为数量统计图表查询当月每日此物料的数量
+	 */
+	@Override
+	public Result getOrderNum(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("goodsId", goodsId);
+		param.put("goodsType", goodsType);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("structId", structId);
+		param.put("demandListDId", demandListDId);
+		param.put("purchaselistDId", purchaseListDId);
+		param.put("customerIdsStr",customerIds);
+		try {
+			// 创建集合存储单品每月数量
+			List<Double> orderNumList = new ArrayList<>();
+
+			// 获取订单(销售)汇总信息
+			DemandSummaryD demandSummaryDforGoodsNm = demandSummMapper.getGoodsNmByDemandListDId(param);
+			String goodsNm = demandSummaryDforGoodsNm.getGoodsNm();
+			param.put("goodsNm", goodsNm);
+			List<DemandGoods> demandSummList = demandSummMapper.getDemandNumInDay(param);
+			// 日期数组
+			String[] day = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15",
+					"16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" };
+			// 记录添加位置
+			int t = 0;
+			for (int j = 0; j < day.length; j++) {
+				for (int i = 0; i < demandSummList.size(); i++) {
+					DemandGoods demandGoods = demandSummList.get(i);
+					String cday = demandGoods.getBillDate().substring(8, 10);
+					if (day[j].equals(cday)) {
+						orderNumList.add(demandGoods.getDemandNum());
+						t++;
+					}
+				}
+				if (t != 0) {
+					t = 0;
+				} else {
+					orderNumList.add(0.00);
+				}
+			}
+			result.setData(orderNumList);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+		}
+		return result;
+	}
+
+	/**
+	 * 为统计图表查询当月每日此物料的售价
+	 */
+	@Override
+	public Result getDPrice(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("goodsId", goodsId);
+		param.put("goodsType", goodsType);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("structId", structId);
+		param.put("demandListDId", demandListDId);
+		param.put("purchaselistDId", purchaseListDId);
+		param.put("customerIdsStr",customerIds);
+		try {
+			// 创建集合存储单品每月售价
+			List<Double> dPriceList = new ArrayList<>();
+
+			// 获取订单(销售)汇总信息
+			DemandSummaryD demandSummaryDforGoodsNm = demandSummMapper.getGoodsNmByDemandListDId(param);
+			String goodsNm = demandSummaryDforGoodsNm.getGoodsNm();
+			param.put("goodsNm", goodsNm);
+			List<DemandGoods> demandSummList = demandSummMapper.getDemandNumInDay(param);
+			// 日期数组
+			String[] day = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15",
+					"16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" };
+			// 记录添加位置
+			int t = 0;
+			for (int j = 0; j < day.length; j++) {
+				for (int i = 0; i < demandSummList.size(); i++) {
+					DemandGoods demandGoods = demandSummList.get(i);
+					String cday = demandGoods.getBillDate().substring(8, 10);
+					if (day[j].equals(cday)) {
+						dPriceList.add(demandGoods.getPrice());
+						t++;
+					}
+				}
+				if (t != 0) {
+					t = 0;
+				} else {
+					dPriceList.add(0.00);
+				}
+			}
+			result.setData(dPriceList);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+		}
+		return result;
+	}
+
+	/**
+	 * 为统计图表查询当月每日此物料的进价
+	 */
+	@Override
+	public Result getPPrice(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("goodsId", goodsId);
+		param.put("goodsType", goodsType);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("structId", structId);
+		param.put("demandListDId", demandListDId);
+		param.put("purchaselistDId", purchaseListDId);
+		param.put("customerIdsStr",customerIds);
+		try {
+			// 创建集合存储单品每月进价
+			List<Double> pPriceList = new ArrayList<>();
+			// 获取订单(销售)汇总信息
+			PurchaseSumm purchaseListD = purchaseSummMapper.getGoodsNmByPurchaseListD(param);
+			String goodsNm = purchaseListD.getGoodsNm();
+			param.put("goodsNm", goodsNm);
+			List<PurchaseSumm> pPriceInDay = purchaseSummMapper.getPPriceInDay(param);
+			// 日期数组
+			String[] day = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15",
+					"16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" };
+			// 记录添加位置
+			int t = 0;
+			for (int j = 0; j < day.length; j++) {
+				for (int i = 0; i < pPriceInDay.size(); i++) {
+					PurchaseSumm purchaseSumm = pPriceInDay.get(i);
+					String cday = purchaseSumm.getBillDate().substring(8, 10);
+					if (day[j].equals(cday)) {
+						pPriceList.add(purchaseSumm.getPrice());
+						t++;
+					}
+				}
+				if (t != 0) {
+					t = 0;
+				} else {
+					pPriceList.add(0.00);
+				}
+			}
+			result.setData(pPriceList);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+		}
+		return result;
+	}
+
+	/**
+	 * 为汇总图表获取每月毛利率
+	 */
+	@Override
+	public Result getRateInDay(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("goodsId", goodsId);
+		param.put("goodsType", goodsType);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("structId", structId);
+		param.put("demandListDId", demandListDId);
+		param.put("purchaselistDId", purchaseListDId);
+		param.put("customerIdsStr",customerIds);
+		try {
+			// 创建集合存储单品每月毛利率
+			List<String> rateList = new ArrayList<>();
+			// 创建单品毛利信息集合
+			List<ProfitSumm> profitList = new ArrayList<>();
+			// 获取订单(销售)汇总信息
+			DemandSummaryD demandSummaryDforGoodsNm = demandSummMapper.getGoodsNmByDemandListDId(param);
+			String goodsNm = demandSummaryDforGoodsNm.getGoodsNm();
+			param.put("goodsNm", goodsNm);
+			List<DemandGoods> demandSummList = demandSummMapper.getDemandNumInDay(param);
+			for (int i = 0; i < demandSummList.size(); i++) {
+				DemandGoods demandGoods = demandSummList.get(i);
+				ProfitSumm profitSumm = new ProfitSumm();
+				profitSumm.setBillDate(demandGoods.getBillDate());// 日期
+				profitSumm.setGoodsId(demandGoods.getGoodsId());// 物料名称
+				profitSumm.setTcode(demandGoods.getTcode());// 标注临时物料
+				profitSumm.setdMoney(demandGoods.getMoney());// 销售收入
+				profitList.add(profitSumm);
+			}
+			// 获取订单(销售)汇总信息
+			PurchaseSumm purchaseListD = purchaseSummMapper.getGoodsNmByPurchaseListD(param);
+			String goodsNm2 = purchaseListD.getGoodsNm();
+			param.put("goodsNm", goodsNm2);
+			List<PurchaseSumm> pPriceInDay = purchaseSummMapper.getPPriceInDay(param);
+			for (int i = 0; i < pPriceInDay.size(); i++) {
+				PurchaseSumm purchaseSumm = pPriceInDay.get(i);
+				for (int j = 0; j < profitList.size(); j++) {
+					ProfitSumm profitSumm = profitList.get(j);
+					if (!StringUtils.isEmpty(profitSumm.getTcode())) {
+						if (purchaseSumm.getBillDate().equals(profitSumm.getBillDate())) {
+
+							Double totalMn = purchaseSumm.getTotalMn();// 成本
+							Double dMoney = profitSumm.getdMoney();// 销售收入
+							Double profit = dMoney - totalMn;// 毛利
+							Double rate = NumUtil.trim0(profit / dMoney * 100);// 毛利率
+							profitSumm.setRate(String.valueOf(rate));
+						}
+					} else {
+						if (purchaseSumm.getBillDate().equals(profitSumm.getBillDate())) {
+							Double totalMn = purchaseSumm.getTotalMn();// 成本
+							Double dMoney = profitSumm.getdMoney();// 销售收入
+							Double profit = dMoney - totalMn;// 毛利
+							Double rate = NumUtil.trim0(profit / dMoney);// 毛利率
+							profitSumm.setRate(String.valueOf(rate));
+						}
+					}
+				}
+			}
+			// 日期数组
+			String[] day = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15",
+					"16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" };
+			// 记录添加位置
+			int t = 0;
+			for (int j = 0; j < day.length; j++) {
+				for (int i = 0; i < profitList.size(); i++) {
+					ProfitSumm profitSumm = profitList.get(i);
+					String cday = profitSumm.getBillDate().substring(8, 10);
+					if (day[j].equals(cday)) {
+						if (StringUtils.isEmpty(profitSumm.getRate())) {
+							rateList.add("0.00");
+						} else {
+							rateList.add(profitSumm.getRate());
+						}
+						t++;
+					}
+				}
+				if (t != 0) {
+					t = 0;
+				} else {
+					rateList.add("0.00");
+				}
+			}
+			result.setData(rateList);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+		}
+		return result;
+	}
+
+	/**
+	 * 为统计图表获取当年每月单物料的数量
+	 */
+	@Override
+	public Result getOrderNumInMonth(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("goodsId", goodsId);
+		param.put("goodsType", goodsType);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("structId", structId);
+		param.put("demandListDId", demandListDId);
+		param.put("purchaselistDId", purchaseListDId);
+		//param.put("customerId", customerId);
+		try {
+			if (!"-1".equals(customerIds)) {
+				List<String> customerIdsList = java.util.Arrays.asList(customerIds.split(","));
+				param.put("customerIdsList", customerIdsList);
+			} else {
+				param.put("customerIdsList", "-1");
+			}
+			// 创建集合存储单品每月数量
+			List<Double> orderNumList = new ArrayList<>();
+
+			// 获取订单(销售)汇总信息
+			DemandSummaryD demandSummaryDforGoodsNm = demandSummMapper.getGoodsNmByDemandListDId(param);
+			String goodsNm = demandSummaryDforGoodsNm.getGoodsNm();
+			param.put("goodsNm", goodsNm);
+			List<DemandGoods> demandSummList = demandSummMapper.getDemandNumInMonth(param);
+			String[] month = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
+			// 记录添加位置
+			int t = 0;
+			for (int j = 0; j < month.length; j++) {
+				for (int i = 0; i < demandSummList.size(); i++) {
+					DemandGoods demandGoods = demandSummList.get(i);
+					String cMonth = demandGoods.getBillDate().substring(5, 7);
+					if (cMonth.equals(month[j])) {
+						orderNumList.add(demandGoods.getDemandNum());
+						t++;
+					}
+				}
+				if (t != 0) {
+					t = 0;
+				} else {
+					orderNumList.add(0.00);
+				}
+			}
+			result.setData(orderNumList);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+		}
+		return result;
+	}
+
+	/**
+	 * 为汇总图表获取当年每月此物料的毛利
+	 */
+	@Override
+	public Result getPPriceInMonth(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("goodsId", goodsId);
+		param.put("goodsType", goodsType);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("structId", structId);
+		param.put("demandListDId", demandListDId);
+		param.put("purchaselistDId", purchaseListDId);
+		//param.put("customerId", customerId);
+		try {
+			if (!"-1".equals(customerIds)) {
+				List<String> customerIdsList = java.util.Arrays.asList(customerIds.split(","));
+				param.put("customerIdsList", customerIdsList);
+			} else {
+				param.put("customerIdsList", "-1");
+			}
+			// 创建集合存储单品每月进价
+			List<Double> pPriceList = new ArrayList<>();
+			// 获取订单(销售)汇总信息
+			PurchaseSumm purchaseListD = purchaseSummMapper.getGoodsNmByPurchaseListD(param);
+			String goodsNm = purchaseListD.getGoodsNm();
+			param.put("goodsNm", goodsNm);
+			List<PurchaseSumm> pPriceInMonth = purchaseSummMapper.getPPriceInMonth(param);
+			// 日期数组
+			String[] month = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
+			// 记录添加位置
+			int t = 0;
+			for (int j = 0; j < month.length; j++) {
+				for (int i = 0; i < pPriceInMonth.size(); i++) {
+					PurchaseSumm purchaseSumm = pPriceInMonth.get(i);
+					String cMonth = purchaseSumm.getBillDate().substring(5, 7);
+					if (month[j].equals(cMonth)) {
+						pPriceList.add(purchaseSumm.getPrice());
+						t++;
+					}
+				}
+				if (t != 0) {
+					t = 0;
+				} else {
+					pPriceList.add(0.00);
+				}
+			}
+			result.setData(pPriceList);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+		}
+		return result;
+	}
+
+	/**
+	 * 为统计图表获取当年每月此物料的售价
+	 */
+	@Override
+	public Result getDPriceInMonth(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("goodsId", goodsId);
+		param.put("goodsType", goodsType);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("structId", structId);
+		param.put("demandListDId", demandListDId);
+		param.put("purchaselistDId", purchaseListDId);
+		//param.put("customerId", customerId);
+		try {
+			if (!"-1".equals(customerIds)) {
+				List<String> customerIdsList = java.util.Arrays.asList(customerIds.split(","));
+				param.put("customerIdsList", customerIdsList);
+			} else {
+				param.put("customerIdsList", "-1");
+			}
+			// 创建集合存储单品每月售价
+			List<Double> dPriceList = new ArrayList<>();
+
+			// 获取订单(销售)汇总信息
+			DemandSummaryD demandSummaryDforGoodsNm = demandSummMapper.getGoodsNmByDemandListDId(param);
+			String goodsNm = demandSummaryDforGoodsNm.getGoodsNm();
+			param.put("goodsNm", goodsNm);
+			List<DemandGoods> demandSummList = demandSummMapper.getDemandNumInMonth(param);
+			// 日期数组
+			String[] month = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
+			// 记录添加位置
+			int t = 0;
+			for (int j = 0; j < month.length; j++) {
+				for (int i = 0; i < demandSummList.size(); i++) {
+					DemandGoods demandGoods = demandSummList.get(i);
+					String cMonth = demandGoods.getBillDate().substring(5, 7);
+					if (month[j].equals(cMonth)) {
+						dPriceList.add(demandGoods.getPrice());
+						t++;
+					}
+				}
+				if (t != 0) {
+					t = 0;
+				} else {
+					dPriceList.add(0.00);
+				}
+			}
+			result.setData(dPriceList);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+		}
+		return result;
+	}
+
+	/**
+	 * 为汇总图表获取当年每月的毛利率
+	 */
+	@Override
+	public Result getRateInMonth(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds) {
+		Result result = new Result();
+		result.setCode(CodeConstant.CODE1000);
+		result.setMsg("成功");
+		Map<String, Object> param = new HashMap<>();
+		param.put("goodsId", goodsId);
+		param.put("goodsType", goodsType);
+		param.put("stime", stime);
+		param.put("etime", etime);
+		param.put("structId", structId);
+		param.put("demandListDId", demandListDId);
+		param.put("purchaselistDId", purchaseListDId);
+		//param.put("customerId", customerId);
+		try {
+			if (!"-1".equals(customerIds)) {
+				List<String> customerIdsList = java.util.Arrays.asList(customerIds.split(","));
+				param.put("customerIdsList", customerIdsList);
+			} else {
+				param.put("customerIdsList", "-1");
+			}
+			// 创建集合存储单品每月毛利率
+			List<String> rateList = new ArrayList<>();
+			// 创建单品毛利信息集合
+			List<ProfitSumm> profitList = new ArrayList<>();
+			// 获取订单(销售)汇总信息
+			DemandSummaryD demandSummaryDforGoodsNm = demandSummMapper.getGoodsNmByDemandListDId(param);
+			String goodsNm = demandSummaryDforGoodsNm.getGoodsNm();
+			param.put("goodsNm", goodsNm);
+			List<DemandGoods> demandSummList = demandSummMapper.getDemandNumInMonth(param);
+			for (int i = 0; i < demandSummList.size(); i++) {
+				DemandGoods demandGoods = demandSummList.get(i);
+				ProfitSumm profitSumm = new ProfitSumm();
+				profitSumm.setBillDate(demandGoods.getBillDate());// 日期
+				profitSumm.setGoodsId(demandGoods.getGoodsId());// 物料名称
+				profitSumm.setTcode(demandGoods.getTcode());// 标注临时物料
+				profitSumm.setdMoney(demandGoods.getMoney());// 销售收入
+				profitList.add(profitSumm);
+			}
+			// 获取订单(销售)汇总信息
+			PurchaseSumm purchaseListD = purchaseSummMapper.getGoodsNmByPurchaseListD(param);
+			String goodsNm2 = purchaseListD.getGoodsNm();
+			param.put("goodsNm", goodsNm2);
+			List<PurchaseSumm> pPriceInMonth = purchaseSummMapper.getPPriceInMonth(param);
+			for (int i = 0; i < pPriceInMonth.size(); i++) {
+				PurchaseSumm purchaseSumm = pPriceInMonth.get(i);
+				for (int j = 0; j < profitList.size(); j++) {
+					ProfitSumm profitSumm = profitList.get(j);
+					if (!StringUtils.isEmpty(purchaseSumm.getTcode())) {
+						if (purchaseSumm.getBillDate().equals(profitSumm.getBillDate())) {
+
+							Double totalMn = purchaseSumm.getTotalMn();// 成本
+							Double dMoney = profitSumm.getdMoney();// 销售收入
+							Double profit = dMoney - totalMn;// 毛利
+							Double rate = NumUtil.trim0(profit / dMoney);// 毛利率
+							profitSumm.setRate(String.valueOf(rate));
+						}
+					} else {
+						if (purchaseSumm.getBillDate().equals(profitSumm.getBillDate())) {
+							Double totalMn = purchaseSumm.getTotalMn();// 成本
+							Double dMoney = profitSumm.getdMoney();// 销售收入
+							Double profit = dMoney - totalMn;// 毛利
+							Double rate = NumUtil.trim0(profit / dMoney * 100);// 毛利率
+							profitSumm.setRate(String.valueOf(rate));
+						}
+					}
+				}
+			}
+			// 日期数组
+			String[] month = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
+			// 记录添加位置
+			int t = 0;
+			for (int j = 0; j < month.length; j++) {
+				for (int i = 0; i < profitList.size(); i++) {
+					ProfitSumm profitSumm = profitList.get(i);
+					String cMonth = profitSumm.getBillDate().substring(5, 7);
+					if (month[j].equals(cMonth)) {
+						rateList.add(profitSumm.getRate());
+						t++;
+					}
+				}
+				if (t != 0) {
+					t = 0;
+				} else {
+					rateList.add("0.00");
+				}
+			}
+			result.setData(rateList);
+		} catch (Exception e) {
+			result.setCode(CodeConstant.CODE200);
+			result.setMsg("获取数据失败");
+		}
+		return result;
+	}
+
+}

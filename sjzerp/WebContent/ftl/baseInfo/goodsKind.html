@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>千喜鹤</title>
+
+  <#include "temple/commonCss.html">
+  <link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+  <link rel="stylesheet" href="../css/custom/role.css" type="text/css">
+ 
+</head>
+
+<body class="sticky-header">
+<section>
+    <#include "temple/nav.html">
+    
+    <!-- main content start-->
+    <div class="main-content" >
+
+        <#include "temple/head.html">
+        
+				<div class="wrapper">
+					<div class="row">
+						<div class="col-md-12">
+							<ol class="breadcrumb">
+							  <li><a>基础信息</a></li>
+							  <li><a class="active" onclick="window.location.reload()">物料分类</a></li>
+							</ol>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="col-md-12">
+								<a id="addNode"><i class="glyphicon glyphicon-plus" aria-hidden="true"></i>添加分类</a>
+								<a id="editNode"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>编辑分类</a>	
+								<a id="delNode"><i class="glyphicon glyphicon-minus" aria-hidden="true"></i>删除分类</a>	
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<ul id="zTree" class="ztree myborder"></ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+    </div>
+    <!-- main content end-->
+</section>
+
+<#include "temple/commonJs.html">
+<script type="text/javascript" src="../ztree/js/jquery.ztree.all.min.js"></script>
+<script type="text/javascript" src="../js/custom/goodsKind.js"></script>
+
+</body>
+</html>

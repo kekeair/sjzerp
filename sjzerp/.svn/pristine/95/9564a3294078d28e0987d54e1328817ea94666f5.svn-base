@@ -1,0 +1,280 @@
+package com.qxh.service;
+
+import java.util.List;
+
+import com.qxh.model.BigKind;
+import com.qxh.model.PurchaseSumm;
+import com.qxh.utils.Result;
+
+/**
+ * @author Mr chen
+ * @name : TmpGoodsRecordService
+ * @todo : [采购汇总接口]
+ * 
+ *       创建时间 ： 2016年11月23日上午9:45:25
+ */
+public interface PurchaseSummService {
+
+	/**
+	 * @description : [获取列表]
+	 * @param stime
+	 * @param etime
+	 * @param page
+	 * @param structId
+	 * @param roleId
+	 * @param customerId
+	 * @param goodsNm
+	 * @param kindCode
+	 * @param supplierId
+	 * @return
+	 * @时间:2016年12月2日上午11:33:48
+	 */
+	Result getPurchaseSummList(String stime, String etime, int structId, int roleId, String customerId, String goodsNm,
+			String kindCode, String supplierId);
+
+	/**
+	 * 
+	 * @description : [导出专用]
+	 * @param stime
+	 * @param etime
+	 * @param structId
+	 * @param roleId
+	 * @param customerId
+	 * @param goodsNm
+	 * @param goodsKind
+	 * @param supplierId
+	 * @return
+	 * @时间:2016年12月19日下午2:58:48
+	 */
+	List<PurchaseSumm> getOutExcelPurchaseSummList(String stime, String etime, int structId, int roleId,
+			String customerId, String goodsNm, String goodsKind, String supplierId);
+
+	/**
+	 * @description : [详情页面]
+	 * @param goodsId
+	 * @param structId
+	 * @param customerId
+	 * @return
+	 * @时间:2016年12月2日下午2:17:44
+	 */
+	Result getPurchaseSummDList(String goodsId, String stime, String etime, String goodsType, int structId,
+			String purchaselistDId, String customerId);
+
+	/**
+	 * @description : [单品毛利汇总]
+	 * @param customerIds
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param goodsNm
+	 * @param kindCode
+	 * @return
+	 * @时间:2016年12月2日下午2:17:44
+	 */
+	Result getProfitSummDList(String customerIds, String stime, String etime, int structId, String goodsNm,String kindCode);
+
+	/**
+	 * @description : [根据物料查询单品毛利汇总]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月15日下午2:17:44
+	 */
+	Result getProfitSummDListByGoods(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds);
+
+	/**
+	 * @description : [为数量统计图表查询当月每日此物料的数量]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月16日下午2:17:44
+	 */
+	Result getOrderNum(String goodsId, String goodsType, String stime, String etime, int structId, String demandListDId,
+			String purchaseListDId, String customerIds);
+
+	/**
+	 * @description : [为统计图表查询当月每日此物料的售价]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月17日下午2:17:44
+	 */
+	Result getDPrice(String goodsId, String goodsType, String stime, String etime, int structId, String demandListDId,
+			String purchaseListDId, String customerIds);
+
+	/**
+	 * @description : [为统计图表查询当月每日此物料的售价]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月17日下午2:17:44
+	 */
+	Result getPPrice(String goodsId, String goodsType, String stime, String etime, int structId, String demandListDId,
+			String purchaseListDId, String customerIds);
+
+	/**
+	 * @description : [为统计图表查询当月每日此物料的毛利]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月17日下午2:17:44
+	 */
+	Result getRateInDay(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds);
+
+	/**
+	 * @description : [为统计图表查询当年每月单物料的数量]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月17日下午2:17:44
+	 */
+	Result getOrderNumInMonth(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds);
+
+	/**
+	 * @description : [为统计图表查询当年每月单物料的进价]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月17日下午2:17:44
+	 */
+	Result getPPriceInMonth(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds);
+
+	/**
+	 * @description : [为统计图表查询当年每月此物料的售价]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月17日下午2:17:44
+	 */
+	Result getDPriceInMonth(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds);
+
+	/**
+	 * @description : [为统计图表查询当年每月此物料的毛利]
+	 * @param goodsId
+	 * @param goodsType
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param demandListDId
+	 * @param purchaseListDId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月17日下午2:17:44
+	 */
+	Result getRateInMonth(String goodsId, String goodsType, String stime, String etime, int structId,
+			String demandListDId, String purchaseListDId, String customerIds);
+
+	/**
+	 * @description : [为分类占比统计]
+	 * @param goodsNm
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月16日下午2:17:44
+	 */
+	Result getSelectBigKindForIncome(String goodsNm,String stime, String etime, int structId,
+			 String customerIds);
+	/**
+	 * @description : [为分类占比统计]
+	 * @param goodsNm
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月16日下午2:17:44
+	 */
+	Result getSelectBigKindForCost(String goodsNm,String stime, String etime, int structId,
+			 String customerIds);
+	
+	/**
+	 * @description : [为分类占比统计 毛利率]
+	 * @param goodsNm
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月16日下午2:17:44
+	 */
+	Result getSelectBigKindForProfit(String goodsNm,String stime, String etime, int structId,
+			 String customerIds);
+	/**
+	 * @description : [分大类占比 导出]
+	 * @param goodsNm
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年4月14日下午2:17:44
+	 */
+	Result excelOutBigKind(String goodsNm,String stime, String etime, int structId,
+			 String customerIds);
+	/**
+	 * @description : [通过客户Id获得客户]
+	 * @param goodsNm
+	 * @param etime
+	 * @param stime
+	 * @param structId
+	 * @param customerIds
+	 * @return
+	 * @时间:2017年3月16日下午2:17:44
+	 */
+	List<String> getCustomerNmByCustomerIds(String customerIds);
+}

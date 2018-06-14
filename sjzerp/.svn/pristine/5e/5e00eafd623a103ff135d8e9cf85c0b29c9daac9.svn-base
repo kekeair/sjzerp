@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/needPurchaseBill.css?version=20161025"
+	type="text/css">
+	
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库</a></li>
+							<li><a class="active" onclick="window.location.reload()">
+								<#if type==0>领料出库单<#else>客户申报</#if></a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<button type="button" id="submit"
+							class="btn btn-warning pull-right">打印</button>
+						<button type="button" id="add"
+							class="btn btn-warning pull-right toright">添加物料</button>
+							<button type="button" id="adds"
+							class="btn btn-warning pull-right toright">添加临时物料</button>
+							<button type="button" id="save"
+							class="btn btn-warning pull-right toright">保存</button>
+					</div>
+				</div>
+
+				<div class="row marginrow">
+					<div class="col-sm-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th class="width5">序号</th>
+									<th class="width15">物料名称</th>
+									<th style="width:13%">规格型号</th>
+									<th class="width5">单位</th>
+									<th class="width10">供应商</th>
+									<th class="width10">数量</th>
+									<th class="width5">操作</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+					
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<!-- 物料框 -->
+	<div class="modal fade bs-example-modal-lg" id="goodsModal">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">选择物料</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-inline tobottom15">
+								<div class="form-group">
+									<label for="goodsNm">名称</label> <input type="text"
+										class="form-control" maxlength="20" id="goodsNm">
+								</div>
+								<div class="form-group">
+									<label for="kindSel">分类</label> <input
+										class="form-control selectWidth" atNo="0" value="全部"
+										readonly="readonly" id="kindSel"> </input>
+								</div>
+								<button type="button" id="search" class="btn btn-primary">搜索</button>
+								<!-- <button type="button" id="uSure" class="btn btn-warning pull-right">确定</button>
+								 -->
+							</div>
+							<table
+								class="table table-bordered table-hover table-condensed white">
+								<thead>
+									<tr>
+										<th>序号</th>
+										<th>物料名称</th>
+										<th>规格</th>
+										<th>单位</th>
+									</tr>
+								</thead>
+								<tbody id="ubody">
+
+								</tbody>
+							</table>
+							<div class="form-inline pull-right tobottom">
+								<button class="btn btn-default" id="prePage">上一页</button>
+								<label class="control-label"><font id="curPage">1</font>/<font
+									id="totalPage">1</font></label>
+								<button class="btn btn-default" id="nextPage">下一页</button>
+								<label class="control-label">第</label> <input type="text"
+									class="form-control pageInput" id="pageInput"> <label
+									class="control-label">页</label>
+								<button class="btn btn-primary" id="pageSure">跳转</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="kindDiv" class="treeDiv">
+			<ul id="kindTree" class="ztree treeDemo"></ul>
+		</div>
+	</div>
+	<!-- 物料框  -->
+	<!-- 选择角色对话框  -->
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+	<script type="text/javascript"
+		src="../js/plugins/My97DatePicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="../js/custom/applyDemandBill.js?version=20170110"></script>
+	<script type="text/javascript" src="../js/custom/common.js"></script>
+
+	
+	<!-- 物料模板 -->
+	<script id="goodsTmpl" type="text/x-jquery-tmpl">
+	<tr class="goodstr"  goodsTmId="{{= goodsId}}" goodsCode="{{= goodsCode}}"
+     goodsNm="{{= goodsNm}}" spec="{{= spec}}" unitNm="{{= unitNm}}"  supplierNm="{{= supplierNm}}"
+     supplierId="{{= supplierId}}">
+	<td>{{= orderIndex}}</td>
+	<td id="uGoodsCode{{= goodsId}}">{{= goodsCode}}</td>
+	<td id="uGoodsNm{{= goodsId}}">{{= goodsNm}}</td>
+	<td id="uUnitNm{{= goodsId}}">{{= unitNm}}</td>
+	</tr>
+	</script>
+	
+	<!-- 列表模版 -->
+	<script id="needPurchaseTmpl" type="text/x-jquery-tmpl">
+		{{each(i,t) list }}
+			<tr  class="needGood" atNo="{{= t.atNo}}" headAtNo="{{= t.headAtNo}}" goodsId="{{= t.goodsId}}" 
+           goodsNm="{{= t.goodsNm}}" orderNum="{{= t.orderNum}}" spec="{{= t.spec}}" unitNm="{{= t.unitNm}}" 
+           supplierId="{{= t.supplierId}}"
+            >
+				<td>{{= t.code}}</td>
+				<td>{{= t.goodsNm}}</td>
+				<td>{{= t.spec}}</td>
+				<td>{{= t.unitNm}}</td>
+				<td>{{= t.supplierNm}}</td>
+				<td><input value="{{= t.orderNum}}"></td>
+				<td><a class="del" atNo={{= t.atNo}}>删除</a></td>
+			</tr>
+		{{/each}}
+	</script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/centerGoods.css?version=20161208"
+	type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>配送中心设置</a></li>
+							<li><a class="active" onclick="window.location.reload()">客户管理</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-9">
+						<div class="form-inline">
+							<div class="form-group">
+								<label for="customerNm">姓名</label> <input type="text"
+									class="form-control" maxlength="20" id="customerNm">
+							</div>
+							
+							<button type="button" id="search" class="btn btn-primary">搜索</button>
+						</div>
+					</div>
+					
+					<div class="col-sm-3">
+					     <button type="button" id="addCustomer" style="display:none;" class="btn btn-warning pull-right">添加客户</button>
+					</div>
+				</div>
+				<div class="row totop20">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>名称</th>
+									<th>业务员</th>
+									<th>地址</th>
+									<th>电话</th>
+									<th>标签</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="form-inline pull-right">
+					<button class="btn btn-default" id="prePage">上一页</button>
+					<label class="control-label"><font id="curPage">1</font>/<font
+						id="totalPage">1</font></label>
+					<button class="btn btn-default" id="nextPage">下一页</button>
+					<label class="control-label">第</label> <input type="text"
+						class="form-control pageInput" id="pageInput"> <label
+						class="control-label">页</label>
+					<button class="btn btn-primary" id="pageSure">跳转</button>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+
+	<div id="leftDiv" class="treeDiv">
+		<ul id="leftTree" class="ztree treeDemo"></ul>
+	</div>
+	<div id="rightDiv" class="treeDiv">
+		<ul id="rightTree" class="ztree treeDemo"></ul>
+	</div>
+	
+	<div id="structDiv" class="treeDiv">
+		<ul id="structTree" class="ztree treeDemo"></ul>
+	</div>
+
+	<div id="roleDiv" class="treeDiv">
+		<ul id="roleTree" class="ztree treeDemo"></ul>
+	</div>
+	
+
+	<!-- 增加客户对话框 -->
+	<div class="modal fade" id="cModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="cHead">添加客户</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label for="customNm" class="col-sm-2 control-label">名称</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" maxlength="20" id="customNm">
+							</div>
+							<label class="control-label">*</label>
+						</div>
+						<div class="form-group">
+							<label for="phone" class="col-sm-2 control-label">电话</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" id="phone" maxlength="20">
+							</div>
+							<label class="control-label">*</label>
+						</div>
+						
+					    <div class="form-group" id="countermanGroup">
+								<label for="counterman" class="col-sm-2 control-label">业务员</label>
+								<div class="col-sm-9">
+									<select id="counterman" class="form-control">
+									  
+									</select>
+								</div>
+								<label class="control-label">*</label>
+						</div>
+						
+						 <div class="form-group" id="provinceGroup">
+								<label for="province" class="col-sm-2 control-label">省</label>
+								<div class="col-sm-9">
+									<select id="province" class="form-control">
+									  
+									</select>
+								</div>
+								<label class="control-label">*</label>
+							</div>
+							<div class="form-group" id="cityGroup">
+								<label for="city" class="col-sm-2 control-label">市</label>
+								<div class="col-sm-9">
+									<select id="city" class="form-control">
+									</select>
+								</div>
+								<label class="control-label">*</label>
+							</div>
+							<div class="form-group" id="countyGroup">
+								<label for="county" class="col-sm-2 control-label">县</label>
+								<div class="col-sm-9">
+									<select id="county" class="form-control">
+									</select>
+								</div>
+								<label class="control-label">*</label>
+							</div>
+							<div class="form-group" id="addressGroup">
+								<label for="address" class="col-sm-2 control-label">地址</label>
+								<div class="col-sm-9">
+									<input maxlength="100" type="text" class="form-control" id="address">
+								</div>
+								<label class="control-label">*</label>
+							</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+			      	<button type="button" id="cSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 客户对话框  -->
+	
+	
+	
+	<!-- 标签对话框 -->
+	<div class="modal fade" id="tagModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="tagHead">标签</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group" id="tagGroup">
+							<label for="tag" class="col-sm-2 control-label"></label>
+							<div class="col-sm-12">			   						    
+								 <div id="tag">
+								 	
+								 </div>
+							 </div>
+					    </div>
+					</div>
+				</div>
+				<div class="modal-footer">
+			      	<button type="button" id="tagSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      		
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 标签对话框  -->
+	
+
+
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+	<script type="text/javascript" src="../js/custom/customer.js?version=20161222"></script>
+	
+	<script>
+		var roleId=${roleId};
+	</script>
+
+	<!-- 用户列表模板 -->
+	<script id="customerTmpl" type="text/x-jquery-tmpl">
+	{{each(i,c) customerList}}
+	<tr>
+	<td>{{= c.orderIndex}}</td>
+	<td>{{= c.customNm}}</td>
+	<td>{{= c.userNm}}</td>
+	<td>{{= c.address}}</td>
+	<td>{{= c.phone}}</td>
+	<td>{{= c.tagNm}}</td>
+	<td>
+		{{if roleId!=10}}
+		<a atNo={{= c.atNo}} class="edit">修改</a>&nbsp;
+		<a atNo={{= c.atNo}} class="del">删除</a>
+		<a atNo={{= c.atNo}} class="customteam">工作组管理</a>
+		{{/if}}
+		{{if roleId==10}}
+		<a tagId={{= c.tagId}} atNo={{= c.atNo}} class=customtag>设置标签</a>
+		{{/if}}
+	</td>
+	</tr>
+	{{/each}}
+	</script>
+	
+	<!-- 业务员列表模板 -->
+	<script id="countermanTmpl" type="text/x-jquery-tmpl">
+	<option value="-1">请选择...</option>
+	{{each(i,list) list}}
+		<option value="{{= list.atNo}}">{{= list.userNm}}</option>
+	{{/each}}
+	</script>
+	
+	
+	<!-- 省列表模板 -->
+	<script id="provinceTmpl" type="text/x-jquery-tmpl">
+	<option value="-1">请选择...</option>
+	{{each(i,list) provinceList}}
+		<option value="{{= list.atNo}}">{{= list.name}}</option>
+	{{/each}}
+	</script>
+	
+	<!-- 城市列表模板 -->
+	<script id="cityTmpl" type="text/x-jquery-tmpl">
+	<option value="-1">请选择...</option>
+	{{each(i,list) cityList}}
+		<option value="{{= list.atNo}}">{{= list.name}}</option>
+	{{/each}}
+	</script>
+	
+	<!-- 县列表模板 -->
+	<script id="countyTmpl" type="text/x-jquery-tmpl">
+	<option value="-1">请选择...</option>
+	{{each(i,list) countyList}}
+		<option value="{{= list.atNo}}">{{= list.name}}</option>
+	{{/each}}
+	</script>
+	
+	<!-- 标签模板 -->
+	<script id="customtagTmpl" type="text/x-jquery-tmpl">
+	{{each(i,list) tagListforCustomer}}
+		<input  name="tagInput" type="radio" value="{{= list.atNo}}"  {{if tagId == list.atNo }} checked='checked'{{/if}} >{{= tagNm}}</input>
+	{{/each}}
+	</script>
+	
+</body>
+</html>

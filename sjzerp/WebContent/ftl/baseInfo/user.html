@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>基础信息</a></li>
+							<li><a class="active" onclick="window.location.reload()">人员管理</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-10">
+						<div class="form-inline">
+							<div class="form-group">
+								<label for="userNm">姓名</label> <input type="text"
+									class="form-control" maxlength="20" id="userNm">
+							</div>
+							<div class="form-group">
+								<label for="structSel">组织架构</label> <input
+									class="form-control selectWidth" atNo="0" value="全部"
+									readonly="readonly" id="structSel"> </input>
+							</div>
+							<div class="form-group">
+								<label for="roleSel">角色</label> <input
+									class="form-control selectWidth" atNo="0" value="全部"
+									readonly="readonly" id="roleSel"> </input>
+							</div>
+							<button type="button" id="search" class="btn btn-primary">搜索</button>
+						</div>
+					</div>
+					<div class="col-sm-2">
+						<button type="button" id="addUser"
+							class="btn btn-warning pull-right">添加用户</button>
+					</div>
+				</div>
+
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>姓名</th>
+									<th>账号</th>
+									<th>电话</th>
+									<th>职务</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="form-inline pull-right">
+					<button class="btn btn-default" id="prePage">上一页</button>
+					<label class="control-label"><font id="curPage">1</font>/<font
+						id="totalPage">1</font></label>
+					<button class="btn btn-default" id="nextPage">下一页</button>
+					<label class="control-label">第</label> <input type="text"
+						class="form-control pageInput" id="pageInput"> <label
+						class="control-label">页</label>
+					<button class="btn btn-primary" id="pageSure">跳转</button>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+
+	<div id="structDiv" class="treeDiv">
+		<ul id="structTree" class="ztree treeDemo"></ul>
+	</div>
+
+	<div id="roleDiv" class="treeDiv">
+		<ul id="roleTree" class="ztree treeDemo"></ul>
+	</div>
+	
+	<!-- 选择角色对话框 -->
+	<div class="modal fade" id="jobList">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title">职务列表</h4>
+				</div>
+				<div class="modal-body" id="relbody"></div>
+			</div>
+		</div>
+	</div>
+	<!-- 选择角色对话框  -->
+
+	<!-- 增加用户对话框 -->
+	<div class="modal fade" id="uModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">添加用户</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label for="uNm" class="col-sm-2 control-label">姓名</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" maxlength="20" id="uNm">
+							</div>
+							<label class="control-label">*</label>
+						</div>
+						<div class="form-group">
+							<label for="uAccount" class="col-sm-2 control-label">账户</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" id="uAccount" maxlength="20">
+							</div>
+							<label class="control-label">*</label>
+						</div>
+						<div class="form-group">
+							<label for="uPwd" class="col-sm-2 control-label">密码</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" id="uPwd" maxlength="20">
+							</div>
+							<label class="control-label">*</label>
+						</div>
+						<div class="form-group">
+							<label for="uPhone" class="col-sm-2 control-label">电话</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" id="uPhone" maxlength="20">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 control-label">性别</label>
+							<div class="col-sm-9">
+								<label class="radio-inline"> 
+									<input type="radio" name="uSex" id="uSex1" value="1" checked>男
+								</label> 
+								<label class="radio-inline"> 
+									<input type="radio" name="uSex" id="uSex2" value="2">女
+								</label>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-2 control-label">职务</label>
+							<div class="col-sm-9">
+								<div class="myborder" >
+									<div class="row jobWarning">
+										<div class="col-sm-12">每个职务都必须同时选择架构与角色，否则该职务信息不予保存</div>
+									</div>	
+									<div id="jobDiv"></div>
+								</div>
+							</div>
+							<label class="control-label">*</label>
+						</div>
+						<div class="form-group" id="supplier" style="display:none">
+							<label class="col-sm-2 control-label supplyAttr">供应商属性</label>
+							<div class="col-sm-9">
+								<div class="myborder" id="supplierDiv">
+									<div class="form-group">
+										<label for="province" class="col-sm-2 control-label normalWeight">省</label>
+										<div class="col-sm-9">
+											<select class="form-control" id="province">
+												<option value="-1">请选择</option>
+												<#list data.provinceList as list>
+													<option value="${list.atNo}">${list.name}</option>
+												</#list>
+											</select>
+										</div>
+										<label class="control-label">*</label>
+									</div>
+									<div class="form-group">
+										<label for="city" class="col-sm-2 control-label normalWeight">市</label>
+										<div class="col-sm-9">
+											<select class="form-control" id="city"></select>
+										</div>
+										<label class="control-label">*</label>
+									</div>
+									<div class="form-group">
+										<label for="county" class="col-sm-2 control-label normalWeight">县</label>
+										<div class="col-sm-9">
+											<select class="form-control" id="county"></select>
+										</div>
+										<label class="control-label">*</label>
+									</div>
+									<div class="form-group">
+										<label for="address" class="col-sm-2 control-label normalWeight">地址</label>
+										<div class="col-sm-9">
+											<input type="text" class="form-control" id="address" maxlength="100">
+										</div>
+										<label class="control-label">*</label>
+									</div>
+									<div class="form-group">
+										<label for="remark" maxlength="100" class="col-sm-2 control-label normalWeight">备注</label>
+										<div class="col-sm-9">
+											<textarea class="form-control" id="remark"></textarea>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+			      	<button type="button" id="uSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+			<div id="uStructDiv" class="treeDiv">
+				<ul id="uStructTree" class="ztree treeDemo"></ul>
+			</div>
+			<div id="uRoleDiv" class="treeDiv">
+				<ul id="uRoleTree" class="ztree treeDemo"></ul>
+			</div>
+	</div>
+	<!-- 选择角色对话框  -->
+
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+	<script type="text/javascript" src="../js/custom/user.js"></script>
+
+	<!-- 用户列表模板 -->
+	<script id="userTmpl" type="text/x-jquery-tmpl">
+	<tr>
+	<td>{{= orderIndex}}</td>
+	<td>{{= name}}</td>
+	<td>{{= userAccount}}</td>
+	<td>{{= phone}}</td>
+	{{if jobList.length==1}}	
+	<td>{{= jobList[0]}}</td>
+	{{else jobList.length>1}}
+	<td><a atNo={{= atNo}} class="viewJob">点击查看</a></td>
+    {{else}}
+	<td></td>
+	{{/if}}
+	<td>
+		<a atNo={{= atNo}} class="edit">修改</a>&nbsp;
+		{{if isAdmin==0}}<a atNo={{= atNo}} class="del">删除</a>{{/if}}
+	</td>
+	</tr>
+	</script>
+
+	<!-- 职务列表模板 -->
+	<script id="relTmpl" type="text/x-jquery-tmpl">
+	<p>{{= }}</p>
+	</script>
+	
+	<!-- 职务列表弹出框模板 -->
+	<script id="jobTmpl" type="text/x-jquery-tmpl">
+	<div class="row jobRow" id="jobRow{{= rowIndex}}">
+		<label for="uStruct" class="control-label jobLbl">所属架构</label>
+		<div class="jobInputDiv">
+			<input type="text" atNo={{= structId}} value="{{= structNm}}" index="{{= rowIndex}}" readonly="readonly" 
+			class="form-control uStruct" id="uStruct{{= rowIndex}}" data-toggle="tooltip" data-placement="bottom" title="{{= structNm}}"> 
+		</div>
+		<label for="uRole" class="control-label jobLbl1">角色</label>
+		<div class="jobInputDiv">
+			<input type="text" atNo={{= roleId}} value="{{= roleNm}}" readonly="readonly" index="{{= rowIndex}}" 
+			class="form-control uRole" id="uRole{{= rowIndex}}" data-toggle="tooltip" data-placement="bottom" title="{{= roleNm}}">
+		</div>
+		<div class="pull-right">
+			<label class="addJobRow glyphicon glyphicon-plus control-label" 
+			id="addJobRow{{= rowIndex}}" index="{{= rowIndex}}"></label>
+			<label class="removeJobRow glyphicon glyphicon-minus control-label" 
+			 {{if rowIndex<$item.getLength()||rowIndex==1}}style="display:none"{{/if}} id="removeJobRow{{= rowIndex}}" index="{{= rowIndex}}"></label>
+		</div>
+	</div>
+	</script>
+	
+	<!-- 城市列表模板 -->
+	<script id="cityTmpl" type="text/x-jquery-tmpl">
+	<option value="-1">请选择...</option>
+	{{each(i,list) cityList}}
+		<option value="{{= list.atNo}}">{{= list.name}}</option>
+	{{/each}}
+	</script>
+	
+	<!-- 县列表模板 -->
+	<script id="countyTmpl" type="text/x-jquery-tmpl">
+	<option value="-1">请选择...</option>
+	{{each(i,list) countyList}}
+		<option value="{{= list.atNo}}">{{= list.name}}</option>
+	{{/each}}
+	</script>
+</body>
+</html>

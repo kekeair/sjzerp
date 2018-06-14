@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.tag.TagMapper">
+	
+	<!-- 客户列表 -->
+	<select id="getTagList" parameterType="Map" resultType="com.qxh.model.Tag">	
+		<!-- SELECT t.* ,u.userNm FROM tag t,USER u WHERE u.atNo = t.creator GROUP BY t.atNo  -->
+		<!-- SELECT t.tagNm , u.userNm creator FROM tag t,USER u WHERE u.atNo = t.creator GROUP BY t.atNo  -->
+		SELECT t.atNo,t.tagNm , u.userNm creator FROM tag t,USER u WHERE u.atNo = t.creator AND t.structId = #{structId}  AND t.delFalag=0 GROUP BY t.atNo 
+   	</select>
+	
+	<!-- 添加客户 -->
+	<insert id="addTag" parameterType="Map">
+		INSERT INTO tag (tagNm,createTime,creator,structId) VALUES (#{tagNm},#{createTime},#{creator},#{structId})
+	</insert>
+	
+	<!-- 删除客户 -->
+	<update id="delTag" parameterType="Map">
+		UPDATE tag SET delFalag =1 WHERE atNo=#{atNo}
+	</update>
+	
+	
+	<!-- 通过id查询标签对象 -->
+	<select id="getTagById" parameterType="Map" resultType="com.qxh.model.Tag">
+		SELECT	* FROM tag WHERE atNo = #{atNo}
+	</select>
+	
+	<!-- 通过id修改客户 -->
+	<update id="editTag" parameterType="Map">
+	    UPDATE tag 
+	    <set>
+	       <if test="tagNm!=''">
+	       		tagNm=#{tagNm},
+	       </if>
+	       <if test="updataTime!=''">
+	       		updataTime=#{updataTime},
+	       </if>
+	    </set>
+	    WHERE atNo=#{atNo}
+	</update>
+	
+	<select id="getTagListForCustomer" parameterType="Map" resultType="com.qxh.model.Tag">
+		SELECT * FROM tag WHERE delFalag = 0 AND structId=#{structId}
+	</select>
+	
+	<select id="getTagGoods" parameterType="Map" 
+		resultType="com.qxh.exmodel.ViewTagGoods">
+		select g.code goodsCode,g.goodsNm,g.spec,g.unitNm,
+		t.tagGoodsPrice price
+		from tagGoods t left join goods g on t.goodsId=g.atNo
+		where t.tagId=#{tagId} and t.delFlag=0
+		<include refid="getTagGoodsCon"></include>
+		order by g.code
+		limit ${page},${pageSize}
+	</select>
+	
+	<select id="getTagGoodsNum" parameterType="Map" resultType="int">
+		select count(*)
+		from tagGoods t left join goods g on t.goodsId=g.atNo
+		where t.tagId=#{tagId} and t.delFlag=0
+		<include refid="getTagGoodsCon"></include>
+	</select>
+	
+	<sql id="getTagGoodsCon">
+   		<if test=" kindCode!='' ">
+		   	and g.code like '${kindCode}%'
+   		</if>	
+   		<if test=" goodsCode!='' ">
+		   	and g.code = #{goodsCode}
+   		</if>	 
+   		<if test=" name!='' ">
+			and concat(g.brand,g.goodsNm,g.alias) like '%${name}%' 
+   		</if>		  	       				
+	</sql>
+</mapper> 

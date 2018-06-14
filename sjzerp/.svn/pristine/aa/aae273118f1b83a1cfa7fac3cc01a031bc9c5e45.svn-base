@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025" type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库汇总</a></li>
+							<li><a href="ProfitSummInit.do">毛利统计</a></li>
+							<li><a onclick="window.location.reload()">详情</a></li>
+						</ol>
+					</div>
+				</div>
+				 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+				<div id="main" style="height:400px;width:1000px;"></div>
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+								    <th>序号</th>
+									<th>物料名称</th>
+									<th>单位</th>
+									<th>时间</th>
+									<th>数量</th>
+									<th>成本价</th>
+									<th>成本</th>
+									<th>售价</th>
+									<th>销售收入</th>
+									<th>毛利</th>
+									<th>毛利率</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+							<#list data as list>
+							<tr>
+							    <td>${list.orderIndex}</td>
+								<td>${list.goodsNm}</td>
+								<td>${list.unitNm}</td>
+								<td>${list.billDate}</td>
+								<td>${list.orderNum}</td>
+								<td>${list.pPrice}</td>
+								<td>${list.pMoney}</td>
+								<td>${list.dPirce}</td>
+								<td>${list.dMoney}</td>
+								<td>${list.profitMoney}</td>
+								<td>${list.rate}</td>
+							</tr>	
+							</#list>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<script>
+		var roleId=${roleId};
+	</script>
+	<#include "temple/commonJs.html">
+</body>
+   <script type="text/javascript"
+		src="../js/custom/profitSummByGoods.js?version=20170316"></script>
+      <!-- echarts -->
+	<script type="text/javascript" src="../js/plugins/echarts-2.2.7/build/dist/echarts.js"></script>
+<script type="text/javascript">
+
+	</script>
+</html>

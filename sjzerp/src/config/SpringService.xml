@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+     <!-- 配置actionxml -->
+     <import resource="classpath:com/qxh/action/centerGoods/centerGoods.xml"/>
+     <import resource="classpath:com/qxh/action/common/common.xml"/>
+     <import resource="classpath:com/qxh/action/demand/demand.xml"/>
+     <import resource="classpath:com/qxh/action/goods/goods.xml"/>
+     <import resource="classpath:com/qxh/action/goodsKind/goodsKind.xml"/>
+     <import resource="classpath:com/qxh/action/goodsPrice/goodsPrice.xml"/>
+     <import resource="classpath:com/qxh/action/goodsUnit/goodsUnit.xml"/>
+     <import resource="classpath:com/qxh/action/home/home.xml"/>
+     <import resource="classpath:com/qxh/action/login/login.xml"/>
+     <import resource="classpath:com/qxh/action/role/role.xml"/>
+     <import resource="classpath:com/qxh/action/structure/structure.xml"/>
+     <import resource="classpath:com/qxh/action/supplierGoods/supplierGoods.xml"/>
+     <import resource="classpath:com/qxh/action/user/user.xml"/>
+     <import resource="classpath:com/qxh/action/purchase/purchase.xml"/>
+     <import resource="classpath:com/qxh/action/stockFix/stockFix.xml"/>
+     <import resource="classpath:com/qxh/action/stockQuery/stockQuery.xml"/>
+     <import resource="classpath:com/qxh/action/suppliManage/suppliManage.xml"/>
+     <import resource="classpath:com/qxh/action/test/test.xml"/>
+     <import resource="classpath:com/qxh/action/customer/customer.xml"/>
+     <import resource="classpath:com/qxh/action/customerteam/customerteam.xml"/>
+     <import resource="classpath:com/qxh/action/list/list.xml"/>
+     <import resource="classpath:com/qxh/action/tag/tag.xml"/>
+     <import resource="classpath:com/qxh/action/tagGoods/tagGoods.xml"/>
+     <import resource="classpath:com/qxh/action/tmpGoodsRecord/tmpGoodsRecord.xml"/>
+     <import resource="classpath:com/qxh/action/stockChange/stockChange.xml"/>
+     <import resource="classpath:com/qxh/action/demandSumm/demandSumm.xml"/>
+     <import resource="classpath:com/qxh/action/purchaseSumm/purchaseSumm.xml"/>
+     <import resource="classpath:com/qxh/action/purchaseTotalD/purchaseTotalD.xml"/>
+	 <import resource="classpath:com/qxh/action/tuiku/tuiku.xml"/>
+	 <import resource="classpath:com/qxh/action/tuihuo/tuihuo.xml"/>
+</beans>

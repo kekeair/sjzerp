@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qxh.impl.test.TestMapper">
+	
+	<insert id="insertStructure" parameterType="Map">
+		insert into structure (atNo,pId,code,name,levelOrder,isCenter) values
+		<foreach collection="structureList" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.pId},#{i.code},#{i.name},#{i.levelOrder},#{i.isCenter})
+		</foreach>
+	</insert>
+	
+	<insert id="insertDiningCenter" parameterType="Map">
+		insert into diningCenter (atNo,structId,provinceId,cityId,countyId,address) values
+		<foreach collection="centerList" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.structId},#{i.provinceId},#{i.cityId},#{i.countyId},#{i.address})
+		</foreach>
+	</insert>
+	
+	<insert id="insertUser" parameterType="Map">
+		insert into user (atNo,userAccount,pwd,userNm,phone,sex) values
+		<foreach collection="userList" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.userAccount},#{i.pwd},#{i.userNm},#{i.phone},#{i.sex})
+		</foreach>
+	</insert>
+	
+	<insert id="insertUserRel" parameterType="Map">
+		insert into userRel (atNo,userId,structId,roleId) values
+		<foreach collection="relList" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.userId},#{i.structId},#{i.roleId})
+		</foreach>
+	</insert>
+	
+	<insert id="insertSupplierAttr" parameterType="Map">
+		insert into SupplierAttr (userId,provinceId,cityId,countyId,address) values
+		<foreach collection="supplierAttrList" item="i" index="index" separator=",">
+			(#{i.userId},#{i.provinceId},#{i.cityId},#{i.countyId},#{i.address})
+		</foreach>
+	</insert>
+	
+	<insert id="addGoods" parameterType="Map">
+		insert into goods (atNo,code,goodsNm,alias,kindId,baseUnit,unitNm) values
+		<foreach collection="goodsList" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.code},#{i.goodsNm},#{i.alias},#{i.kindId},#{i.baseUnit},
+			#{i.unitNm})
+		</foreach>
+	</insert>
+	
+	<insert id="addGoodsDetail" parameterType="Map">
+		insert into goodsDetail (atNo,goodsId) values
+		<foreach collection="detailList" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.goodsId})
+		</foreach>
+	</insert>
+	
+	<insert id="addCenterGoods" parameterType="Map">
+		insert into centerGoods (atNo,centerId,goodsId) values
+		<foreach collection="centerGoodsList" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.centerId},#{i.goodsId})
+		</foreach>
+	</insert>
+	
+	<insert id="addSupplierGoods" parameterType="Map">
+		insert into SupplierGoods (atNo,centerId,supplierId,goodsId,frontPrice) values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.centerId},#{i.supplierId},#{i.goodsId},2)
+		</foreach>
+	</insert>
+	
+	<insert id="addStock" parameterType="Map">
+		insert into stock (atNo,centerId,goodsId,stockNum,price) values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.centerId},#{i.goodsId},#{i.stockNum},#{i.price})
+		</foreach>
+	</insert>
+	
+	<insert id="addDemandListH" parameterType="Map">
+		insert into DemandListH (atNo,code,codeOrder,centerId,reviewState) values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.code},#{i.codeOrder},#{i.centerId},#{i.reviewState})
+		</foreach>
+	</insert>
+	
+	<insert id="addTeamDemand" parameterType="Map">
+		insert into teamDemand (atNo,headAtNo,centerId,creatorId,teamId,reviewState) 
+		values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.headAtNo},#{i.centerId},#{i.creatorId},#{i.teamId},
+			#{i.reviewState})
+		</foreach>
+	</insert>
+	
+	<insert id="addDemandListD" parameterType="Map">
+		insert into DemandListD (atNo,headAtNo,goodsId,demandNum) 
+		values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.detailId},#{i.headAtNo},#{i.goodsId},#{i.demandNum})
+		</foreach>
+	</insert>
+	
+	<insert id="addPurchaseListH" parameterType="Map">
+		insert into PurchaseListH (atNo,code,codeOrder,centerId,reviewState) 
+		values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.billId},#{i.code},#{i.codeOrder},#{i.centerId},#{i.reviewState})
+		</foreach>
+	</insert>
+	
+	<insert id="addPurchaseListD" parameterType="Map">
+		insert into PurchaseListD (atNo,headAtNo,centerId,teamId,goodsId,supplierId,
+		orderNum,actualNum,price,totalInNum) values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.headAtNo},#{i.centerId},#{i.teamId},#{i.goodsId},
+			#{i.supplierId},#{i.orderNum},#{i.actualNum},#{i.price},#{i.totalInNum})
+		</foreach>
+	</insert>
+	
+	<insert id="addStockFixH" parameterType="Map">
+		insert into stockFixH (atNo,code,codeOrder,centerId,launcher,launcherNm,
+		reviewState) 
+		values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.code},#{i.codeOrder},#{i.centerId},#{i.launcher},
+			#{i.launcherNm},#{i.reviewState})
+		</foreach>
+	</insert>
+	
+	<insert id="addStockFixD" parameterType="Map">
+		insert into stockFixD (atNo,headAtNo,goodsId,goodsNum,price) values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.headAtNo},#{i.goodsId},#{i.goodsNum},
+			#{i.price})
+		</foreach>
+	</insert>
+	
+	<insert id="addTmpGoods" parameterType="Map">
+		insert into TmpGoods (atNo,centerId,code,goodsNm,baseUnit,unitNm) values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.assistUnit},#{i.code},#{i.goodsNm},#{i.baseUnit},
+			#{i.unitNm})
+		</foreach>
+	</insert>
+	
+	<insert id="addStock1" parameterType="Map">
+		insert into stock (atNo,centerId,goodsId,stockNum,price) values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.centerId},#{i.goodsId},#{i.stockNum},#{i.price})
+		</foreach>
+	</insert>
+	
+	<insert id="addStockRecord" parameterType="Map">
+		insert into stockRecord (atNo,centerId,billId,billCode,goodsId,
+		goodsNm,acrossTime,acrossNum,acrossPrice,stockFlag,stockNum,stockPrice) 
+		values
+		<foreach collection="list" item="i" index="index" separator=",">
+			(#{i.atNo},#{i.centerId},#{i.billId},#{i.billCode},#{i.goodsId},
+			#{i.goodsNm},now(),#{i.acrossNum},
+			#{i.acrossPrice},0,#{i.stockNum},#{i.stockPrice})
+		</foreach>
+	</insert>
+	
+	
+	<select id="findList" resultType="com.qxh.model.Area">
+			select * from test_chen;
+	</select>
+</mapper> 

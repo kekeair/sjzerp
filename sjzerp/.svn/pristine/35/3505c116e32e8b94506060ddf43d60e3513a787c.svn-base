@@ -1,0 +1,200 @@
+package com.qxh.impl.purchase;
+
+import java.util.List;
+import java.util.Map;
+
+import com.qxh.exmodel.BillAndCustomTeam;
+import com.qxh.exmodel.CommonModel;
+import com.qxh.exmodel.EditInOutD;
+import com.qxh.exmodel.PurchaseGoodsByGoods;
+import com.qxh.exmodel.PurchaseInModel;
+import com.qxh.exmodel.SupplierSelData;
+import com.qxh.model.PurchaseListD;
+import com.qxh.model.PurchaseListH;
+import com.qxh.model.PurchaseTotallModel;
+import com.qxh.model.SupplierGoods;
+
+public interface PurchaseMapper {
+	
+	/**
+	 * 采购单列表
+	 * @param param
+	 * @return
+	 */
+	List<PurchaseListH> getPurchaseListH(Map<String, Object> param);
+	/**
+	 * 采购单列表数量
+	 * @param param
+	 * @return
+	 */
+	int getPurchaseListHNum(Map<String, Object> param);
+	/**
+	 * 获取采购单状态
+	 * @param param
+	 * @return
+	 */
+	Integer getPurchaseListHState(Map<String, Object> param);
+	/**
+	 * 更新采购头表状态
+	 * @param param
+	 */
+	void updatePurchaseListHState(Map<String, Object> param);
+	/**
+	 * 添加采购头表
+	 * @param param
+	 */
+	void addPurchaseListH(Map<String, Object> param);
+	/**
+	 * 供应商选择数据列表
+	 * @param param
+	 * @return
+	 */
+	List<SupplierSelData> getSuppliserSelData(Map<String, Object> param);
+	/**
+	 * 供应商列表
+	 * @param param
+	 * @return
+	 */
+	List<SupplierGoods> getSupplierList(Map<String, Object> param);
+	/**
+	 * 选择供应商
+	 * @param param1
+	 */
+	void supplierSel(Map<String, Object> param1);
+	/**
+	 * 入库保存
+	 * @param param
+	 */
+	void inStorageSave(Map<String, Object> param);
+	/**
+	 * 入库前查询物料列表
+	 * @param param
+	 * @return
+	 */
+	List<PurchaseInModel> getGoodsListBeforeIn(Map<String, Object> param);
+	/**
+	 * 更新库存
+	 * @param param
+	 */
+	void updateStock(Map<String, Object> param);
+	/**
+	 * 增加库存
+	 * @param param
+	 */
+	void addStock(Map<String, Object> param);
+	/**
+	 * 添加入库记录
+	 * @param param
+	 */
+	void addInStockRecord(Map<String, Object> param);
+	/**
+	 * 查询最大单据号
+	 * @param param
+	 * @return
+	 */
+	Integer getMaxCodeOrder(Map<String, Object> param);
+	/**
+	 * 根据id查询单据号
+	 * @param param
+	 * @return
+	 */
+	String getBillCodeById(Map<String, Object> param);
+	/**
+	 * 采购汇总单列表
+	 * */
+	List<PurchaseTotallModel> selectPurchaseTotalList(Map<String, Object> param);
+	/**
+	 * 获取采购汇总列表的数据量
+	 * */
+	Integer selectPurchaseTotalListCount(Map<String, Object> param);
+	/**
+	 * 删除采购单头表
+	 * @param param
+	 */
+	void delPurchaseH(Map<String, Object> param);
+	/**
+	 * 删除采购单详细表
+	 * @param param
+	 */
+	void delPurchaseD(Map<String, Object> param);
+	/**
+	 * 更新申报头表中的采购单id
+	 * @param param
+	 */
+	void updateDemandH(Map<String, Object> param);
+	/**
+	 * @description : [通过采购单id查询工作组]
+	 * @param param
+	 * @时间:2016年11月25日上午9:10:16
+	 */
+	List<PurchaseListD> getTeamIdListByBillId(Map<String, Object> param);
+	/**
+	 * 更新申报单中的额外物料状态
+	 * @param param
+	 */
+	void updateDemandExtraState(Map<String, Object> param);
+	/**
+	 * @description : [采购明细导出]
+	 * @param param
+	 * @return
+	 * @时间:2016年11月25日上午10:31:04
+	 */
+	List<BillAndCustomTeam> getExclList(Map<String, Object> param);
+	/**
+	 * 查询供应商
+	 * @param param
+	 * @return
+	 */
+	List<CommonModel> getExportSupplier(Map<String, Object> param);
+	/**
+	 * @description : []
+	 * @param param
+	 * @return
+	 * @时间:2016年11月29日上午8:52:52
+	 */
+	int getSuppliserSelExist(Map<String, Object> param);
+	/**
+	 * 通过采购订单号查询需求订单号
+	 * @param param
+	 */
+	Integer getDemandBypuchaseBillId(Map<String, Object> param);
+	/**
+	 * 更新需求单中的采购状态
+	 * @param param
+	 */
+	void updatePurchaseState(Integer atNo);
+	/**
+	 * @description : [按物料查看]
+	 * @param param
+	 * @return
+	 * @时间:2016年12月23日上午11:38:40
+	 */
+	List<PurchaseGoodsByGoods> selectPurchaseGoodsByGoods(Map<String, Object> param);
+	/**
+	 * 入库单详情
+	 * @param param
+	 * @return
+	 */
+	List<EditInOutD> getPurchaseD(Map<String, Object> param);
+	/**
+	 * 批量添加purchaseD
+	 * @param param
+	 */
+	void batchAddPurchaseD(Map<String, Object> param);
+	/**
+	 * 批量更新purchaseD
+	 * @param param
+	 */
+	void batchUpdatePurchaseD(Map<String, Object> param);
+	/**
+	 * 批量删除purchaseD
+	 * @param param
+	 */
+	void batchDelPurchaseD(Map<String, Object> param);
+	/**
+	 * 选择供应商（临时物料）
+	 * @param param
+	 */
+	void supplierSel_tmp(Map<String, Object> param);
+	
+}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+                    ">
+                    
+	<!-- 通用 -->
+	<bean name="/common/getCityList.do" class="com.qxh.action.common.GetCityListAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/common/getCountyList.do" class="com.qxh.action.common.GetCountyListAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/common/getStructAndRole.do" class="com.qxh.action.common.GetStructAndRoleAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/common/getCityAndCounty.do" class="com.qxh.action.common.GetCityAndCountyAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/common/getGoodsKind.do" class="com.qxh.action.common.GetGoodsKindAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/common/getGoodsUnit.do" class="com.qxh.action.common.GetGoodsUnitAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/common/getSupplier.do" class="com.qxh.action.common.GetSupplierAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/common/getReviewProcess.do" class="com.qxh.action.common.GetReviewProcessAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/common/getReturnProcess.do" class="com.qxh.action.common.GetReturnProcessAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/common/getAllCenterGoods.do" class="com.qxh.action.common.GetAllCenterGoodsAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+	<bean name="/common/getGoodsList.do" class="com.qxh.action.common.GetGoodsListAction">
+		<property name="commonService" ref="CommonService"></property>
+	</bean>
+</beans>

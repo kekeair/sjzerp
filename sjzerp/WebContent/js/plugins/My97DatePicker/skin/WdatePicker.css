@@ -1,0 +1,20 @@
+.Wdate {
+	width: 110px !important;
+	height: 35px !important;
+	/* 	border:#999 1px solid; */
+	background: #fff url(ico11.png) no-repeat right !important;
+	/*background-image: url(../../../images/ico11.png);*/
+	background-repeat: no-repeat;
+	background-position: 91% 50%;
+	background-size: 16px auto;
+	border-radius: 5px;
+}
+
+.Wdate::-ms-clear {
+	display: none;
+}
+
+.WdateFmtErr {
+	font-weight: bold;
+	color: red;
+}

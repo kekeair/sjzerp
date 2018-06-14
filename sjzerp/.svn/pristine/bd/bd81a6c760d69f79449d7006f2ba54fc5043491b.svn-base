@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<mappers>
+		<mapper resource="sqlmap/mapper/LoginMapper.xml" />
+		<mapper resource="sqlmap/mapper/HomeMapper.xml" />
+		<mapper resource="sqlmap/mapper/CommonMapper.xml" />
+		<mapper resource="sqlmap/mapper/RoleMapper.xml" />
+		<mapper resource="sqlmap/mapper/StructureMapper.xml" />
+		<mapper resource="sqlmap/mapper/UserMapper.xml" />
+		<mapper resource="sqlmap/mapper/GoodsKindMapper.xml" />
+		<mapper resource="sqlmap/mapper/GoodsUnitMapper.xml" />
+		<mapper resource="sqlmap/mapper/GoodsMapper.xml" />
+		<mapper resource="sqlmap/mapper/CenterGoodsMapper.xml" />
+		<mapper resource="sqlmap/mapper/SupplierGoodsMapper.xml" />
+		<mapper resource="sqlmap/mapper/GoodsPriceMapper.xml" />
+		<mapper resource="sqlmap/mapper/DemandMapper.xml" />
+		<mapper resource="sqlmap/mapper/PurchaseMapper.xml" />
+		<mapper resource="sqlmap/mapper/StockFixMapper.xml" />
+		<mapper resource="sqlmap/mapper/StockQueryMapper.xml" />
+		<mapper resource="sqlmap/mapper/TestMapper.xml" />
+		<mapper resource="sqlmap/mapper/SuppliManageMapper.xml" />
+		<mapper resource="sqlmap/mapper/MenuMapper.xml" />
+		<mapper resource="sqlmap/mapper/CustomerMapper.xml" />
+		<mapper resource="sqlmap/mapper/CustomerteamMapper.xml" />
+		<mapper resource="sqlmap/mapper/TagMapper.xml" />
+		<mapper resource="sqlmap/mapper/TagGoodsMapper.xml" />
+		<mapper resource="sqlmap/mapper/TmpGoodsRecordMapper.xml" />
+		<mapper resource="sqlmap/mapper/StockChangeMapper.xml" />
+		<mapper resource="sqlmap/mapper/DemandSummMapper.xml" />
+		<mapper resource="sqlmap/mapper/PurchaseSummMapper.xml" />
+		<mapper resource="sqlmap/mapper/PurchaseTotalDMapper.xml" />
+		<mapper resource="sqlmap/mapper/TuikuMapper.xml" />
+		<mapper resource="sqlmap/mapper/TuihuoMapper.xml" />
+	</mappers> 
+</configuration> 

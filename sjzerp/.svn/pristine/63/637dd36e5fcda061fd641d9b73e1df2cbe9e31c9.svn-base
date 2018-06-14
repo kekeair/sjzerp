@@ -1,0 +1,145 @@
+package com.qxh.exmodel;
+
+import com.qxh.utils.NumUtil;
+
+public class DemandGoods {
+	
+	private int orderIndex;
+	private int goodsId;
+	private String goodsNm;
+	private double stock;
+	private double demandNum;
+	private int state;//0未添加到购物车1已添加到购物车
+	private double price;
+	private double money;
+	private int demandListDId;
+	private int teamId;
+	private String unitNm;
+	private int tempGoodsType;
+	private String spec;
+	private int teamDemandId;
+	private int goodsType;
+	private double stockNum;
+	private  String code;
+	private String tagGoodsPrice;
+	private String remark;
+	
+	//============GS==================
+	
+	public double getStockNum() {
+		return stockNum;
+	}
+	public int getTempGoodsType() {
+		return tempGoodsType;
+	}
+	public void setTempGoodsType(int tempGoodsType) {
+		this.tempGoodsType = tempGoodsType;
+	}
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	public String getTagGoodsPrice() {
+		return tagGoodsPrice;
+	}
+	public void setTagGoodsPrice(String tagGoodsPrice) {
+		this.tagGoodsPrice = tagGoodsPrice;
+	}
+	public String getCode() {
+		return code;
+	}
+	public void setCode(String code) {
+		this.code = code;
+	}
+	public void setStockNum(double stockNum) {
+		this.stockNum = stockNum;
+	}
+	public int getGoodsType() {
+		return goodsType;
+	}
+	public void setGoodsType(int goodsType) {
+		this.goodsType = goodsType;
+	}
+	public String getSpec() {
+		return spec;
+	}
+	public void setSpec(String spec) {
+		this.spec = spec;
+	}
+	public int getTeamDemandId() {
+		return teamDemandId;
+	}
+	public void setTeamDemandId(int teamDemandId) {
+		this.teamDemandId = teamDemandId;
+	}
+	public String getUnitNm() {
+		return unitNm;
+	}
+	public void setUnitNm(String unitNm) {
+		this.unitNm = unitNm;
+	}
+	public int getTeamId() {
+		return teamId;
+	}
+	public void setTeamId(int teamId) {
+		this.teamId = teamId;
+	}
+	public int getDemandListDId() {
+		return demandListDId;
+	}
+	public void setDemandListDId(int demandListDId) {
+		this.demandListDId = demandListDId;
+	}
+	public double getMoney() {
+		return money;
+	}
+	public void setMoney(double money) {
+		this.money = money;
+	}
+	public int getOrderIndex() {
+		return orderIndex;
+	}
+	public void setOrderIndex(int orderIndex) {
+		this.orderIndex = orderIndex;
+	}
+	public int getGoodsId() {
+		return goodsId;
+	}
+	public void setGoodsId(int goodsId) {
+		this.goodsId = goodsId;
+	}
+	public String getGoodsNm() {
+		return goodsNm;
+	}
+	public void setGoodsNm(String goodsNm) {
+		this.goodsNm = goodsNm;
+	}
+	public double getStock() {
+		return stock;
+	}
+	public void setStock(double stock) {
+		this.stock = stock;
+	}
+	public double getDemandNum() {
+		return demandNum;
+	}
+	public void setDemandNum(double demandNum) {
+		double newDemandNum = NumUtil.trim0(demandNum);
+		this.demandNum = newDemandNum;
+	}
+	public int getState() {
+		return state;
+	}
+	public void setState(int state) {
+		this.state = state;
+	}
+	public double getPrice() {
+		return price;
+	}
+	public void setPrice(double price) {
+		this.price = NumUtil.trim0_4(price);
+	}
+	
+}

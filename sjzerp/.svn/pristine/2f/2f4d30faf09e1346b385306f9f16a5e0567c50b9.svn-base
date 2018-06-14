@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/addStockFix.css"
+	type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>库存</a></li>
+							<li><a href="stockFixInit.do">库存修正</a></li>
+							<li><a class="active" onclick="window.location.reload()">详情</a></li>
+						</ol>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="row myborder">
+						<div class="header"><h3>餐饮中心物料库</h3></div>
+							<div class="col-sm-12">
+								<div class="form-inline toTop">
+									<div class="form-group">
+										<label for="leftGoodsNm">名称</label> <input type="text"
+											class="form-control width120px" maxlength="20" id="leftGoodsNm">
+									</div>
+									<div class="form-group">
+										<label for="leftSel">分类</label> <input
+											class="form-control width120px" atNo="0" value="全部"
+											readonly="readonly" id="leftSel"> </input>
+									</div>
+									<button type="button" id="leftSearch" class="btn btn-primary">搜索</button>
+								</div>
+								<table
+									class="table toTop table-bordered table-hover table-condensed">
+									<thead>
+										<tr>
+											<th>物料名称</th>
+											<th>操作</th>
+										</tr>
+									</thead>
+									<tbody id="leftbody">
+									</tbody>
+								</table>
+								<div class="form-inline pull-right tobottom">
+									<button class="btn btn-default" id="leftPrePage">上一页</button>
+									<label class="control-label"><font id="leftCurPage">1</font>/<font
+										id="leftTotalPage">1</font></label>
+									<button class="btn btn-default" id="leftNextPage">下一页</button>
+									<label class="control-label">第</label> <input type="text"
+										class="form-control pageInput" id="leftPageInput"> <label
+										class="control-label">页</label>
+									<button class="btn btn-primary" id="leftPageSure">跳转</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="row myborder">
+							<div class="header"><h3>修正物料</h3></div>
+							<div class="col-sm-12">
+								<div class="form-inline toTop">
+									<div class="form-group">
+										<label for="rightGoodsNm">名称</label> <input type="text"
+											class="form-control width120px" maxlength="20" id="rightGoodsNm">
+									</div>
+									<div class="form-group">
+										<label for="rightSel">分类</label> <input
+											class="form-control width120px" atNo="0" value="全部"
+											readonly="readonly" id="rightSel"> </input>
+									</div>
+									<button type="button" id="rightSearch" class="btn btn-primary">搜索</button>
+									<i class="glyphicon glyphicon-ok pull-right form-control noborder hand"
+									id="submit" data-toggle="tooltip" data-placement="bottom" title="提交"></i>
+									<!-- <i class="glyphicon glyphicon-plus pull-right form-control noborder hand"
+									id="addTmpGoods" data-toggle="tooltip" data-placement="bottom" title="添加自定义物料"></i> -->
+								</div>
+								<table
+									class="table toTop table-bordered table-hover table-condensed">
+									<thead>
+										<tr>
+											<th>物料名称</th>
+											<th>数量</th>
+											<!-- <th>单价</th> -->
+											<th>操作</th>
+										</tr>
+									</thead>
+									<tbody id="rightbody">
+
+									</tbody>
+								</table>
+								<div class="form-inline pull-right tobottom">
+									<button class="btn btn-default" id="rightPrePage">上一页</button>
+									<label class="control-label"><font id="rightCurPage">1</font>/<font
+										id="rightTotalPage">1</font></label>
+									<button class="btn btn-default" id="rightNextPage">下一页</button>
+									<label class="control-label">第</label> <input type="text"
+										class="form-control pageInput" id="rightPageInput"> <label
+										class="control-label">页</label>
+									<button class="btn btn-primary" id="rightPageSure">跳转</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+	
+	<div id="leftDiv" class="treeDiv">
+		<ul id="leftTree" class="ztree treeDemo"></ul>
+	</div>
+	<div id="rightDiv" class="treeDiv">
+		<ul id="rightTree" class="ztree treeDemo"></ul>
+	</div>
+	
+	<!-- 增加物料对话框 -->
+	<div class="modal fade" id="uModal" style="z-index:5000">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="uHead">添加自定义物料</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label for="uGoodsCode" class="col-sm-2 control-label">物料编码</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" maxlength="20" id="uGoodsCode">
+							</div>
+							<label class="control-label">*</label>
+						</div>
+						<div class="form-group">
+							<label for="uGoodsNm" class="col-sm-2 control-label">物料名称</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" maxlength="20" id="uGoodsNm">
+							</div>
+							<label class="control-label">*</label>
+						</div>
+						<div class="form-group">
+							<label for="uGoodsUnit" class="col-sm-2 control-label">单位</label>
+							<div class="col-sm-9">
+								<select class="form-control" id="uGoodsUnit">
+								<option value="-1">请选择...</option>
+								<#list data as list>
+									<option value="${list.atNo}">${list.name}</option>
+								</#list>
+								</select>
+							</div>
+							<label class="control-label">*</label>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+			      	<button type="button" id="uSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 添加物料对话框  -->
+	
+	<!-- 选择物料对话框 -->
+	<div class="modal fade" id="gModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title">选择物料</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12">
+							<button class="btn btn-warning pull-right" id="addTMpGoods">添加物料</button>
+						</div>	
+					</div>
+					<div class="row toTop">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th></th>
+									<th>物料编码</th>
+									<th>物料名称</th>
+								</tr>
+							</thead>
+							<tbody id="gbody">
+							</tbody>
+						</table>
+					</div>
+				</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="gSure" class="btn btn-primary">确定</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		      	</div>
+			</div>
+		</div>
+	</div>
+	<!-- 选择物料对话框  -->
+
+	<#include "temple/commonJs.html">
+	<script type="text/javascript"
+		src="../ztree/js/jquery.ztree.all.min.js"></script>
+	<script type="text/javascript" src="../js/custom/addStockFix.js"></script>
+
+	<!-- 物料库模板 -->
+	<script id="leftTmpl" type="text/x-jquery-tmpl">
+	<tr>
+	<td>{{= goodsNm}}</td>
+	<td>
+		<a goodsId={{= goodsId}} id="add{{= goodsId}}" 
+		{{if showAdd==0}}style="display:none"{{/if}}  class="add">添加</a>
+	</td>
+	</tr>
+	</script>
+	
+	<!-- 餐饮中心物料模板 -->
+	<script id="rightTmpl" type="text/x-jquery-tmpl">
+	<tr class="rightGoods">
+	<td>{{= goodsNm}}</td>
+	<td><input type="text" id="goodsNum{{= atNo}}" class="goodsNum width50px" value="{{= goodsNum}}"></td>
+	
+	<td>
+		<a detailId={{= atNo}} goodsId={{= goodsId}} class="save">保存</a>
+		<a detailId={{= atNo}} goodsId={{= goodsId}} class="del">删除</a>
+	</td>
+	</tr>
+	</script>
+	
+	<!-- 餐饮中心物料模板 -->
+	<script id="gTmpl" type="text/x-jquery-tmpl">
+	<tr>
+	<td><input type="checkbox" goodsId={{= atNo}} class="gSel"></td>
+	<td>{{= code}}</td>
+	<td>{{= goodsNm}}</td>
+	</tr>
+	</script>
+</body>
+</html>

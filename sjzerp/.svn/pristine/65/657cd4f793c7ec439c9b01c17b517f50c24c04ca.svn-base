@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>千喜鹤</title> <#include "temple/commonCss.html">
+<link rel="stylesheet" href="../ztree/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<link rel="stylesheet" href="../css/custom/user.css?version=20161025"
+	type="text/css">
+</head>
+
+<body class="sticky-header">
+	<section>
+		<#include "temple/nav.html">
+
+		<!-- main content start-->
+		<div class="main-content">
+
+			<#include "temple/head.html">
+
+			<section class="wrapper">
+
+				<div class="row">
+					<div class="col-md-12">
+						<ol class="breadcrumb">
+							<li><a>出入库汇总</a></li>
+							<li><a href="ProfitSummInit.do">毛利统计</a></li>
+							<li><a onclick="window.location.reload()">详情</a></li>
+						</ol>
+					</div>
+				</div>
+				<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+				<div id="main" style="height: 450px; width: 1200px;"></div>
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="form-inline">
+							<button type="button" id="outExcelForKind"
+								class="btn btn-warning toright pull-right">导出分类汇总数据</button>
+						</div>
+					</div>
+				</div>
+				<div class="row marginrow">
+					<div class="col-md-12">
+						<table
+							class="table table-bordered table-hover table-condensed white">
+							<thead>
+								<tr>
+									<th>大类名称</th>
+									<th>占总成本(%)</th>
+									<th>成本占比</th>
+									<th>占总收入(%)</th>
+									<th>收入占比</th>
+									<th>单项毛利率(%)</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+								<#list data as list>
+								<tr>
+									<td>${list.kindNm}</td>
+									<td>${list.totalPMoney}</td>
+									<td>${list.PPercent}</td>
+									<td>${list.totalDMoney}</td>
+									<td>${list.DPercent}</td>
+									<td>${list.totalProfit}</td>
+								</tr>
+								</#list>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+		</div>
+		<!-- main content end-->
+	</section>
+
+	<#include "temple/commonJs.html">
+</body>
+<script type="text/javascript"
+	src="../js/custom/selectBigKind.js?version=20170328"></script>
+<!-- echarts -->
+<script type="text/javascript"
+	src="../js/plugins/echarts-2.2.7/build/dist/echarts.js"></script>
+</html>

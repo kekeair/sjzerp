@@ -1,0 +1,44 @@
+package com.qxh.impl.demandSumm;
+
+import java.util.List;
+import java.util.Map;
+
+import com.qxh.exmodel.DemandGoods;
+import com.qxh.exmodel.DemandSummaryD;
+
+public interface DemandSummMapper {
+
+	/**
+	 * 查询销售汇总
+	 * @param param
+	 * @return
+	 */
+	List<DemandGoods> getDemandSummary(Map<String, Object> param);
+	/**
+	 * 根据物料查询销售汇总
+	 * @param param
+	 * @return
+	 */
+	List<DemandSummaryD> getDemandSummByGoods(Map<String, Object> param);
+	/**
+	 * 根据需求详情单获取物料名称
+	 * @param param
+	 * @return
+	 */
+	DemandSummaryD getGoodsNmByDemandListDId(Map<String, Object> param);
+
+	/**
+	 * 为毛利汇总根据物料查询销售汇总
+	 * @param param
+	 * @return
+	 */
+	List<DemandGoods> getDemandSummByGoodsForProfit(Map<String, Object> param);
+	
+	/**
+	 * 为毛利汇总查询销售汇总
+	 * @param param
+	 * @return
+	 */
+	List<DemandGoods> getDemandSummaryForProfit(Map<String, Object> param);
+	
+}
